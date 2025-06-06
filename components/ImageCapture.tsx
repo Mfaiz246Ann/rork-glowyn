@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
-import { CameraView, CameraType } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { X, Camera, RotateCcw } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';

@@ -179,7 +179,7 @@ export default function ColorAnalysisScreen() {
                   title="Lihat Produk" 
                   onPress={() => router.push('/product/1')}
                   style={styles.productButton}
-                  size="sm"
+                  size="small"
                 />
               </View>
             </View>

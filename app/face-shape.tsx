@@ -1,187 +1,213 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { Camera, Upload, Info } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Info, Camera, Upload } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
-import { useUserStore } from '@/store/userStore';
 import { ImageCapture } from '@/components/ImageCapture';
-import { performAnalysis } from '@/services/analysisService';
-import { AnalysisResult } from '@/types';
+
+type FaceShape = 'oval' | 'round' | 'square' | 'heart' | 'diamond' | 'rectangle';
+
+interface ShapeResult {
+  shape: FaceShape;
+  description: string;
+  hairstyles: string[];
+  glasses: string[];
+  accessories: string[];
+}
+
+const faceShapeResults: Record<FaceShape, ShapeResult> = {
+  oval: {
+    shape: 'oval',
+    description: 'Bentuk wajah oval dianggap sebagai bentuk wajah yang ideal karena proporsinya yang seimbang.',
+    hairstyles: ['Hampir semua gaya rambut', 'Potongan bob', 'Lapisan panjang'],
+    glasses: ['Kacamata persegi', 'Kacamata kucing', 'Kacamata aviator'],
+    accessories: ['Anting panjang', 'Kalung pendek', 'Topi fedora'],
+  },
+  round: {
+    shape: 'round',
+    description: 'Bentuk wajah bulat memiliki lebar dan panjang yang hampir sama dengan pipi yang penuh.',
+    hairstyles: ['Lapisan panjang', 'Potongan asimetris', 'Poni samping'],
+    glasses: ['Kacamata persegi', 'Kacamata kotak', 'Kacamata wayfarer'],
+    accessories: ['Anting panjang', 'Kalung panjang', 'Topi dengan pinggiran lebar'],
+  },
+  square: {
+    shape: 'square',
+    description: 'Bentuk wajah persegi memiliki rahang yang kuat dan dahi yang lebar.',
+    hairstyles: ['Lapisan lembut', 'Potongan bob', 'Gaya bergelombang'],
+    glasses: ['Kacamata bulat', 'Kacamata oval', 'Kacamata tanpa bingkai'],
+    accessories: ['Anting bulat', 'Kalung bulat', 'Bandana'],
+  },
+  heart: {
+    shape: 'heart',
+    description: 'Bentuk wajah hati memiliki dahi lebar dan dagu yang meruncing.',
+    hairstyles: ['Rambut medium dengan lapisan', 'Poni', 'Potongan bob'],
+    glasses: ['Kacamata aviator', 'Kacamata kucing', 'Kacamata bulat'],
+    accessories: ['Anting drop', 'Kalung choker', 'Bandana'],
+  },
+  diamond: {
+    shape: 'diamond',
+    description: 'Bentuk wajah berlian memiliki tulang pipi yang tinggi dan dagu yang meruncing.',
+    hairstyles: ['Poni tebal', 'Potongan bob', 'Gaya bervolume di sisi'],
+    glasses: ['Kacamata oval', 'Kacamata kucing', 'Kacamata rimless'],
+    accessories: ['Anting stud', 'Kalung pendek', 'Bando tipis'],
+  },
+  rectangle: {
+    shape: 'rectangle',
+    description: 'Bentuk wajah persegi panjang memiliki panjang yang lebih dari lebarnya.',
+    hairstyles: ['Lapisan pendek', 'Potongan bob', 'Gaya bervolume di samping'],
+    glasses: ['Kacamata besar', 'Kacamata bulat', 'Kacamata kotak'],
+    accessories: ['Anting hoop', 'Kalung multi-layer', 'Topi bucket'],
+  },
+};
+
+const shapeNames: Record<FaceShape, string> = {
+  oval: 'Oval',
+  round: 'Bulat',
+  square: 'Persegi',
+  heart: 'Hati',
+  diamond: 'Berlian',
+  rectangle: 'Persegi Panjang',
+};
 
 export default function FaceShapeScreen() {
   const router = useRouter();
-  const { addAnalysisResult } = useUserStore();
-  const [analyzing, setAnalyzing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  
-  const handleStartCapture = () => {
-    setShowCamera(true);
-  };
-  
-  const handleImageCaptured = async (uri: string) => {
+  const [result, setResult] = useState<ShapeResult | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+
+  const handleCapture = async (uri: string) => {
     setShowCamera(false);
-    setImageUri(uri);
-    await handleAnalyze(uri);
-  };
-  
-  const handleCancelCapture = () => {
-    setShowCamera(false);
-  };
-  
-  const handleAnalyze = async (uri: string) => {
-    try {
-      setAnalyzing(true);
-      const analysisResult = await performAnalysis(uri, 'face');
-      setResult(analysisResult);
-      addAnalysisResult(analysisResult);
-    } catch (error) {
-      console.error("Analysis error:", error);
-      // Handle error state here
-    } finally {
+    setAnalyzing(true);
+    
+    // Simulasi analisis
+    setTimeout(() => {
+      setResult(faceShapeResults.oval);
       setAnalyzing(false);
-    }
+    }, 2000);
+  };
+
+  const handleUpload = async () => {
+    setAnalyzing(true);
+    
+    // Simulasi analisis
+    setTimeout(() => {
+      setResult(faceShapeResults.oval);
+      setAnalyzing(false);
+    }, 2000);
   };
 
   if (showCamera) {
     return (
       <ImageCapture 
-        onImageCaptured={handleImageCaptured}
-        onCancel={handleCancelCapture}
-        instructionText="Singkirkan rambut dari wajah dan lihat langsung ke kamera"
-        guideType="face"
+        onCapture={handleCapture}
+        onCancel={() => setShowCamera(false)}
+        guideText="Tarik rambut Anda ke belakang dan hadap kamera secara langsung"
       />
     );
   }
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.title}>Analisis Bentuk Wajah</Text>
-      
-      <Card style={styles.infoCard}>
-        <View style={styles.infoIconContainer}>
-          <Info size={24} color={colors.primary} />
-        </View>
-        <Text style={styles.infoTitle}>Temukan Bentuk Wajahmu</Text>
-        <Text style={styles.infoDescription}>
-          Ketahui bentuk wajahmu dan dapatkan rekomendasi gaya rambut, kacamata, dan aksesori yang melengkapi fitur wajahmu.
-        </Text>
-      </Card>
-      
-      {!result ? (
-        <>
-          <View style={styles.uploadContainer}>
-            <View style={styles.imageContainer}>
-              {imageUri ? (
-                <Image
-                  source={{ uri: imageUri }}
-                  style={styles.placeholderImage}
-                  contentFit="cover"
-                />
-              ) : (
-                <Image
-                  source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }}
-                  style={styles.placeholderImage}
-                  contentFit="cover"
-                />
-              )}
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <Stack.Screen 
+        options={{
+          title: 'Analisis Bentuk Wajah',
+          headerTitleStyle: {
+            fontFamily: typography.fontFamily.semiBold,
+          },
+        }}
+      />
+
+      <ScrollView style={styles.scrollView}>
+        {!result && (
+          <View style={styles.infoCard}>
+            <View style={styles.infoIconContainer}>
+              <Info size={24} color={colors.primary} />
             </View>
-            
-            <View style={styles.instructionsContainer}>
-              <Text style={styles.instructionsTitle}>Cara mengambil foto yang baik:</Text>
-              <Text style={styles.instructionItem}>• Singkirkan rambut dari wajah</Text>
-              <Text style={styles.instructionItem}>• Hadap kamera langsung</Text>
-              <Text style={styles.instructionItem}>• Buat ekspresi netral</Text>
-              <Text style={styles.instructionItem}>• Gunakan pencahayaan yang baik</Text>
-            </View>
+            <Text style={styles.infoTitle}>Temukan Bentuk Wajahmu</Text>
+            <Text style={styles.infoDescription}>
+              Ketahui bentuk wajah Anda dan dapatkan rekomendasi personal untuk gaya rambut, kacamata, dan aksesori yang melengkapi fitur Anda.
+            </Text>
           </View>
-          
-          <View style={styles.buttonsContainer}>
-            <Button
-              title="Ambil Foto"
-              variant="primary"
-              size="large"
-              icon={<Camera size={20} color={colors.surface} />}
-              style={styles.button}
-              onPress={handleStartCapture}
-              loading={analyzing}
+        )}
+
+        {analyzing ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Menganalisis bentuk wajah Anda...</Text>
+          </View>
+        ) : result ? (
+          <View style={styles.resultContainer}>
+            <Text style={styles.resultTitle}>Bentuk Wajahmu</Text>
+            <Text style={styles.resultShape}>{shapeNames[result.shape]}</Text>
+            
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }} 
+              style={styles.faceImage}
             />
             
-            <Button
-              title="Unggah Foto"
-              variant="outline"
-              size="large"
-              icon={<Upload size={20} color={colors.primary} />}
-              style={styles.button}
-              onPress={handleStartCapture}
-              loading={analyzing}
-            />
-          </View>
-        </>
-      ) : (
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultTitle}>Bentuk Wajahmu</Text>
-          <Text style={styles.resultShape}>{result.title}</Text>
-          
-          <View style={styles.shapeImageContainer}>
-            {imageUri ? (
-              <Image
-                source={{ uri: imageUri }}
-                style={styles.shapeImage}
-                contentFit="cover"
-              />
-            ) : (
-              <Image
-                source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }}
-                style={styles.shapeImage}
-                contentFit="cover"
-              />
-            )}
-            <View style={styles.shapeOverlay}>
-              <View style={styles.shapePath} />
-            </View>
-          </View>
-          
-          <View style={styles.recommendationsContainer}>
-            <Text style={styles.recommendationsTitle}>Rekomendasi</Text>
-            {result.details.recommendations.map((recommendation: string, index: number) => (
-              <View key={index} style={styles.recommendationItem}>
-                <View style={styles.recommendationBullet} />
-                <Text style={styles.recommendationText}>{recommendation}</Text>
-              </View>
-            ))}
-          </View>
-          
-          <View style={styles.actionsContainer}>
-            <Button
-              title="Coba Aksesori Virtual"
-              variant="primary"
-              size="large"
-              style={styles.actionButton}
-              onPress={() => router.push('/virtual-try-on')}
-            />
+            <Text style={styles.descriptionTitle}>Deskripsi</Text>
+            <Text style={styles.descriptionText}>{result.description}</Text>
             
-            <Button
-              title="Belanja Produk Rekomendasi"
-              variant="outline"
-              size="large"
-              style={styles.actionButton}
+            <Text style={styles.recommendationsTitle}>Gaya Rambut yang Direkomendasikan</Text>
+            <View style={styles.recommendationsList}>
+              {result.hairstyles.map((item, index) => (
+                <View key={`hairstyle-${index}`} style={styles.recommendationItem}>
+                  <View style={styles.recommendationBullet} />
+                  <Text style={styles.recommendationText}>{item}</Text>
+                </View>
+              ))}
+            </View>
+            
+            <Text style={styles.recommendationsTitle}>Kacamata yang Direkomendasikan</Text>
+            <View style={styles.recommendationsList}>
+              {result.glasses.map((item, index) => (
+                <View key={`glasses-${index}`} style={styles.recommendationItem}>
+                  <View style={styles.recommendationBullet} />
+                  <Text style={styles.recommendationText}>{item}</Text>
+                </View>
+              ))}
+            </View>
+            
+            <Text style={styles.recommendationsTitle}>Aksesori yang Direkomendasikan</Text>
+            <View style={styles.recommendationsList}>
+              {result.accessories.map((item, index) => (
+                <View key={`accessory-${index}`} style={styles.recommendationItem}>
+                  <View style={styles.recommendationBullet} />
+                  <Text style={styles.recommendationText}>{item}</Text>
+                </View>
+              ))}
+            </View>
+            
+            <Button 
+              title="Lihat Produk yang Direkomendasikan" 
               onPress={() => router.push('/shop')}
+              style={styles.productsButton}
             />
           </View>
+        ) : null}
+      </ScrollView>
+
+      {!result && !analyzing && (
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Ambil Foto"
+            icon={<Camera size={20} color="#fff" />}
+            onPress={() => setShowCamera(true)}
+            style={styles.button}
+          />
+          <Button
+            title="Unggah Foto"
+            icon={<Upload size={20} color="#fff" />}
+            onPress={handleUpload}
+            style={styles.button}
+            variant="secondary"
+          />
         </View>
       )}
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -190,24 +216,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  contentContainer: {
+  scrollView: {
+    flex: 1,
     padding: layout.spacing.lg,
-    paddingBottom: layout.spacing.xxl,
-  },
-  title: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xxxl,
-    color: colors.text,
-    marginBottom: layout.spacing.lg,
   },
   infoCard: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.lg,
+    padding: layout.spacing.xl,
     marginBottom: layout.spacing.xl,
+    alignItems: 'center',
   },
   infoIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: layout.borderRadius.round,
-    backgroundColor: colors.secondaryLight,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: layout.spacing.md,
@@ -217,54 +241,35 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.xl,
     color: colors.text,
     marginBottom: layout.spacing.sm,
+    textAlign: 'center',
   },
   infoDescription: {
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
     color: colors.textSecondary,
-    lineHeight: typography.lineHeight.md,
+    textAlign: 'center',
+    lineHeight: 22,
   },
-  uploadContainer: {
-    marginBottom: layout.spacing.xl,
-  },
-  imageContainer: {
-    width: '100%',
-    height: 300,
-    borderRadius: layout.borderRadius.lg,
-    overflow: 'hidden',
-    marginBottom: layout.spacing.md,
-    backgroundColor: colors.border,
-  },
-  placeholderImage: {
-    width: '100%',
-    height: '100%',
-  },
-  instructionsContainer: {
-    padding: layout.spacing.md,
-    backgroundColor: colors.secondaryLight,
-    borderRadius: layout.borderRadius.md,
-  },
-  instructionsTitle: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.md,
-    color: colors.text,
-    marginBottom: layout.spacing.sm,
-  },
-  instructionItem: {
-    fontFamily: typography.fontFamily.regular,
-    fontSize: typography.fontSize.md,
-    color: colors.textSecondary,
-    marginBottom: layout.spacing.xs,
-    lineHeight: typography.lineHeight.md,
-  },
-  buttonsContainer: {
+  buttonContainer: {
+    padding: layout.spacing.lg,
     gap: layout.spacing.md,
   },
   button: {
-    width: '100%',
+    marginBottom: layout.spacing.sm,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: layout.spacing.xxl,
+  },
+  loadingText: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.lg,
+    color: colors.textSecondary,
   },
   resultContainer: {
-    marginTop: layout.spacing.lg,
+    paddingBottom: layout.spacing.xl,
   },
   resultTitle: {
     fontFamily: typography.fontFamily.medium,
@@ -275,67 +280,55 @@ const styles = StyleSheet.create({
   resultShape: {
     fontFamily: typography.fontFamily.bold,
     fontSize: typography.fontSize.xxl,
-    color: colors.primary,
-    marginBottom: layout.spacing.xl,
+    color: colors.text,
+    marginBottom: layout.spacing.lg,
   },
-  shapeImageContainer: {
+  faceImage: {
     width: '100%',
     height: 300,
     borderRadius: layout.borderRadius.lg,
-    overflow: 'hidden',
-    marginBottom: layout.spacing.xl,
-    position: 'relative',
+    marginBottom: layout.spacing.lg,
   },
-  shapeImage: {
-    width: '100%',
-    height: '100%',
-  },
-  shapeOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  shapePath: {
-    width: '80%',
-    height: '90%',
-    borderWidth: 2,
-    borderColor: colors.primary,
-    borderRadius: 150,
-    transform: [{ scaleY: 1.2 }],
-  },
-  recommendationsContainer: {
-    marginBottom: layout.spacing.xl,
-  },
-  recommendationsTitle: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xl,
+  descriptionTitle: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.lg,
     color: colors.text,
-    marginBottom: layout.spacing.md,
+    marginBottom: layout.spacing.sm,
   },
-  recommendationItem: {
-    flexDirection: 'row',
-    marginBottom: layout.spacing.md,
-    alignItems: 'flex-start',
-  },
-  recommendationBullet: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-    marginTop: 6,
-    marginRight: layout.spacing.sm,
-  },
-  recommendationText: {
-    flex: 1,
+  descriptionText: {
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
     color: colors.textSecondary,
-    lineHeight: typography.lineHeight.md,
+    lineHeight: 22,
+    marginBottom: layout.spacing.lg,
   },
-  actionsContainer: {
-    gap: layout.spacing.md,
+  recommendationsTitle: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.lg,
+    color: colors.text,
+    marginBottom: layout.spacing.sm,
   },
-  actionButton: {
-    width: '100%',
+  recommendationsList: {
+    marginBottom: layout.spacing.lg,
+  },
+  recommendationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: layout.spacing.xs,
+  },
+  recommendationBullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primary,
+    marginRight: layout.spacing.sm,
+  },
+  recommendationText: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.md,
+    color: colors.textSecondary,
+  },
+  productsButton: {
+    marginTop: layout.spacing.md,
   },
 });

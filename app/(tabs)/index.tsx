@@ -15,7 +15,7 @@ import { useUserStore } from '@/store/userStore';
 import { featuredProducts } from '@/mocks/products';
 import { feedPosts } from '@/mocks/feed';
 
-// Style feed users with new photos and usernames
+// Style feed users dengan foto dan nama pengguna baru
 const styleFeedUsers = [
   {
     id: 'user2',
@@ -25,7 +25,7 @@ const styleFeedUsers = [
   {
     id: 'user3',
     username: 'Sweet Casual',
-    image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
   },
   {
     id: 'user4',
@@ -35,12 +35,12 @@ const styleFeedUsers = [
   {
     id: 'user5',
     username: 'Cosplay Girl',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
   },
   {
     id: 'user6',
     username: 'Hijabi Style',
-    image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
   },
 ];
 

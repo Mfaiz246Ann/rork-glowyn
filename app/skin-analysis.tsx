@@ -1,181 +1,256 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { Camera, Upload, Info } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Info, Camera, Upload } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
-import { useUserStore } from '@/store/userStore';
 import { ImageCapture } from '@/components/ImageCapture';
-import { performAnalysis } from '@/services/analysisService';
-import { AnalysisResult } from '@/types';
+
+type SkinType = 'normal' | 'dry' | 'oily' | 'combination' | 'sensitive';
+
+interface SkinResult {
+  type: SkinType;
+  description: string;
+  concerns: string[];
+  recommendations: {
+    cleanser: string;
+    moisturizer: string;
+    treatment: string;
+    sunscreen: string;
+  };
+}
+
+const skinResults: Record<SkinType, SkinResult> = {
+  normal: {
+    type: 'normal',
+    description: 'Kulit Anda seimbang, tidak terlalu berminyak atau kering. Pori-pori kecil dan tekstur halus.',
+    concerns: ['Penuaan', 'Perlindungan UV', 'Pemeliharaan'],
+    recommendations: {
+      cleanser: 'Pembersih lembut berbahan dasar air',
+      moisturizer: 'Pelembab ringan',
+      treatment: 'Serum antioksidan',
+      sunscreen: 'Tabir surya ringan SPF 30+',
+    },
+  },
+  dry: {
+    type: 'dry',
+    description: 'Kulit Anda kekurangan kelembaban dan minyak. Mungkin terasa kencang dan terlihat bersisik.',
+    concerns: ['Kekeringan', 'Kulit mengelupas', 'Garis-garis halus'],
+    recommendations: {
+      cleanser: 'Pembersih krim lembut',
+      moisturizer: 'Pelembab kaya',
+      treatment: 'Serum asam hyaluronic',
+      sunscreen: 'Tabir surya pelembab SPF 30+',
+    },
+  },
+  oily: {
+    type: 'oily',
+    description: 'Kulit Anda menghasilkan kelebihan sebum. Tampak mengkilap dan pori-pori lebih terlihat.',
+    concerns: ['Kilap berlebih', 'Pori-pori tersumbat', 'Jerawat'],
+    recommendations: {
+      cleanser: 'Pembersih berbusa dengan asam salisilat',
+      moisturizer: 'Gel pelembab bebas minyak',
+      treatment: 'Serum niacinamide',
+      sunscreen: 'Tabir surya bebas minyak SPF 30+',
+    },
+  },
+  combination: {
+    type: 'combination',
+    description: 'Kulit Anda berminyak di zona T (dahi, hidung, dagu) dan normal atau kering di pipi.',
+    concerns: ['Ketidakseimbangan', 'Pori-pori tersumbat di zona T', 'Kekeringan di pipi'],
+    recommendations: {
+      cleanser: 'Pembersih seimbang',
+      moisturizer: 'Pelembab ringan dengan hidrasi tambahan untuk area kering',
+      treatment: 'Serum penyeimbang dengan niacinamide',
+      sunscreen: 'Tabir surya bebas minyak SPF 30+',
+    },
+  },
+  sensitive: {
+    type: 'sensitive',
+    description: 'Kulit Anda mudah teriritasi dan mungkin memerah. Bereaksi terhadap banyak produk.',
+    concerns: ['Iritasi', 'Kemerahan', 'Reaksi alergi'],
+    recommendations: {
+      cleanser: 'Pembersih sangat lembut bebas pewangi',
+      moisturizer: 'Pelembab menenangkan untuk kulit sensitif',
+      treatment: 'Serum penenang dengan centella asiatica',
+      sunscreen: 'Tabir surya mineral SPF 30+',
+    },
+  },
+};
+
+const skinTypeNames: Record<SkinType, string> = {
+  normal: 'Normal',
+  dry: 'Kering',
+  oily: 'Berminyak',
+  combination: 'Kombinasi',
+  sensitive: 'Sensitif',
+};
 
 export default function SkinAnalysisScreen() {
   const router = useRouter();
-  const { addAnalysisResult } = useUserStore();
-  const [analyzing, setAnalyzing] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
-  
-  const handleStartCapture = () => {
-    setShowCamera(true);
-  };
-  
-  const handleImageCaptured = async (uri: string) => {
+  const [result, setResult] = useState<SkinResult | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+
+  const handleCapture = async (uri: string) => {
     setShowCamera(false);
-    setImageUri(uri);
-    await handleAnalyze(uri);
-  };
-  
-  const handleCancelCapture = () => {
-    setShowCamera(false);
-  };
-  
-  const handleAnalyze = async (uri: string) => {
-    try {
-      setAnalyzing(true);
-      const analysisResult = await performAnalysis(uri, 'skin');
-      setResult(analysisResult);
-      addAnalysisResult(analysisResult);
-    } catch (error) {
-      console.error("Analysis error:", error);
-      // Handle error state here
-    } finally {
+    setAnalyzing(true);
+    
+    // Simulasi analisis
+    setTimeout(() => {
+      setResult(skinResults.normal);
       setAnalyzing(false);
-    }
+    }, 2000);
+  };
+
+  const handleUpload = async () => {
+    setAnalyzing(true);
+    
+    // Simulasi analisis
+    setTimeout(() => {
+      setResult(skinResults.normal);
+      setAnalyzing(false);
+    }, 2000);
   };
 
   if (showCamera) {
     return (
       <ImageCapture 
-        onImageCaptured={handleImageCaptured}
-        onCancel={handleCancelCapture}
-        instructionText="Ambil foto close-up kulit bersih dengan pencahayaan yang baik"
-        guideType="skin"
+        onCapture={handleCapture}
+        onCancel={() => setShowCamera(false)}
+        guideText="Pastikan wajah Anda terlihat jelas dengan pencahayaan alami"
       />
     );
   }
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.title}>Analisis Kulit</Text>
-      
-      <Card style={styles.infoCard}>
-        <View style={styles.infoIconContainer}>
-          <Info size={24} color={colors.primary} />
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <Stack.Screen 
+        options={{
+          title: 'Analisis Kulit',
+          headerTitleStyle: {
+            fontFamily: typography.fontFamily.semiBold,
+          },
+        }}
+      />
+
+      <ScrollView style={styles.scrollView}>
+        {!result && (
+          <View style={styles.infoCard}>
+            <View style={styles.infoIconContainer}>
+              <Info size={24} color={colors.primary} />
+            </View>
+            <Text style={styles.infoTitle}>Analisis Kulitmu</Text>
+            <Text style={styles.infoDescription}>
+              Dapatkan rekomendasi perawatan kulit yang dipersonalisasi berdasarkan jenis kulit dan masalah Anda. AI kami akan menganalisis kulit Anda dan menyarankan produk serta rutinitas.
+            </Text>
+            <Text style={styles.infoNote}>
+              Catatan: Ini bukan diagnosis medis. Konsultasikan dengan dokter kulit untuk kondisi kulit yang memerlukan perhatian medis.
+            </Text>
+          </View>
+        )}
+
+        <Image 
+          source={{ uri: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }} 
+          style={styles.exampleImage}
+        />
+
+        <View style={styles.tipsContainer}>
+          <Text style={styles.tipsTitle}>Cara mengambil foto yang baik:</Text>
+          <View style={styles.tipsList}>
+            <View style={styles.tipItem}>
+              <View style={styles.tipBullet} />
+              <Text style={styles.tipText}>Hapus riasan sepenuhnya</Text>
+            </View>
+            <View style={styles.tipItem}>
+              <View style={styles.tipBullet} />
+              <Text style={styles.tipText}>Gunakan pencahayaan alami</Text>
+            </View>
+            <View style={styles.tipItem}>
+              <View style={styles.tipBullet} />
+              <Text style={styles.tipText}>Pastikan wajah terlihat jelas</Text>
+            </View>
+            <View style={styles.tipItem}>
+              <View style={styles.tipBullet} />
+              <Text style={styles.tipText}>Ambil foto dari beberapa sudut</Text>
+            </View>
+          </View>
         </View>
-        <Text style={styles.infoTitle}>Analisis Kulitmu</Text>
-        <Text style={styles.infoDescription}>
-          Dapatkan rekomendasi perawatan kulit yang dipersonalisasi berdasarkan jenis kulit dan masalahmu. AI kami akan menganalisis kulitmu dan menyarankan produk serta rutinitas.
-        </Text>
-        <Text style={styles.disclaimer}>
-          Catatan: Ini bukan diagnosis medis. Konsultasikan dengan dokter kulit untuk kondisi kulit yang memerlukan perhatian medis.
-        </Text>
-      </Card>
-      
-      {!result ? (
-        <>
-          <View style={styles.uploadContainer}>
-            <View style={styles.imageContainer}>
-              {imageUri ? (
-                <Image
-                  source={{ uri: imageUri }}
-                  style={styles.placeholderImage}
-                  contentFit="cover"
-                />
-              ) : (
-                <Image
-                  source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }}
-                  style={styles.placeholderImage}
-                  contentFit="cover"
-                />
-              )}
+
+        {analyzing ? (
+          <View style={styles.loadingContainer}>
+            <Text style={styles.loadingText}>Menganalisis kulit Anda...</Text>
+          </View>
+        ) : result ? (
+          <View style={styles.resultContainer}>
+            <Text style={styles.resultTitle}>Jenis Kulitmu</Text>
+            <Text style={styles.resultType}>{skinTypeNames[result.type]}</Text>
+            
+            <Text style={styles.descriptionTitle}>Deskripsi</Text>
+            <Text style={styles.descriptionText}>{result.description}</Text>
+            
+            <Text style={styles.concernsTitle}>Masalah Utama</Text>
+            <View style={styles.concernsList}>
+              {result.concerns.map((concern, index) => (
+                <View key={`concern-${index}`} style={styles.concernItem}>
+                  <View style={styles.concernBullet} />
+                  <Text style={styles.concernText}>{concern}</Text>
+                </View>
+              ))}
             </View>
             
-            <View style={styles.instructionsContainer}>
-              <Text style={styles.instructionsTitle}>Cara mengambil foto yang baik:</Text>
-              <Text style={styles.instructionItem}>• Bersihkan makeup sepenuhnya</Text>
-              <Text style={styles.instructionItem}>• Gunakan pencahayaan alami</Text>
-              <Text style={styles.instructionItem}>• Foto seluruh wajah</Text>
-              <Text style={styles.instructionItem}>• Hindari menggunakan filter</Text>
-            </View>
-          </View>
-          
-          <View style={styles.buttonsContainer}>
-            <Button
-              title="Ambil Foto"
-              variant="primary"
-              size="large"
-              icon={<Camera size={20} color={colors.surface} />}
-              style={styles.button}
-              onPress={handleStartCapture}
-              loading={analyzing}
-            />
+            <Text style={styles.recommendationsTitle}>Rekomendasi Produk</Text>
             
-            <Button
-              title="Unggah Foto"
-              variant="outline"
-              size="large"
-              icon={<Upload size={20} color={colors.primary} />}
-              style={styles.button}
-              onPress={handleStartCapture}
-              loading={analyzing}
-            />
-          </View>
-        </>
-      ) : (
-        <View style={styles.resultContainer}>
-          <Text style={styles.resultTitle}>Jenis Kulitmu</Text>
-          <Text style={styles.resultType}>{result.title}</Text>
-          
-          <View style={styles.concernsContainer}>
-            <Text style={styles.concernsTitle}>Masalah yang Teridentifikasi</Text>
-            {result.details.concerns.map((concern: string, index: number) => (
-              <View key={index} style={styles.concernItem}>
-                <View style={styles.concernBullet} />
-                <Text style={styles.concernText}>{concern}</Text>
-              </View>
-            ))}
-          </View>
-          
-          <View style={styles.recommendationsContainer}>
-            <Text style={styles.recommendationsTitle}>Rutinitas yang Direkomendasikan</Text>
-            {result.details.recommendations.map((recommendation: string, index: number) => (
-              <View key={index} style={styles.recommendationItem}>
-                <View style={styles.recommendationBullet} />
-                <Text style={styles.recommendationText}>{recommendation}</Text>
-              </View>
-            ))}
-          </View>
-          
-          <View style={styles.actionsContainer}>
-            <Button
-              title="Belanja Produk Rekomendasi"
-              variant="primary"
-              size="large"
-              style={styles.actionButton}
+            <View style={styles.recommendationCard}>
+              <Text style={styles.recommendationCategory}>Pembersih</Text>
+              <Text style={styles.recommendationText}>{result.recommendations.cleanser}</Text>
+            </View>
+            
+            <View style={styles.recommendationCard}>
+              <Text style={styles.recommendationCategory}>Pelembab</Text>
+              <Text style={styles.recommendationText}>{result.recommendations.moisturizer}</Text>
+            </View>
+            
+            <View style={styles.recommendationCard}>
+              <Text style={styles.recommendationCategory}>Perawatan</Text>
+              <Text style={styles.recommendationText}>{result.recommendations.treatment}</Text>
+            </View>
+            
+            <View style={styles.recommendationCard}>
+              <Text style={styles.recommendationCategory}>Tabir Surya</Text>
+              <Text style={styles.recommendationText}>{result.recommendations.sunscreen}</Text>
+            </View>
+            
+            <Button 
+              title="Lihat Produk yang Direkomendasikan" 
               onPress={() => router.push('/shop')}
-            />
-            
-            <Button
-              title="Simpan ke Profilku"
-              variant="outline"
-              size="large"
-              style={styles.actionButton}
-              onPress={() => router.push('/profile')}
+              style={styles.productsButton}
             />
           </View>
+        ) : null}
+      </ScrollView>
+
+      {!result && !analyzing && (
+        <View style={styles.buttonContainer}>
+          <Button
+            title="Ambil Foto"
+            icon={<Camera size={20} color="#fff" />}
+            onPress={() => setShowCamera(true)}
+            style={styles.button}
+          />
+          <Button
+            title="Unggah Foto"
+            icon={<Upload size={20} color="#fff" />}
+            onPress={handleUpload}
+            style={styles.button}
+            variant="secondary"
+          />
         </View>
       )}
-    </ScrollView>
+    </SafeAreaView>
   );
 }
 
@@ -184,24 +259,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  contentContainer: {
+  scrollView: {
+    flex: 1,
     padding: layout.spacing.lg,
-    paddingBottom: layout.spacing.xxl,
-  },
-  title: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xxxl,
-    color: colors.text,
-    marginBottom: layout.spacing.lg,
   },
   infoCard: {
-    marginBottom: layout.spacing.xl,
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.lg,
+    padding: layout.spacing.xl,
+    marginBottom: layout.spacing.lg,
+    alignItems: 'center',
   },
   infoIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: layout.borderRadius.round,
-    backgroundColor: colors.secondaryLight,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: layout.spacing.md,
@@ -211,61 +284,80 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.xl,
     color: colors.text,
     marginBottom: layout.spacing.sm,
+    textAlign: 'center',
   },
   infoDescription: {
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
     color: colors.textSecondary,
-    lineHeight: typography.lineHeight.md,
+    textAlign: 'center',
+    lineHeight: 22,
     marginBottom: layout.spacing.md,
   },
-  disclaimer: {
-    fontFamily: typography.fontFamily.regular,
+  infoNote: {
+    fontFamily: typography.fontFamily.italic,
     fontSize: typography.fontSize.sm,
-    color: colors.textLight,
+    color: colors.textSecondary,
+    textAlign: 'center',
     fontStyle: 'italic',
   },
-  uploadContainer: {
-    marginBottom: layout.spacing.xl,
-  },
-  imageContainer: {
+  exampleImage: {
     width: '100%',
     height: 300,
     borderRadius: layout.borderRadius.lg,
-    overflow: 'hidden',
-    marginBottom: layout.spacing.md,
-    backgroundColor: colors.border,
+    marginBottom: layout.spacing.lg,
   },
-  placeholderImage: {
-    width: '100%',
-    height: '100%',
+  tipsContainer: {
+    backgroundColor: colors.primaryLight,
+    borderRadius: layout.borderRadius.lg,
+    padding: layout.spacing.lg,
+    marginBottom: layout.spacing.xl,
   },
-  instructionsContainer: {
-    padding: layout.spacing.md,
-    backgroundColor: colors.secondaryLight,
-    borderRadius: layout.borderRadius.md,
-  },
-  instructionsTitle: {
-    fontFamily: typography.fontFamily.bold,
+  tipsTitle: {
+    fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.md,
     color: colors.text,
-    marginBottom: layout.spacing.sm,
+    marginBottom: layout.spacing.md,
   },
-  instructionItem: {
+  tipsList: {
+    gap: layout.spacing.sm,
+  },
+  tipItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  tipBullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primary,
+    marginRight: layout.spacing.sm,
+  },
+  tipText: {
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
-    color: colors.textSecondary,
-    marginBottom: layout.spacing.xs,
-    lineHeight: typography.lineHeight.md,
+    color: colors.text,
   },
-  buttonsContainer: {
+  buttonContainer: {
+    padding: layout.spacing.lg,
     gap: layout.spacing.md,
   },
   button: {
-    width: '100%',
+    marginBottom: layout.spacing.sm,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: layout.spacing.xxl,
+  },
+  loadingText: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.lg,
+    color: colors.textSecondary,
   },
   resultContainer: {
-    marginTop: layout.spacing.lg,
+    paddingBottom: layout.spacing.xl,
   },
   resultTitle: {
     fontFamily: typography.fontFamily.medium,
@@ -276,71 +368,72 @@ const styles = StyleSheet.create({
   resultType: {
     fontFamily: typography.fontFamily.bold,
     fontSize: typography.fontSize.xxl,
-    color: colors.primary,
-    marginBottom: layout.spacing.xl,
+    color: colors.text,
+    marginBottom: layout.spacing.lg,
   },
-  concernsContainer: {
-    marginBottom: layout.spacing.xl,
+  descriptionTitle: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.lg,
+    color: colors.text,
+    marginBottom: layout.spacing.sm,
+  },
+  descriptionText: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.md,
+    color: colors.textSecondary,
+    lineHeight: 22,
+    marginBottom: layout.spacing.lg,
   },
   concernsTitle: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.lg,
     color: colors.text,
-    marginBottom: layout.spacing.md,
+    marginBottom: layout.spacing.sm,
+  },
+  concernsList: {
+    marginBottom: layout.spacing.lg,
   },
   concernItem: {
     flexDirection: 'row',
-    marginBottom: layout.spacing.md,
-    alignItems: 'flex-start',
+    alignItems: 'center',
+    marginBottom: layout.spacing.xs,
   },
   concernBullet: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 6,
+    height: 6,
+    borderRadius: 3,
     backgroundColor: colors.primary,
-    marginTop: 6,
     marginRight: layout.spacing.sm,
   },
   concernText: {
-    flex: 1,
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
     color: colors.textSecondary,
-    lineHeight: typography.lineHeight.md,
-  },
-  recommendationsContainer: {
-    marginBottom: layout.spacing.xl,
   },
   recommendationsTitle: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xl,
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.lg,
     color: colors.text,
     marginBottom: layout.spacing.md,
   },
-  recommendationItem: {
-    flexDirection: 'row',
+  recommendationCard: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.md,
+    padding: layout.spacing.md,
     marginBottom: layout.spacing.md,
-    alignItems: 'flex-start',
   },
-  recommendationBullet: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.primary,
-    marginTop: 6,
-    marginRight: layout.spacing.sm,
+  recommendationCategory: {
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+    marginBottom: layout.spacing.xs,
   },
   recommendationText: {
-    flex: 1,
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
     color: colors.textSecondary,
-    lineHeight: typography.lineHeight.md,
   },
-  actionsContainer: {
-    gap: layout.spacing.md,
-  },
-  actionButton: {
-    width: '100%',
+  productsButton: {
+    marginTop: layout.spacing.md,
   },
 });

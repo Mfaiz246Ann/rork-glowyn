@@ -1,222 +1,248 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { Camera, Upload, Info } from 'lucide-react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Info, Camera, Upload } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
-import { Card } from '@/components/ui/Card';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
 import { ImageCapture } from '@/components/ImageCapture';
 
-const MAKEUP_ITEMS = [
-  { id: 'lipstik1', name: 'Coral Bliss', color: '#FF7F50', type: 'lipstik' },
-  { id: 'lipstik2', name: 'Rose Petal', color: '#E8909B', type: 'lipstik' },
-  { id: 'lipstik3', name: 'Berry Wine', color: '#8E354A', type: 'lipstik' },
-  { id: 'blush1', name: 'Peach Glow', color: '#FFDAB9', type: 'blush' },
-  { id: 'blush2', name: 'Rosy Cheeks', color: '#F08080', type: 'blush' },
-  { id: 'eyeshadow1', name: 'Golden Bronze', color: '#CD853F', type: 'eyeshadow' },
-  { id: 'eyeshadow2', name: 'Smoky Plum', color: '#5D3954', type: 'eyeshadow' },
-];
+type ProductCategory = 'lipstick' | 'blush' | 'eyeshadow';
+
+interface Product {
+  id: string;
+  name: string;
+  brand: string;
+  color: string;
+  price: string;
+  image: string;
+}
+
+const products: Record<ProductCategory, Product[]> = {
+  lipstick: [
+    {
+      id: 'lip1',
+      name: 'Lipstik Matte Merah',
+      brand: 'BeautyGlow',
+      color: '#D40000',
+      price: 'Rp 189.000',
+      image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    },
+    {
+      id: 'lip2',
+      name: 'Lipstik Satin Pink',
+      brand: 'GlamourLips',
+      color: '#FF69B4',
+      price: 'Rp 210.000',
+      image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    },
+    {
+      id: 'lip3',
+      name: 'Lipstik Nude',
+      brand: 'NaturalGlow',
+      color: '#CD7F32',
+      price: 'Rp 175.000',
+      image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    },
+  ],
+  blush: [
+    {
+      id: 'blush1',
+      name: 'Perona Pipi Peach',
+      brand: 'BeautyGlow',
+      color: '#FFDAB9',
+      price: 'Rp 165.000',
+      image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    },
+    {
+      id: 'blush2',
+      name: 'Perona Pipi Coral',
+      brand: 'GlamourLips',
+      color: '#FF7F50',
+      price: 'Rp 185.000',
+      image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    },
+  ],
+  eyeshadow: [
+    {
+      id: 'eye1',
+      name: 'Palet Eyeshadow Nude',
+      brand: 'BeautyGlow',
+      color: '#D2B48C',
+      price: 'Rp 250.000',
+      image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    },
+    {
+      id: 'eye2',
+      name: 'Palet Eyeshadow Smokey',
+      brand: 'GlamourLips',
+      color: '#696969',
+      price: 'Rp 275.000',
+      image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    },
+  ],
+};
+
+const categoryNames: Record<ProductCategory, string> = {
+  lipstick: 'Lipstik',
+  blush: 'Perona Pipi',
+  eyeshadow: 'Eyeshadow',
+};
 
 export default function VirtualTryOnScreen() {
   const router = useRouter();
-  const [selectedType, setSelectedType] = useState('lipstik');
-  const [selectedItem, setSelectedItem] = useState(MAKEUP_ITEMS[0]);
   const [showCamera, setShowCamera] = useState(false);
-  const [imageUri, setImageUri] = useState<string | null>(null);
-  
-  const filteredItems = MAKEUP_ITEMS.filter(item => item.type === selectedType);
+  const [image, setImage] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<ProductCategory>('lipstick');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const handleStartCapture = () => {
-    setShowCamera(true);
-  };
-  
-  const handleImageCaptured = (uri: string) => {
+  const handleCapture = async (uri: string) => {
     setShowCamera(false);
-    setImageUri(uri);
+    setImage(uri);
+    setSelectedProduct(products[selectedCategory][0]);
   };
-  
-  const handleCancelCapture = () => {
-    setShowCamera(false);
+
+  const handleUpload = async () => {
+    // Simulasi unggah gambar
+    setImage('https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80');
+    setSelectedProduct(products[selectedCategory][0]);
+  };
+
+  const handleCategoryChange = (category: ProductCategory) => {
+    setSelectedCategory(category);
+    setSelectedProduct(products[category][0]);
+  };
+
+  const handleProductSelect = (product: Product) => {
+    setSelectedProduct(product);
   };
 
   if (showCamera) {
     return (
       <ImageCapture 
-        onImageCaptured={handleImageCaptured}
-        onCancel={handleCancelCapture}
-        instructionText="Posisikan wajah dalam frame untuk virtual try-on"
-        guideType="face"
+        onCapture={handleCapture}
+        onCancel={() => setShowCamera(false)}
+        guideText="Pastikan wajah Anda terlihat jelas dengan pencahayaan yang baik"
       />
     );
   }
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.title}>Coba Virtual</Text>
-      
-      <Card style={styles.infoCard}>
-        <View style={styles.infoIconContainer}>
-          <Info size={24} color={colors.primary} />
-        </View>
-        <Text style={styles.infoTitle}>Coba Sebelum Membeli</Text>
-        <Text style={styles.infoDescription}>
-          Coba makeup dan aksesori secara virtual untuk melihat bagaimana tampilannya padamu sebelum membeli.
-        </Text>
-      </Card>
-      
-      <View style={styles.cameraContainer}>
-        <View style={styles.imageContainer}>
-          {imageUri ? (
-            <Image
-              source={{ uri: imageUri }}
-              style={styles.cameraImage}
-              contentFit="cover"
+    <SafeAreaView style={styles.container} edges={['bottom']}>
+      <Stack.Screen 
+        options={{
+          title: 'Virtual Try-On',
+          headerTitleStyle: {
+            fontFamily: typography.fontFamily.semiBold,
+          },
+        }}
+      />
+
+      <ScrollView style={styles.scrollView}>
+        {!image ? (
+          <View style={styles.infoCard}>
+            <View style={styles.infoIconContainer}>
+              <Info size={24} color={colors.primary} />
+            </View>
+            <Text style={styles.infoTitle}>Coba Sebelum Beli</Text>
+            <Text style={styles.infoDescription}>
+              Coba makeup dan aksesori secara virtual untuk melihat bagaimana tampilannya pada Anda sebelum melakukan pembelian.
+            </Text>
+          </View>
+        ) : (
+          <>
+            <View style={styles.imageContainer}>
+              <Image 
+                source={{ uri: image }} 
+                style={styles.userImage}
+              />
+              {selectedProduct && (
+                <View 
+                  style={[
+                    styles.productOverlay, 
+                    selectedCategory === 'lipstick' && styles.lipstickOverlay,
+                    selectedCategory === 'blush' && styles.blushOverlay,
+                    selectedCategory === 'eyeshadow' && styles.eyeshadowOverlay,
+                    { backgroundColor: selectedProduct.color }
+                  ]} 
+                />
+              )}
+            </View>
+
+            <View style={styles.categoryTabsContainer}>
+              {Object.keys(categoryNames).map((category) => (
+                <Pressable
+                  key={category}
+                  style={[
+                    styles.categoryTab,
+                    selectedCategory === category && styles.selectedCategoryTab
+                  ]}
+                  onPress={() => handleCategoryChange(category as ProductCategory)}
+                >
+                  <Text 
+                    style={[
+                      styles.categoryTabText,
+                      selectedCategory === category && styles.selectedCategoryTabText
+                    ]}
+                  >
+                    {categoryNames[category as ProductCategory]}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+
+            <View style={styles.productsContainer}>
+              {products[selectedCategory].map((product) => (
+                <Pressable
+                  key={product.id}
+                  style={[
+                    styles.productItem,
+                    selectedProduct?.id === product.id && styles.selectedProductItem
+                  ]}
+                  onPress={() => handleProductSelect(product)}
+                >
+                  <Image 
+                    source={{ uri: product.image }} 
+                    style={styles.productImage}
+                  />
+                  <View style={styles.productInfo}>
+                    <Text style={styles.productName}>{product.name}</Text>
+                    <Text style={styles.productBrand}>{product.brand}</Text>
+                    <Text style={styles.productPrice}>{product.price}</Text>
+                  </View>
+                </Pressable>
+              ))}
+            </View>
+
+            <Button 
+              title="Lihat Detail Produk" 
+              onPress={() => selectedProduct && router.push(`/product/${selectedProduct.id}`)}
+              style={styles.detailButton}
             />
-          ) : (
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }}
-              style={styles.cameraImage}
-              contentFit="cover"
-            />
-          )}
-          {selectedType === 'lipstik' && (
-            <View style={[styles.lipstickOverlay, { backgroundColor: selectedItem.color }]} />
-          )}
-          {selectedType === 'blush' && (
-            <View style={[styles.blushOverlay, { backgroundColor: selectedItem.color }]} />
-          )}
-          {selectedType === 'eyeshadow' && (
-            <View style={[styles.eyeshadowOverlay, { backgroundColor: selectedItem.color }]} />
-          )}
-        </View>
-        
-        <View style={styles.cameraControls}>
+          </>
+        )}
+      </ScrollView>
+
+      {!image && (
+        <View style={styles.buttonContainer}>
           <Button
             title="Ambil Foto"
-            variant="primary"
-            size="medium"
-            icon={<Camera size={18} color={colors.surface} />}
-            style={styles.cameraButton}
-            onPress={handleStartCapture}
+            icon={<Camera size={20} color="#fff" />}
+            onPress={() => setShowCamera(true)}
+            style={styles.button}
           />
-          
           <Button
             title="Unggah Foto"
-            variant="outline"
-            size="medium"
-            icon={<Upload size={18} color={colors.primary} />}
-            style={styles.cameraButton}
-            onPress={handleStartCapture}
+            icon={<Upload size={20} color="#fff" />}
+            onPress={handleUpload}
+            style={styles.button}
+            variant="secondary"
           />
         </View>
-      </View>
-      
-      <View style={styles.typesContainer}>
-        <Pressable 
-          style={[
-            styles.typeButton,
-            selectedType === 'lipstik' && styles.selectedTypeButton
-          ]}
-          onPress={() => setSelectedType('lipstik')}
-        >
-          <Text 
-            style={[
-              styles.typeText,
-              selectedType === 'lipstik' && styles.selectedTypeText
-            ]}
-          >
-            Lipstik
-          </Text>
-        </Pressable>
-        
-        <Pressable 
-          style={[
-            styles.typeButton,
-            selectedType === 'blush' && styles.selectedTypeButton
-          ]}
-          onPress={() => setSelectedType('blush')}
-        >
-          <Text 
-            style={[
-              styles.typeText,
-              selectedType === 'blush' && styles.selectedTypeText
-            ]}
-          >
-            Blush
-          </Text>
-        </Pressable>
-        
-        <Pressable 
-          style={[
-            styles.typeButton,
-            selectedType === 'eyeshadow' && styles.selectedTypeButton
-          ]}
-          onPress={() => setSelectedType('eyeshadow')}
-        >
-          <Text 
-            style={[
-              styles.typeText,
-              selectedType === 'eyeshadow' && styles.selectedTypeText
-            ]}
-          >
-            Eyeshadow
-          </Text>
-        </Pressable>
-      </View>
-      
-      <View style={styles.itemsContainer}>
-        <Text style={styles.itemsTitle}>Pilih Warna</Text>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.itemsList}
-        >
-          {filteredItems.map((item) => (
-            <Pressable 
-              key={item.id}
-              style={[
-                styles.itemButton,
-                selectedItem.id === item.id && styles.selectedItemButton
-              ]}
-              onPress={() => setSelectedItem(item)}
-            >
-              <View 
-                style={[
-                  styles.colorSwatch,
-                  { backgroundColor: item.color }
-                ]}
-              />
-              <Text style={styles.itemName}>{item.name}</Text>
-            </Pressable>
-          ))}
-        </ScrollView>
-      </View>
-      
-      <View style={styles.actionsContainer}>
-        <Button
-          title="Belanja Tampilan Ini"
-          variant="primary"
-          size="large"
-          style={styles.actionButton}
-          onPress={() => router.push('/shop')}
-        />
-        
-        <Button
-          title="Simpan ke Tampilanku"
-          variant="outline"
-          size="large"
-          style={styles.actionButton}
-          onPress={() => router.push('/profile')}
-        />
-      </View>
-    </ScrollView>
+      )}
+    </SafeAreaView>
   );
 }
 
@@ -225,24 +251,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  contentContainer: {
+  scrollView: {
+    flex: 1,
     padding: layout.spacing.lg,
-    paddingBottom: layout.spacing.xxl,
-  },
-  title: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xxxl,
-    color: colors.text,
-    marginBottom: layout.spacing.lg,
   },
   infoCard: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.lg,
+    padding: layout.spacing.xl,
     marginBottom: layout.spacing.xl,
+    alignItems: 'center',
   },
   infoIconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: layout.borderRadius.round,
-    backgroundColor: colors.secondaryLight,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: colors.primaryLight,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: layout.spacing.md,
@@ -252,125 +276,124 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.xl,
     color: colors.text,
     marginBottom: layout.spacing.sm,
+    textAlign: 'center',
   },
   infoDescription: {
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
     color: colors.textSecondary,
-    lineHeight: typography.lineHeight.md,
+    textAlign: 'center',
+    lineHeight: 22,
   },
-  cameraContainer: {
-    marginBottom: layout.spacing.xl,
+  buttonContainer: {
+    padding: layout.spacing.lg,
+    gap: layout.spacing.md,
+  },
+  button: {
+    marginBottom: layout.spacing.sm,
   },
   imageContainer: {
+    position: 'relative',
     width: '100%',
     height: 400,
     borderRadius: layout.borderRadius.lg,
     overflow: 'hidden',
-    marginBottom: layout.spacing.md,
-    backgroundColor: colors.border,
-    position: 'relative',
+    marginBottom: layout.spacing.lg,
   },
-  cameraImage: {
+  userImage: {
     width: '100%',
     height: '100%',
   },
-  lipstickOverlay: {
+  productOverlay: {
     position: 'absolute',
-    bottom: 120,
-    left: '50%',
-    width: 60,
-    height: 25,
-    borderRadius: 10,
-    transform: [{ translateX: -30 }],
-    opacity: 0.7,
-  },
-  blushOverlay: {
-    position: 'absolute',
-    top: 150,
-    left: 80,
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    opacity: 0.3,
-  },
-  eyeshadowOverlay: {
-    position: 'absolute',
-    top: 120,
-    left: '50%',
-    width: 80,
-    height: 30,
-    borderRadius: 15,
-    transform: [{ translateX: -40 }],
     opacity: 0.5,
   },
-  cameraControls: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: layout.spacing.md,
+  lipstickOverlay: {
+    bottom: '25%',
+    left: '40%',
+    right: '40%',
+    height: '5%',
+    borderRadius: 10,
   },
-  cameraButton: {
-    flex: 1,
+  blushOverlay: {
+    top: '35%',
+    left: '15%',
+    right: '15%',
+    height: '10%',
+    borderRadius: 20,
   },
-  typesContainer: {
+  eyeshadowOverlay: {
+    top: '25%',
+    left: '30%',
+    right: '30%',
+    height: '5%',
+    borderRadius: 10,
+  },
+  categoryTabsContainer: {
     flexDirection: 'row',
     marginBottom: layout.spacing.lg,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
-  typeButton: {
+  categoryTab: {
     flex: 1,
     paddingVertical: layout.spacing.md,
     alignItems: 'center',
-    borderBottomWidth: 2,
-    borderBottomColor: colors.border,
   },
-  selectedTypeButton: {
+  selectedCategoryTab: {
+    borderBottomWidth: 2,
     borderBottomColor: colors.primary,
   },
-  typeText: {
+  categoryTabText: {
     fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.md,
     color: colors.textSecondary,
   },
-  selectedTypeText: {
+  selectedCategoryTabText: {
     color: colors.primary,
   },
-  itemsContainer: {
-    marginBottom: layout.spacing.xl,
+  productsContainer: {
+    gap: layout.spacing.md,
+    marginBottom: layout.spacing.lg,
   },
-  itemsTitle: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.lg,
-    color: colors.text,
-    marginBottom: layout.spacing.md,
-  },
-  itemsList: {
-    paddingBottom: layout.spacing.md,
-  },
-  itemButton: {
-    alignItems: 'center',
-    marginRight: layout.spacing.lg,
-  },
-  selectedItemButton: {
-    transform: [{ scale: 1.1 }],
-  },
-  colorSwatch: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginBottom: layout.spacing.sm,
+  productItem: {
+    flexDirection: 'row',
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.md,
+    overflow: 'hidden',
     borderWidth: 1,
     borderColor: colors.border,
   },
-  itemName: {
-    fontFamily: typography.fontFamily.medium,
-    fontSize: typography.fontSize.sm,
+  selectedProductItem: {
+    borderColor: colors.primary,
+    borderWidth: 2,
+  },
+  productImage: {
+    width: 80,
+    height: 80,
+  },
+  productInfo: {
+    flex: 1,
+    padding: layout.spacing.md,
+  },
+  productName: {
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: typography.fontSize.md,
     color: colors.text,
-    textAlign: 'center',
+    marginBottom: layout.spacing.xs,
   },
-  actionsContainer: {
-    gap: layout.spacing.md,
+  productBrand: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
+    marginBottom: layout.spacing.xs,
   },
-  actionButton: {
-    width: '100%',
+  productPrice: {
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: typography.fontSize.md,
+    color: colors.primary,
+  },
+  detailButton: {
+    marginBottom: layout.spacing.xl,
   },
 });

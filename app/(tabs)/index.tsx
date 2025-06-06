@@ -142,20 +142,73 @@ export default function HomeScreen() {
         contentContainerStyle={styles.storiesContainer}
       >
         <Pressable style={styles.storyItem} onPress={() => router.push('/profile')}>
-          <Avatar source={user?.profileImage || ''} size={64} gradient />
+          <Avatar 
+            source="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            size={64} 
+            gradient 
+          />
           <Text style={styles.storyUsername}>Kamu</Text>
         </Pressable>
         
-        {styleFeedUsers.map((user) => (
-          <Pressable 
-            key={`home-story-${user.id}`} 
-            style={styles.storyItem}
-            onPress={() => navigateToUser(user.id)}
-          >
-            <Avatar source={user.image} size={64} gradient />
-            <Text style={styles.storyUsername}>{user.username}</Text>
-          </Pressable>
-        ))}
+        <Pressable 
+          style={styles.storyItem}
+          onPress={() => navigateToUser('user2')}
+        >
+          <Avatar 
+            source="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            size={64} 
+            gradient 
+          />
+          <Text style={styles.storyUsername}>Elegant Style</Text>
+        </Pressable>
+        
+        <Pressable 
+          style={styles.storyItem}
+          onPress={() => navigateToUser('user3')}
+        >
+          <Avatar 
+            source="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            size={64} 
+            gradient 
+          />
+          <Text style={styles.storyUsername}>Sweet Casual</Text>
+        </Pressable>
+        
+        <Pressable 
+          style={styles.storyItem}
+          onPress={() => navigateToUser('user4')}
+        >
+          <Avatar 
+            source="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            size={64} 
+            gradient 
+          />
+          <Text style={styles.storyUsername}>Cool Tomboy</Text>
+        </Pressable>
+        
+        <Pressable 
+          style={styles.storyItem}
+          onPress={() => navigateToUser('user5')}
+        >
+          <Avatar 
+            source="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            size={64} 
+            gradient 
+          />
+          <Text style={styles.storyUsername}>Cosplay Girl</Text>
+        </Pressable>
+        
+        <Pressable 
+          style={styles.storyItem}
+          onPress={() => navigateToUser('user6')}
+        >
+          <Avatar 
+            source="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            size={64} 
+            gradient 
+          />
+          <Text style={styles.storyUsername}>Hijabi Style</Text>
+        </Pressable>
       </ScrollView>
 
       <View style={styles.trendingPostsContainer}>

@@ -6,8 +6,8 @@ export const typography = {
     medium: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
     light: Platform.OS === 'ios' ? 'System' : 'sans-serif-light',
     bold: Platform.OS === 'ios' ? 'System' : 'sans-serif-bold',
-    semiBold: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium', // Added semiBold
-    italic: Platform.OS === 'ios' ? 'System' : 'sans-serif', // Added italic
+    semiBold: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
+    italic: Platform.OS === 'ios' ? 'System' : 'sans-serif',
   },
   fontSize: {
     xs: 12,

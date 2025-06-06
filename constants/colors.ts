@@ -20,7 +20,7 @@ export const colors = {
 };
 
 export const gradients = {
-  primary: [colors.primary, colors.primaryLight] as [ColorValue, ColorValue, ...ColorValue[]],
-  secondary: [colors.secondary, colors.secondaryLight] as [ColorValue, ColorValue, ...ColorValue[]],
+  primary: ['#F48FB1', '#FFC1E3'] as [ColorValue, ColorValue, ...ColorValue[]],
+  secondary: ['#E1BEE7', '#FFF1FF'] as [ColorValue, ColorValue, ...ColorValue[]],
   card: ['rgba(244, 143, 177, 0.8)', 'rgba(244, 143, 177, 0.6)'] as [ColorValue, ColorValue, ...ColorValue[]],
 };

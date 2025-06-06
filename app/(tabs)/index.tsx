@@ -15,6 +15,35 @@ import { useUserStore } from '@/store/userStore';
 import { featuredProducts } from '@/mocks/products';
 import { feedPosts } from '@/mocks/feed';
 
+// Style feed users with new photos and usernames
+const styleFeedUsers = [
+  {
+    id: 'user2',
+    username: 'Elegant Style',
+    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+  },
+  {
+    id: 'user3',
+    username: 'Sweet Casual',
+    image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+  },
+  {
+    id: 'user4',
+    username: 'Cool Tomboy',
+    image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+  },
+  {
+    id: 'user5',
+    username: 'Cosplay Girl',
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+  },
+  {
+    id: 'user6',
+    username: 'Hijabi Style',
+    image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+  },
+];
+
 export default function HomeScreen() {
   const router = useRouter();
   const { user } = useUserStore();
@@ -117,14 +146,14 @@ export default function HomeScreen() {
           <Text style={styles.storyUsername}>Kamu</Text>
         </Pressable>
         
-        {feedPosts.map((post) => (
+        {styleFeedUsers.map((user) => (
           <Pressable 
-            key={`home-story-${post.id}`} 
+            key={`home-story-${user.id}`} 
             style={styles.storyItem}
-            onPress={() => navigateToUser(post.userId)}
+            onPress={() => navigateToUser(user.id)}
           >
-            <Avatar source={post.userImage} size={64} gradient />
-            <Text style={styles.storyUsername}>{post.username}</Text>
+            <Avatar source={user.image} size={64} gradient />
+            <Text style={styles.storyUsername}>{user.username}</Text>
           </Pressable>
         ))}
       </ScrollView>

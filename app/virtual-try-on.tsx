@@ -59,7 +59,7 @@ export default function VirtualTryOnScreen() {
       contentContainerStyle={styles.contentContainer}
       showsVerticalScrollIndicator={false}
     >
-      <Text style={styles.title}>Virtual Try-On</Text>
+      <Text style={styles.title}>Coba Virtual</Text>
       
       <Card style={styles.infoCard}>
         <View style={styles.infoIconContainer}>
@@ -108,7 +108,7 @@ export default function VirtualTryOnScreen() {
           />
           
           <Button
-            title="Upload Foto"
+            title="Unggah Foto"
             variant="outline"
             size="medium"
             icon={<Upload size={18} color={colors.primary} />}

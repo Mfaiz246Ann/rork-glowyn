@@ -118,7 +118,7 @@ export default function FaceShapeScreen() {
             />
             
             <Button
-              title="Upload Foto"
+              title="Unggah Foto"
               variant="outline"
               size="large"
               icon={<Upload size={20} color={colors.primary} />}

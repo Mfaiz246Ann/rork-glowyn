@@ -7,7 +7,6 @@ import {
   TouchableOpacityProps,
   ViewStyle,
   TextStyle,
-  ColorValue,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { colors, gradients } from '@/constants/colors';
@@ -75,7 +74,7 @@ export const Button: React.FC<ButtonProps> = ({
         {...props}
       >
         <LinearGradient
-          colors={gradients.primary as readonly [ColorValue, ColorValue, ...ColorValue[]]}
+          colors={gradients.primary}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 0 }}
           style={[styles.gradient, styles[`${size}Button`]]}

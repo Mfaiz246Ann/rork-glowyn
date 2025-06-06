@@ -4,8 +4,8 @@ export const feedPosts: FeedPost[] = [
   {
     id: 'post1',
     userId: 'user2',
-    username: 'sarah_style',
-    userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    username: 'elegant_style',
+    userImage: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
     image: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     caption: 'Vibes musim semi dengan blouse favoritku! 🌸 #StyleMusimSemi #Fashion',
     likes: 243,
@@ -16,7 +16,7 @@ export const feedPosts: FeedPost[] = [
   {
     id: 'post2',
     userId: 'user3',
-    username: 'beauty_guru',
+    username: 'sweet_casual',
     userImage: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
     image: 'https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     caption: 'Menemukan shade blush yang sempurna untuk tone kulitku! 💕 #TipsKecantikan #MakeupLover',
@@ -28,7 +28,7 @@ export const feedPosts: FeedPost[] = [
   {
     id: 'post3',
     userId: 'user4',
-    username: 'fashionista',
+    username: 'cool_tomboy',
     userImage: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
     image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
     caption: 'Hari santai di rumah dengan hoodie favoritku ☕ #StyleNyaman #OOTD',
@@ -37,6 +37,30 @@ export const feedPosts: FeedPost[] = [
     tags: ['StyleNyaman', 'OOTD'],
     timestamp: '2025-05-28T16:45:00Z',
   },
+  {
+    id: 'post4',
+    userId: 'user5',
+    username: 'cosplay_girl',
+    userImage: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    caption: 'Cosplay karakter favoritku hari ini! 🎭 #Cosplay #Anime',
+    likes: 189,
+    comments: 15,
+    tags: ['Cosplay', 'Anime'],
+    timestamp: '2025-05-27T11:20:00Z',
+  },
+  {
+    id: 'post5',
+    userId: 'user6',
+    username: 'hijabi_style',
+    userImage: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.unsplash.com/photo-1535632787350-4e68ef0ac584?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80',
+    caption: 'Hijab style untuk acara formal 💫 #HijabStyle #ModestFashion',
+    likes: 278,
+    comments: 21,
+    tags: ['HijabStyle', 'ModestFashion'],
+    timestamp: '2025-05-26T15:30:00Z',
+  },
 ];
 
 export const comments: Record<string, Comment[]> = {
@@ -44,7 +68,7 @@ export const comments: Record<string, Comment[]> = {
     {
       id: 'comment1',
       userId: 'user3',
-      username: 'beauty_guru',
+      username: 'sweet_casual',
       userImage: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
       text: 'Suka banget warna ini di kamu! 😍',
       timestamp: '2025-05-30T15:10:00Z',
@@ -52,7 +76,7 @@ export const comments: Record<string, Comment[]> = {
     {
       id: 'comment2',
       userId: 'user4',
-      username: 'fashionista',
+      username: 'cool_tomboy',
       userImage: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
       text: 'Beli dimana ini? Aku butuh di lemari pakaianku!',
       timestamp: '2025-05-30T16:22:00Z',

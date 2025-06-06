@@ -52,7 +52,7 @@ export default function ProductDetailScreen() {
           if (recommendationsResponse.success) {
             // Filter out the current product
             const filteredProducts = recommendationsResponse.products.filter(
-              p => p.id !== response.product?.id
+              p => p.id !== response.product!.id
             );
             setRecommendedProducts(filteredProducts);
           }

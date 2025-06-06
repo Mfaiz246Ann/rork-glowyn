@@ -128,7 +128,7 @@ export default function ColorAnalysisScreen() {
             />
             
             <Button
-              title="Upload Foto"
+              title="Unggah Foto"
               variant="outline"
               size="large"
               icon={<Upload size={20} color={colors.primary} />}
@@ -196,7 +196,7 @@ export default function ColorAnalysisScreen() {
           
           <View style={styles.actionsContainer}>
             <Button
-              title="Coba Virtual Makeup"
+              title="Coba Makeup Virtual"
               variant="primary"
               size="large"
               style={styles.actionButton}

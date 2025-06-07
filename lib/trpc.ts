@@ -40,14 +40,43 @@ export const trpcClient = trpc.createClient({
           return response;
         } catch (error) {
           console.error("TRPC fetch error:", error);
-          // Return a mock response for development when the backend is not available
+          
+          // For development: mock successful response when backend is unavailable
           if (process.env.NODE_ENV === 'development') {
             console.warn("Using mock response in development mode");
-            return new Response(JSON.stringify({ result: { data: null } }), {
+            
+            // Create a mock response based on the URL path
+            const url_string = url.toString();
+            let mockData = { result: { data: null } };
+            
+            if (url_string.includes('analysis.analyze')) {
+              // Mock analysis response
+              const analysisTypes = ['color', 'face', 'skin', 'outfit'];
+              const randomType = analysisTypes[Math.floor(Math.random() * analysisTypes.length)];
+              
+              mockData = {
+                result: {
+                  data: {
+                    success: true,
+                    result: {
+                      id: `mock_${Date.now()}`,
+                      type: randomType,
+                      title: `Mock ${randomType} analysis`,
+                      result: `Mock ${randomType} result`,
+                      date: new Date().toISOString(),
+                      details: { mockData: true }
+                    }
+                  }
+                }
+              };
+            }
+            
+            return new Response(JSON.stringify(mockData), {
               status: 200,
               headers: { 'Content-Type': 'application/json' },
             });
           }
+          
           throw error;
         }
       },

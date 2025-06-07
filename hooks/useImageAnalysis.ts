@@ -48,17 +48,17 @@ export const useImageAnalysis = (analysisType: AnalysisType) => {
       const base64Image = await imageToBase64(uri);
       
       // Use the backend API for analysis
-      const analysisResponse = await trpcClient.analysis.analyze.mutate({
+      const response = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
         analysisType,
       });
       
-      if (!analysisResponse.success || !analysisResponse.result) {
+      if (!response.success || !response.result) {
         throw new Error("Analysis failed");
       }
       
       // Get the result from the response
-      const analysisResult = analysisResponse.result;
+      const analysisResult = response.result;
       
       setResult(analysisResult);
       addAnalysisResult(analysisResult);
@@ -71,6 +71,20 @@ export const useImageAnalysis = (analysisType: AnalysisType) => {
     } catch (err) {
       setError("Failed to analyze image. Please try again.");
       console.error(err);
+      
+      // Create a fallback mock result for development
+      const mockResult: AnalysisResult = {
+        id: `mock_${Date.now()}`,
+        type: analysisType,
+        title: `Mock ${analysisType} analysis`,
+        result: `Mock ${analysisType} result`,
+        date: new Date().toLocaleDateString(),
+        details: { mockData: true }
+      };
+      
+      setResult(mockResult);
+      addAnalysisResult(mockResult);
+      
     } finally {
       setIsLoading(false);
     }

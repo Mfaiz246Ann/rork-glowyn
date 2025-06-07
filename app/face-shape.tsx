@@ -11,7 +11,7 @@ import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { trpcClient } from '@/lib/trpc';
-import { AnalysisType, AnalysisResponse } from '@/types';
+import { AnalysisType, AnalysisResponse, AnalysisResult } from '@/types';
 
 type FaceShape = 'oval' | 'round' | 'square' | 'heart' | 'diamond' | 'rectangle';
 
@@ -278,7 +278,7 @@ export default function FaceShapeScreen() {
       setResult(fullResult);
       
       // Save the analysis result
-      const analysisResult = {
+      const analysisResult: AnalysisResult = {
         id: analysisResponse.result.id,
         type: 'face' as AnalysisType,
         title: shapeNames[shapeType],
@@ -304,7 +304,7 @@ export default function FaceShapeScreen() {
       setResult(faceShapeResults[randomShape]);
       
       // Save the analysis result
-      const analysisResult = {
+      const analysisResult: AnalysisResult = {
         id: `analysis_${Date.now()}`,
         type: 'face' as AnalysisType,
         title: shapeNames[randomShape],

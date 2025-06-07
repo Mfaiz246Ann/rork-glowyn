@@ -1,4 +1,4 @@
-import { router } from "./create-context";
+import { createTRPCRouter } from "./create-context";
 import hiProcedure from "./routes/example/hi/route";
 import getProfileProcedure from "./routes/users/getProfile";
 import updateProfileProcedure from "./routes/users/updateProfile";
@@ -11,26 +11,26 @@ import createCommentProcedure from "./routes/social/createComment";
 import likePostProcedure from "./routes/social/likePost";
 import analyzeProcedure from "./routes/analysis/analyze";
 
-export const appRouter = router({
-  example: router({
+export const appRouter = createTRPCRouter({
+  example: createTRPCRouter({
     hi: hiProcedure,
   }),
-  users: router({
+  users: createTRPCRouter({
     getProfile: getProfileProcedure,
     updateProfile: updateProfileProcedure,
     saveAnalysisResult: saveAnalysisResultProcedure,
   }),
-  products: router({
+  products: createTRPCRouter({
     getRecommendations: getRecommendationsProcedure,
     getProductDetails: getProductDetailsProcedure,
   }),
-  social: router({
+  social: createTRPCRouter({
     getPosts: getPostsProcedure,
     getPostDetails: getPostDetailsProcedure,
     createComment: createCommentProcedure,
     likePost: likePostProcedure,
   }),
-  analysis: router({
+  analysis: createTRPCRouter({
     analyze: analyzeProcedure,
   }),
 });

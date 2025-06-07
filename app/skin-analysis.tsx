@@ -11,7 +11,7 @@ import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { trpcClient } from '@/lib/trpc';
-import { AnalysisType, AnalysisResponse } from '@/types';
+import { AnalysisType, AnalysisResponse, AnalysisResult } from '@/types';
 
 type SkinType = 'normal' | 'dry' | 'oily' | 'combination' | 'sensitive';
 
@@ -135,7 +135,7 @@ export default function SkinAnalysisScreen() {
       setResult(fullResult);
       
       // Save the analysis result
-      const analysisResult = {
+      const analysisResult: AnalysisResult = {
         id: analysisResponse.result.id,
         type: 'skin' as AnalysisType,
         title: `Kulit ${skinTypeNames[skinType]}`,
@@ -161,7 +161,7 @@ export default function SkinAnalysisScreen() {
       setResult(skinResults[randomType]);
       
       // Save the analysis result
-      const analysisResult = {
+      const analysisResult: AnalysisResult = {
         id: `analysis_${Date.now()}`,
         type: 'skin' as AnalysisType,
         title: `Kulit ${skinTypeNames[randomType]}`,

@@ -11,7 +11,7 @@ import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { trpcClient } from '@/lib/trpc';
-import { AnalysisType, AnalysisResponse } from '@/types';
+import { AnalysisType, AnalysisResponse, AnalysisResult } from '@/types';
 
 type ColorSeason = 'spring' | 'summer' | 'autumn' | 'winter';
 type ColorTone = 'warm' | 'cool' | 'neutral';
@@ -185,9 +185,9 @@ export default function ColorAnalysisScreen() {
       // Convert the general analysis result to our specific ColorResult type
       const resultText = analysisResponse.result.result.toLowerCase();
       const colorSeason: ColorSeason = (
-        resultText.includes('spring') ? 'spring' : 
-        resultText.includes('summer') ? 'summer' :
-        resultText.includes('autumn') ? 'autumn' : 'winter'
+        resultText.includes('spring') || resultText.includes('semi') ? 'spring' : 
+        resultText.includes('summer') || resultText.includes('panas') ? 'summer' :
+        resultText.includes('autumn') || resultText.includes('gugur') ? 'autumn' : 'winter'
       );
       
       // Get the full result with all details from our predefined results
@@ -196,7 +196,7 @@ export default function ColorAnalysisScreen() {
       setResult(fullResult);
       
       // Save the analysis result
-      const analysisResult = {
+      const analysisResult: AnalysisResult = {
         id: analysisResponse.result.id,
         type: 'color' as AnalysisType,
         title: seasonNames[colorSeason],
@@ -222,7 +222,7 @@ export default function ColorAnalysisScreen() {
       setResult(colorResults[randomSeason]);
       
       // Save the analysis result
-      const analysisResult = {
+      const analysisResult: AnalysisResult = {
         id: `analysis_${Date.now()}`,
         type: 'color' as AnalysisType,
         title: seasonNames[randomSeason],

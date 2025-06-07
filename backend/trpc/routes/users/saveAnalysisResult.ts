@@ -3,30 +3,32 @@ import { publicProcedure } from "../../create-context";
 import { AnalysisResult } from "@/types";
 
 // Input schema for saving analysis results
-const saveAnalysisSchema = z.object({
+const saveAnalysisResultSchema = z.object({
   result: z.object({
     id: z.string(),
     type: z.enum(['color', 'face', 'skin', 'outfit']),
     title: z.string(),
-    date: z.string(),
     result: z.string(),
-    details: z.any(),
+    date: z.string(),
+    details: z.any().optional(),
+    recommendations: z.array(z.any()).optional(),
   }),
 });
 
-const saveAnalysisResultProcedure = publicProcedure
-  .input(saveAnalysisSchema)
-  .mutation(({ input }) => {
-    const { result } = input;
-    
-    // In a real app, this would save the analysis result to the user's profile in the database
-    // For this demo, we'll just return success
-    
-    return {
-      success: true,
-      message: "Analysis result saved successfully",
-      resultId: result.id,
-    };
+export default publicProcedure
+  .input(saveAnalysisResultSchema)
+  .mutation(async ({ input }) => {
+    try {
+      // In a real app, this would save to a database
+      console.log("Saving analysis result:", input.result.id);
+      
+      // Mock successful save
+      return {
+        success: true,
+        message: "Analysis result saved successfully",
+      };
+    } catch (error) {
+      console.error("Error saving analysis result:", error);
+      throw new Error("Failed to save analysis result");
+    }
   });
-
-export default saveAnalysisResultProcedure;

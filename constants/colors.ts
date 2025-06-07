@@ -23,7 +23,7 @@ export const colors = {
 
 // Fix gradient types to match what LinearGradient expects
 export const gradients = {
-  primary: ['#F48FB1', '#FFC1E3'] as readonly ColorValue[],
-  secondary: ['#E1BEE7', '#FFF1FF'] as readonly ColorValue[],
-  accent: ['#F48FB1', '#E1BEE7'] as readonly ColorValue[],
+  primary: ['#F48FB1', '#FFC1E3'] as readonly [ColorValue, ColorValue],
+  secondary: ['#E1BEE7', '#FFF1FF'] as readonly [ColorValue, ColorValue],
+  accent: ['#F48FB1', '#E1BEE7'] as readonly [ColorValue, ColorValue],
 };

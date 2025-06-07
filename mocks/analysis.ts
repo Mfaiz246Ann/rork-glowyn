@@ -16,6 +16,21 @@ export const recentAnalysis: AnalysisResult[] = [
         { name: 'Turquoise', hex: '#40E0D0' },
       ],
       description: 'Your colors are warm and bright, perfect for bringing out the natural glow in your complexion.',
+      confidence: 87,
+      perfectColors: ['#FF7F50', '#FFDAB9', '#FFD700', '#BCB88A', '#40E0D0'],
+      goodColors: ['#FFA07A', '#FFE4B5', '#FFFFE0', '#98FB98', '#AFEEEE'],
+      sparinglyColors: ['#800000', '#000080', '#4B0082', '#2F4F4F', '#000000'],
+      makeupRecommendations: {
+        lipstick: ['Coral', 'Peach', 'Warm Pink'],
+        eyeshadow: ['Gold', 'Peach', 'Warm Brown'],
+        blush: ['Coral', 'Peach', 'Warm Pink'],
+      },
+      clothingRecommendations: {
+        tops: ['Coral', 'Peach', 'Warm Yellow', 'Sage Green'],
+        bottoms: ['Khaki', 'Cream', 'Light Denim'],
+        accessories: ['Turquoise', 'Coral', 'Gold'],
+        metals: ['Gold', 'Rose Gold', 'Bronze'],
+      },
     },
   },
   {
@@ -25,12 +40,31 @@ export const recentAnalysis: AnalysisResult[] = [
     date: 'May 10, 2025',
     result: 'Heart Shape',
     details: {
-      recommendations: [
-        'Side-swept bangs to soften your forehead',
-        'Medium to long layered cuts',
-        'Chin-length bobs that add width to the lower part of your face',
-        'Cat-eye or oval shaped glasses',
-        'Drop earrings that widen the jaw area',
+      confidence: 86,
+      features: {
+        faceLength: 'Panjang wajah lebih dari lebar wajah',
+        cheekbones: 'Tulang pipi tinggi dan lebar',
+        jawline: 'Rahang meruncing ke arah dagu',
+        forehead: 'Dahi lebar, titik terlebar pada wajah',
+        chinShape: 'Dagu sempit dan meruncing',
+      },
+      hairstyles: [
+        { name: 'Rambut medium dengan lapisan', rating: 'Perfect', description: 'Menyeimbangkan dahi lebar' },
+        { name: 'Poni', rating: 'Excellent', description: 'Mengurangi lebar dahi' },
+        { name: 'Potongan bob', rating: 'Great', description: 'Menambah lebar di bagian bawah wajah' },
+        { name: 'Volume di sisi', rating: 'Good', description: 'Menyeimbangkan dagu yang meruncing' },
+      ],
+      glasses: [
+        { name: 'Kacamata aviator', rating: 'Perfect', description: 'Menyeimbangkan dahi lebar' },
+        { name: 'Kacamata kucing', rating: 'Excellent', description: 'Menyoroti tulang pipi Anda' },
+        { name: 'Kacamata bulat', rating: 'Great', description: 'Melunakkan sudut dahi' },
+        { name: 'Kacamata bottom-heavy', rating: 'Good', description: 'Menambah lebar di bagian bawah wajah' },
+      ],
+      accessories: [
+        { name: 'Anting drop', rating: 'Perfect', description: 'Memperlebar area rahang' },
+        { name: 'Kalung choker', rating: 'Excellent', description: 'Menarik perhatian dari dahi' },
+        { name: 'Bandana', rating: 'Great', description: 'Mengurangi lebar dahi' },
+        { name: 'Anting chandelier', rating: 'Good', description: 'Menyeimbangkan dagu yang meruncing' },
       ],
     },
   },
@@ -41,12 +75,67 @@ export const recentAnalysis: AnalysisResult[] = [
     date: 'May 5, 2025',
     result: 'Combination Skin',
     details: {
+      confidence: 89,
       concerns: ['T-zone oiliness', 'Occasional dryness on cheeks'],
       recommendations: [
-        'Gentle foaming cleanser',
-        'Oil-free moisturizer',
-        'Weekly clay mask for T-zone',
-        'Hydrating serum with hyaluronic acid',
+        {
+          category: 'Cleanser',
+          products: ['Gentle foaming cleanser', 'pH-balanced cleanser', 'Micellar water for light cleansing']
+        },
+        {
+          category: 'Moisturizer',
+          products: ['Light balancing moisturizer', 'Gel-cream hybrid', 'Hydrating serum with hyaluronic acid']
+        },
+        {
+          category: 'Treatment',
+          products: ['Weekly clay mask for T-zone', 'Hydrating mask for cheeks', 'Gentle exfoliation 1-2 times weekly']
+        },
+        {
+          category: 'Protection',
+          products: ['Oil-free sunscreen for T-zone', 'Cream-based sunscreen for cheeks', 'Balancing primer']
+        }
+      ],
+    },
+  },
+  {
+    id: 'analysis4',
+    type: 'outfit',
+    title: 'Minimalist Style',
+    date: 'May 3, 2025',
+    result: 'Minimalist Style for Hourglass Body Type',
+    details: {
+      stylePreference: 'Minimalist',
+      bodyType: 'Hourglass',
+      occasion: 'Casual',
+      weather: 'Warm',
+      recommendations: [
+        {
+          title: 'Minimalist Chic',
+          matchScore: 95,
+          items: [
+            { type: 'Top', name: 'White Silk Blouse', color: 'White' },
+            { type: 'Bottom', name: 'Black High-Waisted Trousers', color: 'Black' },
+            { type: 'Outerwear', name: 'Beige Oversized Blazer', color: 'Beige' },
+            { type: 'Shoes', name: 'Black Leather Loafers', color: 'Black' },
+            { type: 'Accessories', name: 'Gold Minimal Necklace', color: 'Gold' },
+          ],
+        },
+        {
+          title: 'Casual Minimalist',
+          matchScore: 92,
+          items: [
+            { type: 'Top', name: 'Gray Crew Neck T-shirt', color: 'Gray' },
+            { type: 'Bottom', name: 'Dark Blue Straight Leg Jeans', color: 'Dark Blue' },
+            { type: 'Outerwear', name: 'Black Leather Jacket', color: 'Black' },
+            { type: 'Shoes', name: 'White Sneakers', color: 'White' },
+            { type: 'Accessories', name: 'Silver Watch', color: 'Silver' },
+          ],
+        },
+      ],
+      tips: [
+        { title: 'Highlight your waist', description: 'Choose fitted or belted styles that showcase your defined waistline.' },
+        { title: 'Balance proportions', description: 'Wear clothing that maintains the balance between your upper and lower body.' },
+        { title: 'Avoid boxy shapes', description: 'Steer clear of shapeless garments that hide your natural curves.' },
       ],
     },
   },

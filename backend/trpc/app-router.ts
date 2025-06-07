@@ -1,37 +1,37 @@
-import { createTRPCRouter } from './create-context';
-import hiProcedure from './routes/example/hi/route';
-import getProfile from './routes/users/getProfile';
-import updateProfile from './routes/users/updateProfile';
-import saveAnalysisResult from './routes/users/saveAnalysisResult';
-import analyze from './routes/analysis/analyze';
-import getProductDetails from './routes/products/getProductDetails';
-import getRecommendations from './routes/products/getRecommendations';
-import getPosts from './routes/social/getPosts';
-import getPostDetails from './routes/social/getPostDetails';
-import createComment from './routes/social/createComment';
-import likePost from './routes/social/likePost';
+import { router } from "./create-context";
+import { hiProcedure } from "./routes/example/hi/route";
+import { getProfileProcedure } from "./routes/users/getProfile";
+import { updateProfileProcedure } from "./routes/users/updateProfile";
+import { saveAnalysisResultProcedure } from "./routes/users/saveAnalysisResult";
+import { getRecommendationsProcedure } from "./routes/products/getRecommendations";
+import { getProductDetailsProcedure } from "./routes/products/getProductDetails";
+import { getPostsProcedure } from "./routes/social/getPosts";
+import { getPostDetailsProcedure } from "./routes/social/getPostDetails";
+import { createCommentProcedure } from "./routes/social/createComment";
+import { likePostProcedure } from "./routes/social/likePost";
+import analyzeProcedure from "./routes/analysis/analyze";
 
-export const appRouter = createTRPCRouter({
-  example: createTRPCRouter({
+export const appRouter = router({
+  example: router({
     hi: hiProcedure,
   }),
-  users: createTRPCRouter({
-    getProfile,
-    updateProfile,
-    saveAnalysisResult,
+  users: router({
+    getProfile: getProfileProcedure,
+    updateProfile: updateProfileProcedure,
+    saveAnalysisResult: saveAnalysisResultProcedure,
   }),
-  analysis: createTRPCRouter({
-    analyze,
+  products: router({
+    getRecommendations: getRecommendationsProcedure,
+    getProductDetails: getProductDetailsProcedure,
   }),
-  products: createTRPCRouter({
-    getProductDetails,
-    getRecommendations,
+  social: router({
+    getPosts: getPostsProcedure,
+    getPostDetails: getPostDetailsProcedure,
+    createComment: createCommentProcedure,
+    likePost: likePostProcedure,
   }),
-  social: createTRPCRouter({
-    getPosts,
-    getPostDetails,
-    createComment,
-    likePost,
+  analysis: router({
+    analyze: analyzeProcedure,
   }),
 });
 

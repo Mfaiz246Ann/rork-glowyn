@@ -65,3 +65,104 @@ export type Comment = {
   text: string;
   timestamp: string;
 };
+
+export type ColorSeason = 'spring' | 'summer' | 'autumn' | 'winter';
+export type ColorTone = 'warm' | 'cool' | 'neutral';
+
+export type ColorResult = {
+  season: ColorSeason;
+  tone: ColorTone;
+  palette: string[];
+  recommendations: string;
+  confidence?: number;
+  perfectColors?: string[];
+  goodColors?: string[];
+  sparinglyColors?: string[];
+  makeupRecommendations?: {
+    lipstick: string[];
+    eyeshadow: string[];
+    blush: string[];
+  };
+  clothingRecommendations?: {
+    tops: string[];
+    bottoms: string[];
+    accessories: string[];
+    metals: string[];
+  };
+};
+
+export type FaceShape = 'oval' | 'round' | 'square' | 'heart' | 'diamond' | 'rectangle';
+
+export type ShapeResult = {
+  shape: FaceShape;
+  description: string;
+  confidence?: number;
+  features?: {
+    faceLength?: string;
+    cheekbones?: string;
+    jawline?: string;
+    forehead?: string;
+    chinShape?: string;
+  };
+  hairstyles: {
+    name: string;
+    rating: 'Perfect' | 'Excellent' | 'Great' | 'Good';
+    description: string;
+  }[];
+  glasses: {
+    name: string;
+    rating: 'Perfect' | 'Excellent' | 'Great' | 'Good';
+    description: string;
+  }[];
+  accessories: {
+    name: string;
+    rating: 'Perfect' | 'Excellent' | 'Great' | 'Good';
+    description: string;
+  }[];
+};
+
+export type SkinType = 'dry' | 'oily' | 'combination' | 'normal' | 'sensitive';
+
+export type SkinResult = {
+  type: SkinType;
+  description: string;
+  confidence?: number;
+  concerns: string[];
+  recommendations: {
+    category: string;
+    products: string[];
+  }[];
+};
+
+export type StylePreference = 'Minimalist' | 'Casual' | 'Edgy' | 'Formal' | 'Bohemian' | 'Sporty';
+export type BodyType = 'Hourglass' | 'Pear' | 'Apple' | 'Rectangle' | 'Inverted Triangle';
+export type Occasion = 'Work' | 'Casual' | 'Date Night' | 'Formal Event' | 'Workout';
+export type Weather = 'Hot' | 'Warm' | 'Cool' | 'Cold' | 'Rainy';
+
+export type OutfitItem = {
+  type: 'Top' | 'Bottom' | 'Outerwear' | 'Shoes' | 'Accessories';
+  name: string;
+  color: string;
+  imageUrl?: string;
+};
+
+export type OutfitRecommendation = {
+  title: string;
+  matchScore: number;
+  items: OutfitItem[];
+  imageUrl?: string;
+};
+
+export type StylingTip = {
+  title: string;
+  description: string;
+};
+
+export type OutfitResult = {
+  stylePreference: StylePreference;
+  bodyType?: BodyType;
+  occasion?: Occasion;
+  weather?: Weather;
+  recommendations: OutfitRecommendation[];
+  tips: StylingTip[];
+};

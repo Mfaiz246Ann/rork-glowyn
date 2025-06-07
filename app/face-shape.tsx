@@ -2,65 +2,225 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Info, Camera, Upload } from 'lucide-react-native';
+import { Info, Camera, Upload, CheckCircle2 } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
 import { ImageCapture } from '@/components/ImageCapture';
+import { useUserStore } from '@/store/userStore';
+import { performAnalysis } from '@/services/analysisService';
 
 type FaceShape = 'oval' | 'round' | 'square' | 'heart' | 'diamond' | 'rectangle';
 
 interface ShapeResult {
   shape: FaceShape;
   description: string;
-  hairstyles: string[];
-  glasses: string[];
-  accessories: string[];
+  confidence?: number;
+  features?: {
+    faceLength?: string;
+    cheekbones?: string;
+    jawline?: string;
+    forehead?: string;
+    chinShape?: string;
+  };
+  hairstyles: {
+    name: string;
+    rating: 'Perfect' | 'Excellent' | 'Great' | 'Good';
+    description: string;
+  }[];
+  glasses: {
+    name: string;
+    rating: 'Perfect' | 'Excellent' | 'Great' | 'Good';
+    description: string;
+  }[];
+  accessories: {
+    name: string;
+    rating: 'Perfect' | 'Excellent' | 'Great' | 'Good';
+    description: string;
+  }[];
 }
 
 const faceShapeResults: Record<FaceShape, ShapeResult> = {
   oval: {
     shape: 'oval',
     description: 'Bentuk wajah oval dianggap sebagai bentuk wajah yang ideal karena proporsinya yang seimbang.',
-    hairstyles: ['Hampir semua gaya rambut', 'Potongan bob', 'Lapisan panjang'],
-    glasses: ['Kacamata persegi', 'Kacamata kucing', 'Kacamata aviator'],
-    accessories: ['Anting panjang', 'Kalung pendek', 'Topi fedora'],
+    confidence: 92,
+    features: {
+      faceLength: 'Panjang wajah sekitar 1.5 kali lebar wajah',
+      cheekbones: 'Tulang pipi adalah titik terlebar pada wajah',
+      jawline: 'Rahang halus dan sedikit meruncing ke arah dagu',
+      forehead: 'Dahi proporsional dengan wajah',
+      chinShape: 'Dagu sedikit meruncing dan halus',
+    },
+    hairstyles: [
+      { name: 'Hampir semua gaya rambut', rating: 'Perfect', description: 'Bentuk wajah Anda sangat serbaguna' },
+      { name: 'Potongan bob', rating: 'Excellent', description: 'Menyoroti struktur tulang wajah Anda' },
+      { name: 'Lapisan panjang', rating: 'Great', description: 'Menambah dimensi dan gerakan' },
+      { name: 'Pixie cut', rating: 'Good', description: 'Menonjolkan fitur wajah Anda' },
+    ],
+    glasses: [
+      { name: 'Kacamata persegi', rating: 'Perfect', description: 'Menciptakan kontras dengan wajah Anda' },
+      { name: 'Kacamata kucing', rating: 'Excellent', description: 'Menambah dimensi ke wajah Anda' },
+      { name: 'Kacamata aviator', rating: 'Great', description: 'Melengkapi bentuk wajah Anda' },
+      { name: 'Kacamata bulat', rating: 'Good', description: 'Menciptakan keseimbangan yang menarik' },
+    ],
+    accessories: [
+      { name: 'Anting panjang', rating: 'Perfect', description: 'Menyoroti panjang wajah Anda' },
+      { name: 'Kalung pendek', rating: 'Excellent', description: 'Menarik perhatian ke leher Anda' },
+      { name: 'Topi fedora', rating: 'Great', description: 'Melengkapi bentuk wajah Anda' },
+      { name: 'Bandana', rating: 'Good', description: 'Menambah gaya tanpa mengganggu keseimbangan' },
+    ],
   },
   round: {
     shape: 'round',
     description: 'Bentuk wajah bulat memiliki lebar dan panjang yang hampir sama dengan pipi yang penuh.',
-    hairstyles: ['Lapisan panjang', 'Potongan asimetris', 'Poni samping'],
-    glasses: ['Kacamata persegi', 'Kacamata kotak', 'Kacamata wayfarer'],
-    accessories: ['Anting panjang', 'Kalung panjang', 'Topi dengan pinggiran lebar'],
+    confidence: 88,
+    features: {
+      faceLength: 'Panjang dan lebar wajah hampir sama',
+      cheekbones: 'Pipi penuh dan lebar',
+      jawline: 'Rahang halus dan kurang terdefinisi',
+      forehead: 'Dahi lebar dan pendek',
+      chinShape: 'Dagu pendek dan bulat',
+    },
+    hairstyles: [
+      { name: 'Lapisan panjang', rating: 'Perfect', description: 'Memanjangkan wajah Anda' },
+      { name: 'Potongan asimetris', rating: 'Excellent', description: 'Menciptakan ilusi sudut' },
+      { name: 'Poni samping', rating: 'Great', description: 'Memecah lingkaran wajah' },
+      { name: 'Volume di mahkota', rating: 'Good', description: 'Menambah tinggi ke wajah Anda' },
+    ],
+    glasses: [
+      { name: 'Kacamata persegi', rating: 'Perfect', description: 'Menambah definisi ke wajah Anda' },
+      { name: 'Kacamata kotak', rating: 'Excellent', description: 'Menciptakan kontras dengan kelembutan' },
+      { name: 'Kacamata wayfarer', rating: 'Great', description: 'Menyeimbangkan fitur bulat' },
+      { name: 'Kacamata persegi panjang', rating: 'Good', description: 'Memanjangkan wajah Anda' },
+    ],
+    accessories: [
+      { name: 'Anting panjang', rating: 'Perfect', description: 'Memanjangkan wajah Anda' },
+      { name: 'Kalung panjang', rating: 'Excellent', description: 'Menciptakan garis vertikal' },
+      { name: 'Topi dengan pinggiran lebar', rating: 'Great', description: 'Menyeimbangkan kelembutan wajah' },
+      { name: 'Syal panjang', rating: 'Good', description: 'Mengarahkan mata secara vertikal' },
+    ],
   },
   square: {
     shape: 'square',
     description: 'Bentuk wajah persegi memiliki rahang yang kuat dan dahi yang lebar.',
-    hairstyles: ['Lapisan lembut', 'Potongan bob', 'Gaya bergelombang'],
-    glasses: ['Kacamata bulat', 'Kacamata oval', 'Kacamata tanpa bingkai'],
-    accessories: ['Anting bulat', 'Kalung bulat', 'Bandana'],
+    confidence: 90,
+    features: {
+      faceLength: 'Panjang dan lebar wajah hampir sama',
+      cheekbones: 'Tulang pipi lebar dan sejajar dengan dahi dan rahang',
+      jawline: 'Rahang kuat dan bersudut',
+      forehead: 'Dahi lebar dan lurus',
+      chinShape: 'Dagu persegi dan tegas',
+    },
+    hairstyles: [
+      { name: 'Lapisan lembut', rating: 'Perfect', description: 'Melunakkan sudut wajah Anda' },
+      { name: 'Potongan bob', rating: 'Excellent', description: 'Menambah kelembutan ke wajah' },
+      { name: 'Gaya bergelombang', rating: 'Great', description: 'Menyeimbangkan garis tegas' },
+      { name: 'Poni samping', rating: 'Good', description: 'Memecah lebar dahi' },
+    ],
+    glasses: [
+      { name: 'Kacamata bulat', rating: 'Perfect', description: 'Melunakkan sudut wajah Anda' },
+      { name: 'Kacamata oval', rating: 'Excellent', description: 'Menyeimbangkan garis tegas' },
+      { name: 'Kacamata tanpa bingkai', rating: 'Great', description: 'Mengurangi kontras keras' },
+      { name: 'Kacamata aviator', rating: 'Good', description: 'Menambah kelembutan ke wajah' },
+    ],
+    accessories: [
+      { name: 'Anting bulat', rating: 'Perfect', description: 'Melunakkan sudut wajah Anda' },
+      { name: 'Kalung bulat', rating: 'Excellent', description: 'Menyeimbangkan garis tegas' },
+      { name: 'Bandana', rating: 'Great', description: 'Menambah kelembutan ke wajah' },
+      { name: 'Syal melingkar', rating: 'Good', description: 'Menciptakan kontras dengan sudut' },
+    ],
   },
   heart: {
     shape: 'heart',
     description: 'Bentuk wajah hati memiliki dahi lebar dan dagu yang meruncing.',
-    hairstyles: ['Rambut medium dengan lapisan', 'Poni', 'Potongan bob'],
-    glasses: ['Kacamata aviator', 'Kacamata kucing', 'Kacamata bulat'],
-    accessories: ['Anting drop', 'Kalung choker', 'Bandana'],
+    confidence: 86,
+    features: {
+      faceLength: 'Panjang wajah lebih dari lebar wajah',
+      cheekbones: 'Tulang pipi tinggi dan lebar',
+      jawline: 'Rahang meruncing ke arah dagu',
+      forehead: 'Dahi lebar, titik terlebar pada wajah',
+      chinShape: 'Dagu sempit dan meruncing',
+    },
+    hairstyles: [
+      { name: 'Rambut medium dengan lapisan', rating: 'Perfect', description: 'Menyeimbangkan dahi lebar' },
+      { name: 'Poni', rating: 'Excellent', description: 'Mengurangi lebar dahi' },
+      { name: 'Potongan bob', rating: 'Great', description: 'Menambah lebar di bagian bawah wajah' },
+      { name: 'Volume di sisi', rating: 'Good', description: 'Menyeimbangkan dagu yang meruncing' },
+    ],
+    glasses: [
+      { name: 'Kacamata aviator', rating: 'Perfect', description: 'Menyeimbangkan dahi lebar' },
+      { name: 'Kacamata kucing', rating: 'Excellent', description: 'Menyoroti tulang pipi Anda' },
+      { name: 'Kacamata bulat', rating: 'Great', description: 'Melunakkan sudut dahi' },
+      { name: 'Kacamata bottom-heavy', rating: 'Good', description: 'Menambah lebar di bagian bawah wajah' },
+    ],
+    accessories: [
+      { name: 'Anting drop', rating: 'Perfect', description: 'Memperlebar area rahang' },
+      { name: 'Kalung choker', rating: 'Excellent', description: 'Menarik perhatian dari dahi' },
+      { name: 'Bandana', rating: 'Great', description: 'Mengurangi lebar dahi' },
+      { name: 'Anting chandelier', rating: 'Good', description: 'Menyeimbangkan dagu yang meruncing' },
+    ],
   },
   diamond: {
     shape: 'diamond',
     description: 'Bentuk wajah berlian memiliki tulang pipi yang tinggi dan dagu yang meruncing.',
-    hairstyles: ['Poni tebal', 'Potongan bob', 'Gaya bervolume di sisi'],
-    glasses: ['Kacamata oval', 'Kacamata kucing', 'Kacamata rimless'],
-    accessories: ['Anting stud', 'Kalung pendek', 'Bando tipis'],
+    confidence: 89,
+    features: {
+      faceLength: 'Panjang wajah lebih dari lebar wajah',
+      cheekbones: 'Tulang pipi tinggi dan merupakan titik terlebar pada wajah',
+      jawline: 'Rahang sempit dan meruncing ke arah dagu',
+      forehead: 'Dahi sempit',
+      chinShape: 'Dagu meruncing dan terdefinisi',
+    },
+    hairstyles: [
+      { name: 'Poni tebal', rating: 'Perfect', description: 'Menambah lebar di dahi' },
+      { name: 'Potongan bob', rating: 'Excellent', description: 'Menyoroti tulang pipi Anda' },
+      { name: 'Gaya bervolume di sisi', rating: 'Great', description: 'Menyeimbangkan tulang pipi yang tinggi' },
+      { name: 'Lapisan di sekitar wajah', rating: 'Good', description: 'Melunakkan sudut wajah' },
+    ],
+    glasses: [
+      { name: 'Kacamata oval', rating: 'Perfect', description: 'Melunakkan sudut wajah Anda' },
+      { name: 'Kacamata kucing', rating: 'Excellent', description: 'Menyoroti tulang pipi Anda' },
+      { name: 'Kacamata rimless', rating: 'Great', description: 'Tidak menambah lebar di tulang pipi' },
+      { name: 'Kacamata top-heavy', rating: 'Good', description: 'Menyeimbangkan dagu yang meruncing' },
+    ],
+    accessories: [
+      { name: 'Anting stud', rating: 'Perfect', description: 'Tidak menambah lebar di tulang pipi' },
+      { name: 'Kalung pendek', rating: 'Excellent', description: 'Menarik perhatian dari tulang pipi' },
+      { name: 'Bando tipis', rating: 'Great', description: 'Menambah lebar di dahi' },
+      { name: 'Anting teardrop', rating: 'Good', description: 'Melengkapi bentuk wajah Anda' },
+    ],
   },
   rectangle: {
     shape: 'rectangle',
     description: 'Bentuk wajah persegi panjang memiliki panjang yang lebih dari lebarnya.',
-    hairstyles: ['Lapisan pendek', 'Potongan bob', 'Gaya bervolume di samping'],
-    glasses: ['Kacamata besar', 'Kacamata bulat', 'Kacamata kotak'],
-    accessories: ['Anting hoop', 'Kalung multi-layer', 'Topi bucket'],
+    confidence: 87,
+    features: {
+      faceLength: 'Panjang wajah jauh lebih besar dari lebar wajah',
+      cheekbones: 'Tulang pipi sejajar dengan dahi dan rahang',
+      jawline: 'Rahang lurus dan panjang',
+      forehead: 'Dahi tinggi',
+      chinShape: 'Dagu persegi',
+    },
+    hairstyles: [
+      { name: 'Lapisan pendek', rating: 'Perfect', description: 'Mengurangi panjang wajah' },
+      { name: 'Potongan bob', rating: 'Excellent', description: 'Menambah lebar ke wajah' },
+      { name: 'Gaya bervolume di samping', rating: 'Great', description: 'Menyeimbangkan panjang wajah' },
+      { name: 'Poni', rating: 'Good', description: 'Mengurangi tinggi dahi' },
+    ],
+    glasses: [
+      { name: 'Kacamata besar', rating: 'Perfect', description: 'Memecah panjang wajah' },
+      { name: 'Kacamata bulat', rating: 'Excellent', description: 'Melunakkan sudut wajah' },
+      { name: 'Kacamata kotak', rating: 'Great', description: 'Menambah lebar ke wajah' },
+      { name: 'Kacamata dengan detail di sisi', rating: 'Good', description: 'Menambah lebar visual' },
+    ],
+    accessories: [
+      { name: 'Anting hoop', rating: 'Perfect', description: 'Menambah lebar ke wajah' },
+      { name: 'Kalung multi-layer', rating: 'Excellent', description: 'Memecah panjang leher' },
+      { name: 'Topi bucket', rating: 'Great', description: 'Mengurangi tinggi dahi' },
+      { name: 'Syal lebar', rating: 'Good', description: 'Menambah lebar visual' },
+    ],
   },
 };
 
@@ -75,6 +235,7 @@ const shapeNames: Record<FaceShape, string> = {
 
 export default function FaceShapeScreen() {
   const router = useRouter();
+  const { addAnalysisResult } = useUserStore();
   const [showCamera, setShowCamera] = useState(false);
   const [result, setResult] = useState<ShapeResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
@@ -83,19 +244,65 @@ export default function FaceShapeScreen() {
     setShowCamera(false);
     setAnalyzing(true);
     
-    // Simulasi analisis
-    setTimeout(() => {
+    try {
+      const analysisResult = await performAnalysis(uri, 'face');
+      
+      // Convert the general analysis result to our specific ShapeResult type
+      const shapeType = (analysisResult.result.toLowerCase().includes('oval') ? 'oval' : 
+                        analysisResult.result.toLowerCase().includes('bulat') ? 'round' :
+                        analysisResult.result.toLowerCase().includes('persegi panjang') ? 'rectangle' :
+                        analysisResult.result.toLowerCase().includes('persegi') ? 'square' :
+                        analysisResult.result.toLowerCase().includes('hati') ? 'heart' : 'diamond') as FaceShape;
+      
+      // Get the full result with all details from our predefined results
+      const fullResult = faceShapeResults[shapeType];
+      
+      setResult(fullResult);
+      
+      // Save the analysis result
+      addAnalysisResult({
+        id: analysisResult.id,
+        type: 'face',
+        title: shapeNames[shapeType],
+        date: new Date().toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        result: shapeNames[shapeType],
+        details: fullResult,
+      });
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      // Fallback to mock data in case of error
       setResult(faceShapeResults.oval);
+    } finally {
       setAnalyzing(false);
-    }, 2000);
+    }
   };
 
   const handleUpload = async () => {
     setAnalyzing(true);
     
-    // Simulasi analisis
+    // Simulate analysis with a delay
     setTimeout(() => {
-      setResult(faceShapeResults.oval);
+      const randomShape = Object.keys(faceShapeResults)[Math.floor(Math.random() * 6)] as FaceShape;
+      setResult(faceShapeResults[randomShape]);
+      
+      // Save the analysis result
+      addAnalysisResult({
+        id: `analysis_${Date.now()}`,
+        type: 'face',
+        title: shapeNames[randomShape],
+        date: new Date().toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        result: shapeNames[randomShape],
+        details: faceShapeResults[randomShape],
+      });
+      
       setAnalyzing(false);
     }, 2000);
   };
@@ -140,51 +347,93 @@ export default function FaceShapeScreen() {
           </View>
         ) : result ? (
           <View style={styles.resultContainer}>
-            <Text style={styles.resultTitle}>Bentuk Wajahmu</Text>
-            <Text style={styles.resultShape}>{shapeNames[result.shape]}</Text>
+            <View style={styles.resultHeader}>
+              <Text style={styles.resultTitle}>Bentuk Wajahmu</Text>
+              <Text style={styles.resultShape}>{shapeNames[result.shape]}</Text>
+              
+              <View style={styles.confidenceContainer}>
+                <Text style={styles.confidenceLabel}>Tingkat Keyakinan:</Text>
+                <Text style={styles.confidenceValue}>{result.confidence}%</Text>
+              </View>
+            </View>
             
             <Image 
               source={{ uri: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }} 
               style={styles.faceImage}
             />
             
-            <Text style={styles.descriptionTitle}>Deskripsi</Text>
-            <Text style={styles.descriptionText}>{result.description}</Text>
-            
-            <Text style={styles.recommendationsTitle}>Gaya Rambut yang Direkomendasikan</Text>
-            <View style={styles.recommendationsList}>
-              {result.hairstyles.map((item, index) => (
-                <View key={`hairstyle-${index}`} style={styles.recommendationItem}>
-                  <View style={styles.recommendationBullet} />
-                  <Text style={styles.recommendationText}>{item}</Text>
+            <View style={styles.featuresCard}>
+              <Text style={styles.featuresTitle}>Fitur Wajah Anda</Text>
+              
+              {result.features && Object.entries(result.features).map(([key, value]) => (
+                <View key={key} style={styles.featureItem}>
+                  <View style={styles.featureBullet} />
+                  <Text style={styles.featureText}>{value}</Text>
                 </View>
               ))}
+              
+              <Text style={styles.descriptionText}>{result.description}</Text>
             </View>
             
-            <Text style={styles.recommendationsTitle}>Kacamata yang Direkomendasikan</Text>
-            <View style={styles.recommendationsList}>
-              {result.glasses.map((item, index) => (
-                <View key={`glasses-${index}`} style={styles.recommendationItem}>
-                  <View style={styles.recommendationBullet} />
-                  <Text style={styles.recommendationText}>{item}</Text>
-                </View>
-              ))}
+            <View style={styles.recommendationsSection}>
+              <Text style={styles.sectionTitle}>Rekomendasi Gaya Rambut</Text>
+              
+              <View style={styles.recommendationsGrid}>
+                {result.hairstyles.map((item, index) => (
+                  <View key={`hairstyle-${index}`} style={styles.recommendationCard}>
+                    <View style={[styles.recommendationRating, styles[`rating${item.rating}`]]}>
+                      <Text style={styles.recommendationRatingText}>{item.rating}</Text>
+                    </View>
+                    <Text style={styles.recommendationName}>{item.name}</Text>
+                    <Text style={styles.recommendationDescription}>{item.description}</Text>
+                  </View>
+                ))}
+              </View>
             </View>
             
-            <Text style={styles.recommendationsTitle}>Aksesori yang Direkomendasikan</Text>
-            <View style={styles.recommendationsList}>
-              {result.accessories.map((item, index) => (
-                <View key={`accessory-${index}`} style={styles.recommendationItem}>
-                  <View style={styles.recommendationBullet} />
-                  <Text style={styles.recommendationText}>{item}</Text>
-                </View>
-              ))}
+            <View style={styles.recommendationsSection}>
+              <Text style={styles.sectionTitle}>Rekomendasi Kacamata</Text>
+              
+              <View style={styles.recommendationsGrid}>
+                {result.glasses.map((item, index) => (
+                  <View key={`glasses-${index}`} style={styles.recommendationCard}>
+                    <View style={[styles.recommendationRating, styles[`rating${item.rating}`]]}>
+                      <Text style={styles.recommendationRatingText}>{item.rating}</Text>
+                    </View>
+                    <Text style={styles.recommendationName}>{item.name}</Text>
+                    <Text style={styles.recommendationDescription}>{item.description}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+            
+            <View style={styles.recommendationsSection}>
+              <Text style={styles.sectionTitle}>Rekomendasi Aksesori</Text>
+              
+              <View style={styles.recommendationsGrid}>
+                {result.accessories.map((item, index) => (
+                  <View key={`accessory-${index}`} style={styles.recommendationCard}>
+                    <View style={[styles.recommendationRating, styles[`rating${item.rating}`]]}>
+                      <Text style={styles.recommendationRatingText}>{item.rating}</Text>
+                    </View>
+                    <Text style={styles.recommendationName}>{item.name}</Text>
+                    <Text style={styles.recommendationDescription}>{item.description}</Text>
+                  </View>
+                ))}
+              </View>
             </View>
             
             <Button 
               title="Lihat Produk yang Direkomendasikan" 
               onPress={() => router.push('/shop')}
               style={styles.productsButton}
+            />
+            
+            <Button
+              title="Simpan Hasil Analisis"
+              variant="primary"
+              style={styles.saveButton}
+              onPress={() => router.back()}
             />
           </View>
         ) : null}
@@ -271,6 +520,13 @@ const styles = StyleSheet.create({
   resultContainer: {
     paddingBottom: layout.spacing.xl,
   },
+  resultHeader: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.lg,
+    padding: layout.spacing.lg,
+    marginBottom: layout.spacing.lg,
+    alignItems: 'center',
+  },
   resultTitle: {
     fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.lg,
@@ -281,7 +537,22 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.bold,
     fontSize: typography.fontSize.xxl,
     color: colors.text,
-    marginBottom: layout.spacing.lg,
+    marginBottom: layout.spacing.md,
+  },
+  confidenceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  confidenceLabel: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
+    color: colors.textSecondary,
+    marginRight: layout.spacing.xs,
+  },
+  confidenceValue: {
+    fontFamily: typography.fontFamily.bold,
+    fontSize: typography.fontSize.md,
+    color: colors.primary,
   },
   faceImage: {
     width: '100%',
@@ -289,24 +560,99 @@ const styles = StyleSheet.create({
     borderRadius: layout.borderRadius.lg,
     marginBottom: layout.spacing.lg,
   },
-  descriptionTitle: {
-    fontFamily: typography.fontFamily.medium,
+  featuresCard: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.lg,
+    padding: layout.spacing.lg,
+    marginBottom: layout.spacing.lg,
+  },
+  featuresTitle: {
+    fontFamily: typography.fontFamily.bold,
     fontSize: typography.fontSize.lg,
     color: colors.text,
+    marginBottom: layout.spacing.md,
+  },
+  featureItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: layout.spacing.sm,
+  },
+  featureBullet: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.primary,
+    marginRight: layout.spacing.sm,
+  },
+  featureText: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+    flex: 1,
   },
   descriptionText: {
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
     color: colors.textSecondary,
+    marginTop: layout.spacing.md,
     lineHeight: 22,
-    marginBottom: layout.spacing.lg,
   },
-  recommendationsTitle: {
-    fontFamily: typography.fontFamily.medium,
+  recommendationsSection: {
+    marginBottom: layout.spacing.xl,
+  },
+  sectionTitle: {
+    fontFamily: typography.fontFamily.bold,
     fontSize: typography.fontSize.lg,
     color: colors.text,
+    marginBottom: layout.spacing.md,
+  },
+  recommendationsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    gap: layout.spacing.md,
+  },
+  recommendationCard: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.md,
+    padding: layout.spacing.md,
+    width: '48%',
     marginBottom: layout.spacing.sm,
+  },
+  recommendationRating: {
+    paddingVertical: layout.spacing.xs,
+    paddingHorizontal: layout.spacing.sm,
+    borderRadius: layout.borderRadius.sm,
+    alignSelf: 'flex-start',
+    marginBottom: layout.spacing.sm,
+  },
+  ratingPerfect: {
+    backgroundColor: '#4CAF50',
+  },
+  ratingExcellent: {
+    backgroundColor: '#8BC34A',
+  },
+  ratingGreat: {
+    backgroundColor: '#CDDC39',
+  },
+  ratingGood: {
+    backgroundColor: '#FFEB3B',
+  },
+  recommendationRatingText: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.xs,
+    color: colors.surface,
+  },
+  recommendationName: {
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+    marginBottom: layout.spacing.xs,
+  },
+  recommendationDescription: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
   },
   recommendationsList: {
     marginBottom: layout.spacing.lg,
@@ -330,5 +676,9 @@ const styles = StyleSheet.create({
   },
   productsButton: {
     marginTop: layout.spacing.md,
+    marginBottom: layout.spacing.md,
+  },
+  saveButton: {
+    marginTop: layout.spacing.sm,
   },
 });

@@ -85,6 +85,13 @@ function RootLayoutNav() {
               }} 
             />
             <Stack.Screen 
+              name="outfit-recommender" 
+              options={{ 
+                title: "Smart Outfit Recommender",
+                presentation: "card",
+              }} 
+            />
+            <Stack.Screen 
               name="virtual-try-on" 
               options={{ 
                 title: "Virtual Try-On",

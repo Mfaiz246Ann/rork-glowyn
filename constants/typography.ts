@@ -1,13 +1,11 @@
-import { Platform } from 'react-native';
-
 export const typography = {
   fontFamily: {
-    regular: Platform.OS === 'ios' ? 'System' : 'sans-serif',
-    medium: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
-    light: Platform.OS === 'ios' ? 'System' : 'sans-serif-light',
-    bold: Platform.OS === 'ios' ? 'System' : 'sans-serif-bold',
-    semiBold: Platform.OS === 'ios' ? 'System' : 'sans-serif-medium',
-    italic: Platform.OS === 'ios' ? 'System' : 'sans-serif',
+    regular: 'System',
+    medium: 'System-Medium',
+    semiBold: 'System-SemiBold',
+    bold: 'System-Bold',
+    light: 'System-Light',
+    italic: 'System-Italic',
   },
   fontSize: {
     xs: 12,

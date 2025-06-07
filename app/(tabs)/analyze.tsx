@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
-import { Palette, User2, FileText, Camera } from 'lucide-react-native';
+import { Palette, User2, FileText, Camera, Shirt } from 'lucide-react-native';
 import { AnalysisCard } from '@/components/ui/AnalysisCard';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
@@ -24,6 +24,9 @@ export default function AnalyzeScreen() {
         break;
       case 'skin':
         router.push('/skin-analysis');
+        break;
+      case 'outfit':
+        router.push('/outfit-recommender');
         break;
       case 'virtual':
         router.push('/virtual-try-on');
@@ -71,6 +74,13 @@ export default function AnalyzeScreen() {
         />
         
         <AnalysisCard
+          title="Smart Outfit Recommender"
+          description="Rekomendasi pakaian berdasarkan preferensi dan bentuk tubuh"
+          icon={<Shirt size={24} color={colors.primary} />}
+          onPress={() => navigateToAnalysis('outfit')}
+        />
+        
+        <AnalysisCard
           title="Virtual Try-On"
           description="Coba makeup dan aksesori secara virtual"
           icon={<Camera size={24} color={colors.primary} />}
@@ -98,13 +108,21 @@ export default function AnalyzeScreen() {
                     case 'skin':
                       router.push('/skin-analysis');
                       break;
+                    case 'outfit':
+                      router.push('/outfit-recommender');
+                      break;
                     default:
                       break;
                   }
                 }}
               >
                 <View style={styles.recentCardContent}>
-                  <Text style={styles.recentCardType}>Analisis {analysis.type === 'color' ? 'Warna' : analysis.type === 'face' ? 'Wajah' : 'Kulit'}</Text>
+                  <Text style={styles.recentCardType}>
+                    {analysis.type === 'color' ? 'Analisis Warna' : 
+                     analysis.type === 'face' ? 'Analisis Wajah' : 
+                     analysis.type === 'skin' ? 'Analisis Kulit' : 
+                     'Rekomendasi Pakaian'}
+                  </Text>
                   <Text style={styles.recentCardResult}>{analysis.result}</Text>
                   <Text style={styles.recentCardDate}>{analysis.date}</Text>
                 </View>

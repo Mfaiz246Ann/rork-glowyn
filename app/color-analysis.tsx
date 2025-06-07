@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Info, Camera, Upload } from 'lucide-react-native';
+import { Info, Camera, Upload, CheckCircle2 } from 'lucide-react-native';
 import { Button } from '@/components/ui/Button';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
 import { ImageCapture } from '@/components/ImageCapture';
+import { useUserStore } from '@/store/userStore';
+import { performAnalysis } from '@/services/analysisService';
 
 type ColorSeason = 'spring' | 'summer' | 'autumn' | 'winter';
 type ColorTone = 'warm' | 'cool' | 'neutral';
@@ -17,6 +19,21 @@ interface ColorResult {
   tone: ColorTone;
   palette: string[];
   recommendations: string;
+  confidence?: number;
+  perfectColors?: string[];
+  goodColors?: string[];
+  sparinglyColors?: string[];
+  makeupRecommendations?: {
+    lipstick: string[];
+    eyeshadow: string[];
+    blush: string[];
+  };
+  clothingRecommendations?: {
+    tops: string[];
+    bottoms: string[];
+    accessories: string[];
+    metals: string[];
+  };
 }
 
 const colorResults: Record<ColorSeason, ColorResult> = {
@@ -25,24 +42,84 @@ const colorResults: Record<ColorSeason, ColorResult> = {
     tone: 'warm',
     palette: ['#FF7F50', '#FFDAB9', '#FFFF00', '#8FBC8F', '#40E0D0'],
     recommendations: 'Warna-warna Anda hangat dan cerah, sempurna untuk menonjolkan kilau alami pada kulit Anda.',
+    confidence: 87,
+    perfectColors: ['#FF7F50', '#FFDAB9', '#FFFF00', '#8FBC8F', '#40E0D0'],
+    goodColors: ['#FFA07A', '#FFE4B5', '#FFFFE0', '#98FB98', '#AFEEEE'],
+    sparinglyColors: ['#800000', '#000080', '#4B0082', '#2F4F4F', '#000000'],
+    makeupRecommendations: {
+      lipstick: ['Coral', 'Peach', 'Warm Pink'],
+      eyeshadow: ['Gold', 'Peach', 'Warm Brown'],
+      blush: ['Coral', 'Peach', 'Warm Pink'],
+    },
+    clothingRecommendations: {
+      tops: ['Coral', 'Peach', 'Warm Yellow', 'Sage Green'],
+      bottoms: ['Khaki', 'Cream', 'Light Denim'],
+      accessories: ['Turquoise', 'Coral', 'Gold'],
+      metals: ['Gold', 'Rose Gold', 'Bronze'],
+    },
   },
   summer: {
     season: 'summer',
     tone: 'cool',
     palette: ['#FFB6C1', '#ADD8E6', '#E6E6FA', '#98FB98', '#D3D3D3'],
     recommendations: 'Warna-warna Anda lembut dan sejuk, memberikan tampilan yang elegan dan menenangkan.',
+    confidence: 92,
+    perfectColors: ['#FFB6C1', '#ADD8E6', '#E6E6FA', '#98FB98', '#D3D3D3'],
+    goodColors: ['#FFC0CB', '#B0E0E6', '#F0F8FF', '#90EE90', '#DCDCDC'],
+    sparinglyColors: ['#8B0000', '#006400', '#8B4513', '#000000', '#FF4500'],
+    makeupRecommendations: {
+      lipstick: ['Soft Pink', 'Mauve', 'Rose'],
+      eyeshadow: ['Lavender', 'Soft Blue', 'Cool Gray'],
+      blush: ['Soft Pink', 'Mauve', 'Cool Pink'],
+    },
+    clothingRecommendations: {
+      tops: ['Soft Pink', 'Powder Blue', 'Lavender', 'Mint Green'],
+      bottoms: ['Light Gray', 'Soft Blue', 'Lavender'],
+      accessories: ['Silver', 'Soft Pink', 'Powder Blue'],
+      metals: ['Silver', 'White Gold', 'Platinum'],
+    },
   },
   autumn: {
     season: 'autumn',
     tone: 'warm',
     palette: ['#D2691E', '#F4A460', '#DAA520', '#556B2F', '#8B4513'],
     recommendations: 'Warna-warna Anda hangat dan dalam, menyatu dengan nuansa alami dan memberikan tampilan yang kaya.',
+    confidence: 89,
+    perfectColors: ['#D2691E', '#F4A460', '#DAA520', '#556B2F', '#8B4513'],
+    goodColors: ['#CD853F', '#DEB887', '#B8860B', '#6B8E23', '#A0522D'],
+    sparinglyColors: ['#00BFFF', '#FF69B4', '#9400D3', '#000000', '#00FFFF'],
+    makeupRecommendations: {
+      lipstick: ['Terracotta', 'Brick Red', 'Warm Brown'],
+      eyeshadow: ['Copper', 'Olive Green', 'Warm Brown'],
+      blush: ['Terracotta', 'Warm Peach', 'Bronze'],
+    },
+    clothingRecommendations: {
+      tops: ['Rust', 'Olive Green', 'Mustard', 'Terracotta'],
+      bottoms: ['Dark Brown', 'Olive Green', 'Khaki'],
+      accessories: ['Amber', 'Tortoise Shell', 'Copper'],
+      metals: ['Gold', 'Copper', 'Bronze'],
+    },
   },
   winter: {
     season: 'winter',
     tone: 'cool',
     palette: ['#DC143C', '#000080', '#FFFFFF', '#4B0082', '#2F4F4F'],
     recommendations: 'Warna-warna Anda kontras dan tajam, memberikan tampilan yang dramatis dan mencolok.',
+    confidence: 94,
+    perfectColors: ['#DC143C', '#000080', '#FFFFFF', '#4B0082', '#2F4F4F'],
+    goodColors: ['#FF0000', '#0000CD', '#F8F8FF', '#8A2BE2', '#2F4F4F'],
+    sparinglyColors: ['#F4A460', '#D2B48C', '#F5DEB3', '#DEB887', '#D2691E'],
+    makeupRecommendations: {
+      lipstick: ['True Red', 'Plum', 'Berry'],
+      eyeshadow: ['Navy', 'Plum', 'Silver'],
+      blush: ['Cool Pink', 'Plum', 'Berry'],
+    },
+    clothingRecommendations: {
+      tops: ['True Red', 'Royal Blue', 'Pure White', 'Emerald'],
+      bottoms: ['Black', 'Navy', 'Charcoal'],
+      accessories: ['Silver', 'Black', 'Jewel Tones'],
+      metals: ['Silver', 'White Gold', 'Platinum'],
+    },
   },
 };
 
@@ -78,27 +155,78 @@ const colorNames: Record<string, string> = {
 
 export default function ColorAnalysisScreen() {
   const router = useRouter();
+  const { addAnalysisResult } = useUserStore();
   const [showCamera, setShowCamera] = useState(false);
-  const [result, setResult] = useState<ColorResult | null>(colorResults.spring);
+  const [result, setResult] = useState<ColorResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
 
   const handleCapture = async (uri: string) => {
     setShowCamera(false);
     setAnalyzing(true);
     
-    // Simulasi analisis
-    setTimeout(() => {
+    try {
+      const analysisResult = await performAnalysis(uri, 'color');
+      
+      // Convert the general analysis result to our specific ColorResult type
+      const colorResult: ColorResult = {
+        season: (analysisResult.result.toLowerCase().includes('spring') ? 'spring' : 
+                analysisResult.result.toLowerCase().includes('summer') ? 'summer' :
+                analysisResult.result.toLowerCase().includes('autumn') ? 'autumn' : 'winter') as ColorSeason,
+        tone: (analysisResult.result.toLowerCase().includes('hangat') ? 'warm' : 'cool') as ColorTone,
+        palette: analysisResult.details?.palette?.map((p: any) => p.hex) || colorResults.spring.palette,
+        recommendations: analysisResult.details?.description || colorResults.spring.recommendations,
+        confidence: Math.floor(Math.random() * 15) + 85, // Random confidence between 85-99%
+      };
+      
+      // Get the full result with all details from our predefined results
+      const fullResult = colorResults[colorResult.season];
+      
+      setResult(fullResult);
+      
+      // Save the analysis result
+      addAnalysisResult({
+        id: analysisResult.id,
+        type: 'color',
+        title: seasonNames[colorResult.season],
+        date: new Date().toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        result: seasonNames[colorResult.season],
+        details: fullResult,
+      });
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      // Fallback to mock data in case of error
       setResult(colorResults.spring);
+    } finally {
       setAnalyzing(false);
-    }, 2000);
+    }
   };
 
   const handleUpload = async () => {
     setAnalyzing(true);
     
-    // Simulasi analisis
+    // Simulate analysis with a delay
     setTimeout(() => {
-      setResult(colorResults.spring);
+      const randomSeason = Object.keys(colorResults)[Math.floor(Math.random() * 4)] as ColorSeason;
+      setResult(colorResults[randomSeason]);
+      
+      // Save the analysis result
+      addAnalysisResult({
+        id: `analysis_${Date.now()}`,
+        type: 'color',
+        title: seasonNames[randomSeason],
+        date: new Date().toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        result: seasonNames[randomSeason],
+        details: colorResults[randomSeason],
+      });
+      
       setAnalyzing(false);
     }, 2000);
   };
@@ -143,23 +271,153 @@ export default function ColorAnalysisScreen() {
           </View>
         ) : result ? (
           <View style={styles.resultContainer}>
-            <Text style={styles.resultTitle}>Musim Warnamu</Text>
-            <Text style={[styles.resultSeason, { color: result.palette[0] }]}>
-              {seasonNames[result.season]}
-            </Text>
-
-            <Text style={styles.paletteTitle}>Palet Warnamu</Text>
-            <View style={styles.paletteContainer}>
-              {result.palette.map((color, index) => (
-                <View key={index} style={styles.colorItemContainer}>
-                  <View style={[styles.colorSwatch, { backgroundColor: color }]} />
-                  <Text style={styles.colorName}>{colorNames[color]}</Text>
-                </View>
-              ))}
+            <View style={styles.resultHeader}>
+              <Text style={styles.resultTitle}>Musim Warnamu</Text>
+              <Text style={[styles.resultSeason, { color: result.palette[0] }]}>
+                {seasonNames[result.season]}
+              </Text>
+              
+              <View style={styles.confidenceContainer}>
+                <Text style={styles.confidenceLabel}>Tingkat Keyakinan:</Text>
+                <Text style={styles.confidenceValue}>{result.confidence}%</Text>
+              </View>
+              
+              <Text style={styles.resultDescription}>
+                {result.tone === 'warm' ? 'Undertone Anda hangat' : 'Undertone Anda sejuk'} dan Anda adalah tipe {seasonNames[result.season]}
+              </Text>
             </View>
 
-            <Text style={styles.recommendationsTitle}>Rekomendasi</Text>
-            <Text style={styles.recommendationsText}>{result.recommendations}</Text>
+            <View style={styles.colorSection}>
+              <Text style={styles.sectionTitle}>Palet Warna Anda</Text>
+              
+              <View style={styles.colorCategoryContainer}>
+                <Text style={styles.colorCategoryTitle}>Warna Sempurna</Text>
+                <Text style={styles.colorCategoryDescription}>Warna-warna ini membuat Anda bersinar</Text>
+                <View style={styles.paletteContainer}>
+                  {result.perfectColors?.map((color, index) => (
+                    <View key={`perfect-${index}`} style={styles.colorItemContainer}>
+                      <View style={[styles.colorSwatch, { backgroundColor: color }]} />
+                    </View>
+                  ))}
+                </View>
+              </View>
+              
+              <View style={styles.colorCategoryContainer}>
+                <Text style={styles.colorCategoryTitle}>Warna Bagus</Text>
+                <Text style={styles.colorCategoryDescription}>Variasi yang bagus untuk palet Anda</Text>
+                <View style={styles.paletteContainer}>
+                  {result.goodColors?.map((color, index) => (
+                    <View key={`good-${index}`} style={styles.colorItemContainer}>
+                      <View style={[styles.colorSwatch, { backgroundColor: color }]} />
+                    </View>
+                  ))}
+                </View>
+              </View>
+              
+              <View style={styles.colorCategoryContainer}>
+                <Text style={styles.colorCategoryTitle}>Warna untuk Digunakan Hemat</Text>
+                <Text style={styles.colorCategoryDescription}>Gunakan sebagai aksen saja</Text>
+                <View style={styles.paletteContainer}>
+                  {result.sparinglyColors?.map((color, index) => (
+                    <View key={`sparingly-${index}`} style={styles.colorItemContainer}>
+                      <View style={[styles.colorSwatch, { backgroundColor: color }]} />
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </View>
+
+            <View style={styles.recommendationsSection}>
+              <Text style={styles.sectionTitle}>Rekomendasi Makeup</Text>
+              
+              <View style={styles.recommendationCard}>
+                <View style={styles.recommendationHeader}>
+                  <Text style={styles.recommendationTitle}>Lipstik</Text>
+                </View>
+                <View style={styles.recommendationContent}>
+                  {result.makeupRecommendations?.lipstick.map((item, index) => (
+                    <View key={`lipstick-${index}`} style={styles.recommendationItem}>
+                      <CheckCircle2 size={16} color={colors.primary} />
+                      <Text style={styles.recommendationText}>{item}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+              
+              <View style={styles.recommendationCard}>
+                <View style={styles.recommendationHeader}>
+                  <Text style={styles.recommendationTitle}>Eyeshadow</Text>
+                </View>
+                <View style={styles.recommendationContent}>
+                  {result.makeupRecommendations?.eyeshadow.map((item, index) => (
+                    <View key={`eyeshadow-${index}`} style={styles.recommendationItem}>
+                      <CheckCircle2 size={16} color={colors.primary} />
+                      <Text style={styles.recommendationText}>{item}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+              
+              <View style={styles.recommendationCard}>
+                <View style={styles.recommendationHeader}>
+                  <Text style={styles.recommendationTitle}>Blush</Text>
+                </View>
+                <View style={styles.recommendationContent}>
+                  {result.makeupRecommendations?.blush.map((item, index) => (
+                    <View key={`blush-${index}`} style={styles.recommendationItem}>
+                      <CheckCircle2 size={16} color={colors.primary} />
+                      <Text style={styles.recommendationText}>{item}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </View>
+            
+            <View style={styles.recommendationsSection}>
+              <Text style={styles.sectionTitle}>Rekomendasi Pakaian & Aksesoris</Text>
+              
+              <View style={styles.recommendationCard}>
+                <View style={styles.recommendationHeader}>
+                  <Text style={styles.recommendationTitle}>Atasan</Text>
+                </View>
+                <View style={styles.recommendationContent}>
+                  {result.clothingRecommendations?.tops.map((item, index) => (
+                    <View key={`tops-${index}`} style={styles.recommendationItem}>
+                      <CheckCircle2 size={16} color={colors.primary} />
+                      <Text style={styles.recommendationText}>{item}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+              
+              <View style={styles.recommendationCard}>
+                <View style={styles.recommendationHeader}>
+                  <Text style={styles.recommendationTitle}>Bawahan</Text>
+                </View>
+                <View style={styles.recommendationContent}>
+                  {result.clothingRecommendations?.bottoms.map((item, index) => (
+                    <View key={`bottoms-${index}`} style={styles.recommendationItem}>
+                      <CheckCircle2 size={16} color={colors.primary} />
+                      <Text style={styles.recommendationText}>{item}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+              
+              <View style={styles.recommendationCard}>
+                <View style={styles.recommendationHeader}>
+                  <Text style={styles.recommendationTitle}>Logam untuk Aksesoris</Text>
+                </View>
+                <View style={styles.recommendationContent}>
+                  {result.clothingRecommendations?.metals.map((item, index) => (
+                    <View key={`metals-${index}`} style={styles.recommendationItem}>
+                      <CheckCircle2 size={16} color={colors.primary} />
+                      <Text style={styles.recommendationText}>{item}</Text>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            </View>
 
             <Text style={styles.productTitle}>Produk Rekomendasi</Text>
             <Text style={styles.productSubtitle}>
@@ -183,11 +441,18 @@ export default function ColorAnalysisScreen() {
                 />
               </View>
             </View>
+            
+            <Button
+              title="Simpan Hasil Analisis"
+              variant="primary"
+              style={styles.saveButton}
+              onPress={() => router.back()}
+            />
           </View>
         ) : null}
       </ScrollView>
 
-      {!result && (
+      {!result && !analyzing && (
         <View style={styles.buttonContainer}>
           <Button
             title="Ambil Foto"
@@ -268,6 +533,13 @@ const styles = StyleSheet.create({
   resultContainer: {
     paddingBottom: layout.spacing.xl,
   },
+  resultHeader: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.lg,
+    padding: layout.spacing.lg,
+    marginBottom: layout.spacing.lg,
+    alignItems: 'center',
+  },
   resultTitle: {
     fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.lg,
@@ -277,36 +549,109 @@ const styles = StyleSheet.create({
   resultSeason: {
     fontFamily: typography.fontFamily.bold,
     fontSize: typography.fontSize.xxl,
+    marginBottom: layout.spacing.md,
+  },
+  confidenceContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: layout.spacing.md,
+  },
+  confidenceLabel: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
+    color: colors.textSecondary,
+    marginRight: layout.spacing.xs,
+  },
+  confidenceValue: {
+    fontFamily: typography.fontFamily.bold,
+    fontSize: typography.fontSize.md,
+    color: colors.primary,
+  },
+  resultDescription: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+    textAlign: 'center',
+  },
+  colorSection: {
     marginBottom: layout.spacing.xl,
   },
-  paletteTitle: {
-    fontFamily: typography.fontFamily.medium,
+  sectionTitle: {
+    fontFamily: typography.fontFamily.bold,
     fontSize: typography.fontSize.lg,
     color: colors.text,
+    marginBottom: layout.spacing.md,
+  },
+  colorCategoryContainer: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.lg,
+    padding: layout.spacing.lg,
+    marginBottom: layout.spacing.md,
+  },
+  colorCategoryTitle: {
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+    marginBottom: layout.spacing.xs,
+  },
+  colorCategoryDescription: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.sm,
+    color: colors.textSecondary,
     marginBottom: layout.spacing.md,
   },
   paletteContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginBottom: layout.spacing.xl,
+    justifyContent: 'flex-start',
+    gap: layout.spacing.sm,
   },
   colorItemContainer: {
     alignItems: 'center',
-    width: '20%',
-    marginBottom: layout.spacing.md,
   },
   colorSwatch: {
-    width: 60,
-    height: 60,
-    borderRadius: layout.borderRadius.lg,
-    marginBottom: layout.spacing.xs,
+    width: 50,
+    height: 50,
+    borderRadius: layout.borderRadius.md,
   },
   colorName: {
     fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.sm,
     color: colors.text,
     textAlign: 'center',
+    marginTop: layout.spacing.xs,
+  },
+  recommendationsSection: {
+    marginBottom: layout.spacing.xl,
+  },
+  recommendationCard: {
+    backgroundColor: colors.surface,
+    borderRadius: layout.borderRadius.lg,
+    marginBottom: layout.spacing.md,
+    overflow: 'hidden',
+  },
+  recommendationHeader: {
+    backgroundColor: colors.primaryLight,
+    padding: layout.spacing.md,
+  },
+  recommendationTitle: {
+    fontFamily: typography.fontFamily.semiBold,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+  },
+  recommendationContent: {
+    padding: layout.spacing.md,
+  },
+  recommendationItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: layout.spacing.sm,
+  },
+  recommendationText: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+    marginLeft: layout.spacing.sm,
   },
   recommendationsTitle: {
     fontFamily: typography.fontFamily.medium,
@@ -366,5 +711,8 @@ const styles = StyleSheet.create({
   },
   productButton: {
     alignSelf: 'flex-start',
+  },
+  saveButton: {
+    marginTop: layout.spacing.lg,
   },
 });

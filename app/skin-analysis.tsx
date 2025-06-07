@@ -121,7 +121,7 @@ export default function SkinAnalysisScreen() {
       }
       
       // Convert the general analysis result to our specific SkinResult type
-      const resultText = analysisResponse.result.toLowerCase();
+      const resultText = analysisResponse.result.result.toLowerCase();
       const skinType: SkinType = (
         resultText.includes('normal') ? 'normal' : 
         resultText.includes('kering') ? 'dry' :
@@ -136,7 +136,7 @@ export default function SkinAnalysisScreen() {
       
       // Save the analysis result
       const analysisResult = {
-        id: analysisResponse.id || `analysis_${Date.now()}`,
+        id: analysisResponse.result.id || `analysis_${Date.now()}`,
         type: 'skin' as AnalysisType,
         title: `Kulit ${skinTypeNames[skinType]}`,
         date: new Date().toLocaleDateString('id-ID', {

@@ -1,8 +1,14 @@
 import { useState } from 'react';
-import { AnalysisResult, AnalysisType, AnalysisResponse } from '@/types';
+import { AnalysisResult, AnalysisType } from '@/types';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { useUserStore } from '@/store/userStore';
 import { trpcClient } from '@/lib/trpc';
+
+interface AnalysisResponse {
+  success: boolean;
+  result: AnalysisResult;
+  error?: string;
+}
 
 export const useImageAnalysis = (analysisType: AnalysisType) => {
   const [imageUri, setImageUri] = useState<string | null>(null);
@@ -51,25 +57,14 @@ export const useImageAnalysis = (analysisType: AnalysisType) => {
       const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
         analysisType,
-      });
+      }) as AnalysisResponse;
       
       if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");
       }
       
-      // Create a properly formatted AnalysisResult
-      const analysisResult: AnalysisResult = {
-        id: analysisResponse.id || `analysis_${Date.now()}`,
-        type: analysisType,
-        result: analysisResponse.result,
-        date: new Date().toLocaleDateString('id-ID', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric',
-        }),
-        title: getAnalysisTitle(analysisType, analysisResponse.result),
-        details: analysisResponse.details || {},
-      };
+      // Get the result from the response
+      const analysisResult = analysisResponse.result;
       
       setResult(analysisResult);
       addAnalysisResult(analysisResult);

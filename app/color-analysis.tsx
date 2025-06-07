@@ -183,7 +183,7 @@ export default function ColorAnalysisScreen() {
       }
       
       // Convert the general analysis result to our specific ColorResult type
-      const resultText = analysisResponse.result.toLowerCase();
+      const resultText = analysisResponse.result.result.toLowerCase();
       const colorSeason: ColorSeason = (
         resultText.includes('spring') ? 'spring' : 
         resultText.includes('summer') ? 'summer' :
@@ -197,7 +197,7 @@ export default function ColorAnalysisScreen() {
       
       // Save the analysis result
       const analysisResult = {
-        id: analysisResponse.id || `analysis_${Date.now()}`,
+        id: analysisResponse.result.id || `analysis_${Date.now()}`,
         type: 'color' as AnalysisType,
         title: seasonNames[colorSeason],
         date: new Date().toLocaleDateString('id-ID', {

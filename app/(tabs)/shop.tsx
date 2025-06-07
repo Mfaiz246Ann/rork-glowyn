@@ -10,7 +10,7 @@ import { colors } from '@/constants/colors';
 import { layout } from '@/constants/layout';
 import { typography } from '@/constants/typography';
 import { trpcClient } from '@/lib/trpc';
-import { Product } from '@/types';
+import { Product, Category, Collection } from '@/types';
 
 // Import categories and collections directly from mocks
 import { productCategories, productCollections } from '@/mocks/products';
@@ -21,6 +21,10 @@ export default function ShopScreen() {
   const [products, setProducts] = useState<Product[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Ensure categories and collections are defined with default empty arrays
+  const safeCategories: Category[] = productCategories || [];
+  const safeCollections: Collection[] = productCollections || [];
   
   useEffect(() => {
     const fetchProducts = async () => {
@@ -61,10 +65,6 @@ export default function ShopScreen() {
   const navigateToProduct = (id: string) => {
     router.push(`/product/${id}`);
   };
-
-  // Ensure categories and collections are defined
-  const safeCategories = productCategories || [];
-  const safeCollections = productCollections || [];
 
   return (
     <ScrollView 

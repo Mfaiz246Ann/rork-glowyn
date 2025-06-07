@@ -5,7 +5,6 @@ import {
   ViewStyle, 
   TouchableOpacity, 
   TouchableOpacityProps,
-  ColorValue,
   Platform,
 } from 'react-native';
 import { Image } from 'expo-image';

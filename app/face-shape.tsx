@@ -263,7 +263,7 @@ export default function FaceShapeScreen() {
       }
       
       // Convert the general analysis result to our specific ShapeResult type
-      const resultText = analysisResponse.result.toLowerCase();
+      const resultText = analysisResponse.result.result.toLowerCase();
       const shapeType: FaceShape = (
         resultText.includes('oval') ? 'oval' : 
         resultText.includes('bulat') ? 'round' :
@@ -279,7 +279,7 @@ export default function FaceShapeScreen() {
       
       // Save the analysis result
       const analysisResult = {
-        id: analysisResponse.id || `analysis_${Date.now()}`,
+        id: analysisResponse.result.id || `analysis_${Date.now()}`,
         type: 'face' as AnalysisType,
         title: shapeNames[shapeType],
         date: new Date().toLocaleDateString('id-ID', {

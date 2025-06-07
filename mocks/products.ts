@@ -1,4 +1,60 @@
-// If this file doesn't exist, create it with mock data
+// Define product categories
+export const productCategories = [
+  {
+    id: "makeup",
+    name: "Makeup",
+    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1287&auto=format&fit=crop",
+    count: 24,
+  },
+  {
+    id: "skincare",
+    name: "Skincare",
+    image: "https://images.unsplash.com/photo-1570194065650-d99fb4d8a609?q=80&w=1470&auto=format&fit=crop",
+    count: 18,
+  },
+  {
+    id: "fashion",
+    name: "Fashion",
+    image: "https://images.unsplash.com/photo-1551163943-3f7aefc7a33e?q=80&w=1364&auto=format&fit=crop",
+    count: 32,
+  },
+  {
+    id: "accessories",
+    name: "Accessories",
+    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=1287&auto=format&fit=crop",
+    count: 16,
+  },
+];
+
+// Define product collections
+export const productCollections = [
+  {
+    id: "summer",
+    name: "Summer Essentials",
+    image: "https://images.unsplash.com/photo-1527180718958-1721e2518786?q=80&w=1470&auto=format&fit=crop",
+    count: 12,
+  },
+  {
+    id: "winter",
+    name: "Winter Collection",
+    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1470&auto=format&fit=crop",
+    count: 15,
+  },
+  {
+    id: "bestsellers",
+    name: "Bestsellers",
+    image: "https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=1415&auto=format&fit=crop",
+    count: 8,
+  },
+  {
+    id: "new",
+    name: "New Arrivals",
+    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1470&auto=format&fit=crop",
+    count: 10,
+  },
+];
+
+// Define featured products
 export const featuredProducts = [
   {
     id: "1",
@@ -87,59 +143,5 @@ export const featuredProducts = [
     rating: 4.5,
     reviews: 64,
     brand: "GlamAccessories",
-  },
-];
-
-export const productCategories = [
-  {
-    id: "makeup",
-    name: "Makeup",
-    image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?q=80&w=1287&auto=format&fit=crop",
-    count: 24,
-  },
-  {
-    id: "skincare",
-    name: "Skincare",
-    image: "https://images.unsplash.com/photo-1570194065650-d99fb4d8a609?q=80&w=1470&auto=format&fit=crop",
-    count: 18,
-  },
-  {
-    id: "fashion",
-    name: "Fashion",
-    image: "https://images.unsplash.com/photo-1551163943-3f7aefc7a33e?q=80&w=1364&auto=format&fit=crop",
-    count: 32,
-  },
-  {
-    id: "accessories",
-    name: "Accessories",
-    image: "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?q=80&w=1287&auto=format&fit=crop",
-    count: 16,
-  },
-];
-
-export const productCollections = [
-  {
-    id: "summer",
-    name: "Summer Essentials",
-    image: "https://images.unsplash.com/photo-1527180718958-1721e2518786?q=80&w=1470&auto=format&fit=crop",
-    count: 12,
-  },
-  {
-    id: "winter",
-    name: "Winter Collection",
-    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?q=80&w=1470&auto=format&fit=crop",
-    count: 15,
-  },
-  {
-    id: "bestsellers",
-    name: "Bestsellers",
-    image: "https://images.unsplash.com/photo-1607083206968-13611e3d76db?q=80&w=1415&auto=format&fit=crop",
-    count: 8,
-  },
-  {
-    id: "new",
-    name: "New Arrivals",
-    image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1470&auto=format&fit=crop",
-    count: 10,
   },
 ];

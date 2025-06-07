@@ -11,7 +11,9 @@ import { layout } from '@/constants/layout';
 import { typography } from '@/constants/typography';
 import { trpcClient } from '@/lib/trpc';
 import { Product } from '@/types';
-import { categories, collections } from '@/mocks/products';
+
+// Import categories and collections directly from mocks
+import { productCategories as categories, productCollections as collections } from '@/mocks/products';
 
 export default function ShopScreen() {
   const router = useRouter();
@@ -34,10 +36,12 @@ export default function ShopScreen() {
           throw new Error("Gagal memuat produk");
         }
         
-        setProducts(response.products);
+        setProducts(response.products || []);
       } catch (err) {
         console.error("Error fetching products:", err);
         setError("Gagal memuat produk. Silakan coba lagi.");
+        // Set empty array to prevent undefined errors
+        setProducts([]);
       } finally {
         setIsLoading(false);
       }
@@ -57,6 +61,10 @@ export default function ShopScreen() {
   const navigateToProduct = (id: string) => {
     router.push(`/product/${id}`);
   };
+
+  // Ensure categories and collections are defined
+  const safeCategories = categories || [];
+  const safeCollections = collections || [];
 
   return (
     <ScrollView 
@@ -81,7 +89,7 @@ export default function ShopScreen() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.categoriesContainer}
       >
-        {categories.map((category) => (
+        {safeCategories.map((category) => (
           <CategoryCard
             key={category.id}
             name={category.name}
@@ -98,7 +106,7 @@ export default function ShopScreen() {
       />
       
       <View style={styles.featuredContainer}>
-        {collections.map((collection) => (
+        {safeCollections.map((collection) => (
           <CollectionCard
             key={collection.id}
             collection={collection}

@@ -57,7 +57,13 @@ const getRecommendationsProcedure = publicProcedure
       let featuredProducts;
       try {
         // Dynamic import to avoid circular dependencies
-        featuredProducts = require("@/mocks/products").featuredProducts;
+        const productsModule = require("@/mocks/products");
+        featuredProducts = productsModule.featuredProducts;
+        
+        if (!featuredProducts || !Array.isArray(featuredProducts)) {
+          console.warn("featuredProducts is not an array, using mock data instead");
+          featuredProducts = mockProducts;
+        }
       } catch (error) {
         console.warn("Could not import featuredProducts, using mock data instead");
         featuredProducts = mockProducts;

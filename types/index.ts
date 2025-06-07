@@ -1,4 +1,4 @@
-// Define Product type to be used across the application
+// Product type
 export interface Product {
   id: string;
   name: string;
@@ -11,11 +11,26 @@ export interface Product {
   brand: string;
 }
 
-// Add other types as needed for the application
+// Category type
+export interface Category {
+  id: string;
+  name: string;
+  image: string;
+  count: number;
+}
+
+// Collection type
+export interface Collection {
+  id: string;
+  name: string;
+  image: string;
+  count: number;
+}
+
+// User type
 export interface User {
   id: string;
   name: string;
-  username: string;
   email: string;
   avatar: string;
   bio?: string;
@@ -23,19 +38,21 @@ export interface User {
   following?: number;
 }
 
+// Analysis Result type
 export interface AnalysisResult {
   id: string;
-  userId: string;
   type: 'color' | 'face' | 'skin';
   result: string;
   date: string;
-  recommendations?: string[];
+  recommendations?: Product[];
 }
 
-export interface FeedPost {
+// Post type
+export interface Post {
   id: string;
   userId: string;
-  user?: User;
+  userName: string;
+  userAvatar: string;
   image: string;
   caption: string;
   likes: number;
@@ -44,11 +61,13 @@ export interface FeedPost {
   products?: Product[];
 }
 
+// Comment type
 export interface Comment {
   id: string;
   postId: string;
   userId: string;
-  user?: User;
+  userName: string;
+  userAvatar: string;
   text: string;
   date: string;
 }

@@ -1,26 +1,80 @@
 import { z } from "zod";
 import { publicProcedure } from "../../create-context";
-import { featuredProducts } from "@/mocks/products";
+
+// Mock products data if the import fails
+const mockProducts = [
+  {
+    id: "1",
+    name: "Hydrating Serum",
+    description: "A lightweight serum that deeply hydrates skin",
+    price: 29.99,
+    image: "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?q=80&w=1287&auto=format&fit=crop",
+    category: "skincare",
+    rating: 4.8,
+    reviews: 124,
+    brand: "GlowSkin",
+  },
+  {
+    id: "2",
+    name: "Matte Lipstick",
+    description: "Long-lasting matte lipstick in a beautiful pink shade",
+    price: 18.99,
+    image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?q=80&w=1315&auto=format&fit=crop",
+    category: "makeup",
+    rating: 4.5,
+    reviews: 89,
+    brand: "ColorPop",
+  },
+  {
+    id: "3",
+    name: "Silk Blouse",
+    description: "Elegant silk blouse perfect for any occasion",
+    price: 79.99,
+    image: "https://images.unsplash.com/photo-1551163943-3f7aefc7a33e?q=80&w=1364&auto=format&fit=crop",
+    category: "fashion",
+    rating: 4.7,
+    reviews: 56,
+    brand: "ElegantWear",
+  },
+];
 
 const getProductDetailsProcedure = publicProcedure
   .input(z.object({ productId: z.string() }))
   .query(({ input }) => {
     const { productId } = input;
     
-    // Find the product by ID
-    const product = featuredProducts.find(p => p.id === productId);
-    
-    if (!product) {
+    try {
+      // Try to import the featured products, but use mock data if it fails
+      let featuredProducts;
+      try {
+        // Dynamic import to avoid circular dependencies
+        featuredProducts = require("@/mocks/products").featuredProducts;
+      } catch (error) {
+        console.warn("Could not import featuredProducts, using mock data instead");
+        featuredProducts = mockProducts;
+      }
+      
+      // Find the product by ID
+      const product = featuredProducts.find(p => p.id === productId);
+      
+      if (!product) {
+        return {
+          success: false,
+          error: "Product not found",
+        };
+      }
+      
+      return {
+        success: true,
+        product,
+      };
+    } catch (error) {
+      console.error("Error in getProductDetails:", error);
       return {
         success: false,
-        error: "Product not found",
+        error: "Failed to fetch product details",
       };
     }
-    
-    return {
-      success: true,
-      product,
-    };
   });
 
 export default getProductDetailsProcedure;

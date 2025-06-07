@@ -1,75 +1,55 @@
-import { trpcClient } from '@/lib/trpc';
 import { AnalysisResponse, AnalysisType } from '@/types';
 
+// Base URL for API requests
+const API_BASE_URL = 'https://toolkit.rork.com';
+
 /**
- * Service for handling image analysis operations
+ * Analyzes an image for a specific analysis type
+ * @param imageBase64 Base64 encoded image
+ * @param analysisType Type of analysis to perform
+ * @returns Analysis result
  */
-export const analysisService = {
-  /**
-   * Analyze an image with the specified analysis type
-   * @param imageBase64 - Base64 encoded image data
-   * @param analysisType - Type of analysis to perform
-   * @returns Analysis response with results
-   */
-  async analyzeImage(imageBase64: string, analysisType: AnalysisType): Promise<AnalysisResponse> {
-    try {
-      // Create an AbortController for timeout handling
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-      
-      // Make the request with the tRPC client
-      const result = await trpcClient.analysis.analyze.mutate({ 
-        imageBase64, 
-        analysisType 
-      });
-      
-      // Clear the timeout
-      clearTimeout(timeoutId);
-      
-      return result;
-    } catch (error: any) {
-      console.error('Analysis service error:', error);
-      
-      // Handle specific error types
-      if (error.name === 'AbortError') {
-        const errorResponse: AnalysisResponse = {
-          success: false,
-          error: 'Request timed out. Please try again.'
-        };
-        return errorResponse;
-      } else if (error.message === 'Failed to fetch') {
-        const errorResponse: AnalysisResponse = {
-          success: false,
-          error: 'Network connection error. Please check your internet connection.'
-        };
-        return errorResponse;
-      }
-      
-      // Return a standardized error response
-      const errorResponse: AnalysisResponse = {
-        success: false,
-        error: error.message || 'Failed to analyze image'
-      };
-      return errorResponse;
+export const analyzeImage = async (
+  imageBase64: string,
+  analysisType: AnalysisType
+): Promise<AnalysisResponse> => {
+  try {
+    // Use trpc client for analysis
+    const response = await fetch(`${API_BASE_URL}/api/trpc/analysis.analyze`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        json: {
+          imageBase64,
+          analysisType,
+        },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Analysis failed with status: ${response.status}`);
     }
-  },
-  
-  /**
-   * Get mock analysis result for testing
-   * @param analysisType - Type of analysis to mock
-   * @returns Mocked analysis response
-   */
-  getMockAnalysisResult(analysisType: AnalysisType): AnalysisResponse {
+
+    const data = await response.json();
+    
+    // Extract the actual response from the tRPC wrapper
+    const result = data.result?.data;
+    
+    if (!result) {
+      return {
+        success: false,
+        error: 'Invalid response format',
+      };
+    }
+    
+    return result as AnalysisResponse;
+  } catch (error) {
+    console.error('Error in analyzeImage:', error);
     return {
-      success: true,
-      result: {
-        id: `mock_${Date.now()}`,
-        type: analysisType,
-        title: `Mock ${analysisType} analysis`,
-        result: `Mock ${analysisType} result`,
-        date: new Date().toLocaleDateString(),
-        details: { mockData: true }
-      }
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error occurred',
     };
   }
 };

@@ -1,73 +1,53 @@
 import { useState } from 'react';
-import { trpc } from '@/lib/trpc';
+import { analyzeImage } from '@/services/analysisService';
 import { AnalysisResponse, AnalysisType } from '@/types';
 
-export function useImageAnalysis() {
-  const [isLoading, setIsLoading] = useState(false);
+export const useImageAnalysis = () => {
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<AnalysisResponse | null>(null);
-  
-  const analyzeMutation = trpc.analysis.analyze.useMutation({
-    onSuccess: (data) => {
-      setResult(data);
-      setIsLoading(false);
+
+  const analyzeImageWithType = async (imageBase64: string, analysisType: AnalysisType) => {
+    try {
+      setIsAnalyzing(true);
+      setError(null);
+      setAnalysisResult(null);
+
+      const result = await analyzeImage(imageBase64, analysisType);
+      
+      // Set the result directly - it's already of type AnalysisResponse
+      setAnalysisResult(result);
+      
+      if (!result.success) {
+        setError(result.error);
+      }
+      
+      return result;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
+      setError(errorMessage);
+      
+      // Create a proper error response
+      const errorResponse: AnalysisResponse = {
+        success: false,
+        error: errorMessage
+      };
+      
+      setAnalysisResult(errorResponse);
+      return errorResponse;
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  return {
+    analyzeImage: analyzeImageWithType,
+    isAnalyzing,
+    analysisResult,
+    error,
+    resetAnalysis: () => {
+      setAnalysisResult(null);
       setError(null);
     },
-    onError: (err) => {
-      console.error('Analysis error:', err);
-      setError(err.message || 'Failed to analyze image');
-      setIsLoading(false);
-      
-      // Create a proper error response matching our discriminated union type
-      const errorResponse: AnalysisResponse = {
-        success: false,
-        error: err.message || 'Failed to analyze image'
-      };
-      setResult(errorResponse);
-    }
-  });
-  
-  const analyzeImage = async (imageBase64: string, analysisType: AnalysisType) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      // Add a timeout to prevent hanging requests
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        setTimeout(() => reject(new Error('Request timed out')), 30000);
-      });
-      
-      // Race the actual request against the timeout
-      await Promise.race([
-        analyzeMutation.mutateAsync({ imageBase64, analysisType }),
-        timeoutPromise
-      ]);
-      
-    } catch (err: any) {
-      console.error('Analysis error:', err);
-      setError(err.message || 'Failed to analyze image');
-      setIsLoading(false);
-      
-      // Create a proper error response matching our discriminated union type
-      const errorResponse: AnalysisResponse = {
-        success: false,
-        error: err.message || 'Failed to analyze image'
-      };
-      setResult(errorResponse);
-    }
   };
-  
-  const resetAnalysis = () => {
-    setResult(null);
-    setError(null);
-    setIsLoading(false);
-  };
-  
-  return {
-    analyzeImage,
-    resetAnalysis,
-    isLoading,
-    error,
-    result
-  };
-}
+};

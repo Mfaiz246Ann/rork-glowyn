@@ -30,7 +30,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     }
   };
 
-  const formatPrice = (price: number, currency: string) => {
+  const formatPrice = (price: number, currency = 'IDR') => {
     if (currency === 'IDR') {
       return `Rp ${price.toLocaleString('id-ID')}`;
     }

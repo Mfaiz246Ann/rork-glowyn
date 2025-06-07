@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure } from "../../create-context";
 import { Product } from "@/types";
 
-// Mock products data
+// Mock products data with Rupiah prices
 const mockProducts: Product[] = [
   {
     id: "1",
@@ -14,6 +14,8 @@ const mockProducts: Product[] = [
     rating: 4.5,
     reviews: 120,
     brand: "BeautyGlow",
+    currency: "IDR",
+    isEditorsPick: true,
   },
   {
     id: "2",
@@ -25,6 +27,7 @@ const mockProducts: Product[] = [
     rating: 4.8,
     reviews: 89,
     brand: "ColorPop",
+    currency: "IDR",
   },
   {
     id: "3",
@@ -36,6 +39,7 @@ const mockProducts: Product[] = [
     rating: 4.3,
     reviews: 67,
     brand: "BeautyGlow",
+    currency: "IDR",
   },
   {
     id: "4",
@@ -47,6 +51,7 @@ const mockProducts: Product[] = [
     rating: 4.6,
     reviews: 42,
     brand: "VisionPlus",
+    currency: "IDR",
   },
   {
     id: "5",
@@ -58,6 +63,8 @@ const mockProducts: Product[] = [
     rating: 4.7,
     reviews: 31,
     brand: "GlamAccessories",
+    currency: "IDR",
+    isEditorsPick: true,
   },
   {
     id: "6",
@@ -69,6 +76,7 @@ const mockProducts: Product[] = [
     rating: 4.9,
     reviews: 156,
     brand: "DermaCare",
+    currency: "IDR",
   },
   {
     id: "7",
@@ -80,6 +88,7 @@ const mockProducts: Product[] = [
     rating: 4.4,
     reviews: 98,
     brand: "DermaCare",
+    currency: "IDR",
   },
   {
     id: "8",
@@ -91,6 +100,7 @@ const mockProducts: Product[] = [
     rating: 4.2,
     reviews: 45,
     brand: "StyleFusion",
+    currency: "IDR",
   },
   {
     id: "9",
@@ -102,6 +112,8 @@ const mockProducts: Product[] = [
     rating: 4.5,
     reviews: 37,
     brand: "StyleFusion",
+    currency: "IDR",
+    isEditorsPick: true,
   },
   {
     id: "10",
@@ -113,6 +125,7 @@ const mockProducts: Product[] = [
     rating: 4.3,
     reviews: 28,
     brand: "GlamAccessories",
+    currency: "IDR",
   },
 ];
 

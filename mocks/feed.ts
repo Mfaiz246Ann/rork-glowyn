@@ -1,82 +1,130 @@
-import { FeedPost } from '@/types';
+import { FeedPost } from "@/types";
 
+// Mock feed posts with products in Rupiah
 export const feedPosts: FeedPost[] = [
   {
-    id: 'post1',
-    userId: 'user2',
-    username: 'elegant_style',
-    userImage: 'https://i.ibb.co/Jm2Bv3S/elegant-style.jpg',
-    image: 'https://images.unsplash.com/photo-1581044777550-4cfa60707c03?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8ZmFzaGlvbnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60',
-    caption: 'Elegance is an attitude. Wearing my favorite dress for a special occasion. #elegance #fashion #style',
-    likes: 342,
-    comments: 28,
-    timestamp: '2023-06-10T14:30:00Z',
-    tags: ['elegance', 'fashion', 'style'],
-    location: 'Paris Fashion Week'
+    id: "1",
+    userId: "user1",
+    userName: "Anisa Wijaya",
+    userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    caption: "Outfit of the day! Loving this new blouse from StyleFusion. #OOTD #StyleFusion",
+    likes: 120,
+    comments: 24,
+    date: "2025-06-01T08:30:00Z",
+    products: [
+      {
+        id: "8",
+        name: "Atasan Coral Blouse",
+        description: "Blouse warna coral dengan potongan yang flattering untuk semua bentuk tubuh.",
+        price: 320000,
+        image: "https://images.unsplash.com/photo-1554568218-0f1715e72254?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        category: "clothing",
+        rating: 4.2,
+        reviews: 45,
+        brand: "StyleFusion",
+        currency: "IDR"
+      }
+    ]
   },
   {
-    id: 'post2',
-    userId: 'user3',
-    username: 'sweet_casual',
-    userImage: 'https://i.ibb.co/Lkn7rkF/sweet-casual.jpg',
-    image: 'https://images.unsplash.com/photo-1566206091558-7f218b696731?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGZhc2hpb258ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60',
-    caption: 'Keeping it casual yet sweet for a day out with friends. What do you think of this outfit? #casualstyle #sweetoutfit',
-    likes: 289,
-    comments: 42,
-    timestamp: '2023-06-09T10:15:00Z',
-    tags: ['casualstyle', 'sweetoutfit', 'ootd'],
-    location: 'Seoul Street Market'
+    id: "2",
+    userId: "user2",
+    userName: "Budi Santoso",
+    userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1596704017254-9a89b0a9f651?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    caption: "Just got this amazing blush from BeautyGlow. The color is perfect for my skin tone! #BeautyGlow #MakeupLover",
+    likes: 85,
+    comments: 12,
+    date: "2025-06-02T10:15:00Z",
+    products: [
+      {
+        id: "3",
+        name: "Blush On Peach Perfect",
+        description: "Blush on dengan warna peach yang memberikan efek natural dan segar.",
+        price: 175000,
+        image: "https://images.unsplash.com/photo-1596704017254-9a89b0a9f651?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        category: "makeup",
+        rating: 4.3,
+        reviews: 67,
+        brand: "BeautyGlow",
+        currency: "IDR"
+      }
+    ]
   },
   {
-    id: 'post3',
-    userId: 'user4',
-    username: 'cool_tomboy',
-    userImage: 'https://i.ibb.co/0JKpmgb/cool-tomboy.jpg',
-    image: 'https://images.unsplash.com/photo-1509631179647-0177331693ae?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTR8fGZhc2hpb258ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60',
-    caption: "Who says tomboys can't be stylish? Rocking my favorite oversized blazer today. #tomboystyle #fashion",
-    likes: 412,
-    comments: 36,
-    timestamp: '2023-06-08T16:45:00Z',
-    tags: ['tomboystyle', 'fashion', 'streetwear'],
-    location: 'New York City'
+    id: "3",
+    userId: "user3",
+    userName: "Citra Dewi",
+    userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1556229010-aa3f7ff66b24?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    caption: "My skincare routine just got better with this new moisturizer from DermaCare. My skin feels so hydrated! #SkincareTips #DermaCare",
+    likes: 210,
+    comments: 32,
+    date: "2025-06-03T15:45:00Z",
+    products: [
+      {
+        id: "6",
+        name: "Moisturizer Hydra Boost",
+        description: "Pelembab ringan dengan formula hydrating untuk kulit normal hingga berminyak.",
+        price: 210000,
+        image: "https://images.unsplash.com/photo-1556229010-aa3f7ff66b24?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        category: "skincare",
+        rating: 4.9,
+        reviews: 156,
+        brand: "DermaCare",
+        currency: "IDR"
+      }
+    ]
   },
   {
-    id: 'post4',
-    userId: 'user5',
-    username: 'cosplay_girl',
-    userImage: 'https://i.ibb.co/xS3vTnz/cosplay-girl.jpg',
-    image: 'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZmFzaGlvbnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60',
-    caption: 'My latest cosplay creation! Spent weeks perfecting this look. What character should I do next? #cosplay #anime',
-    likes: 567,
-    comments: 89,
-    timestamp: '2023-06-07T12:20:00Z',
-    tags: ['cosplay', 'anime', 'costume'],
-    location: 'Tokyo Comic Con'
+    id: "4",
+    userId: "user4",
+    userName: "Dian Pratama",
+    userAvatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    caption: "These new aviator glasses are perfect for my face shape! Thanks to the virtual try-on feature, I found my perfect match. #StyleTips #VisionPlus",
+    likes: 95,
+    comments: 18,
+    date: "2025-06-04T12:20:00Z",
+    products: [
+      {
+        id: "4",
+        name: "Kacamata Frame Aviator",
+        description: "Kacamata dengan frame aviator yang cocok untuk bentuk wajah hati.",
+        price: 450000,
+        image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        category: "accessories",
+        rating: 4.6,
+        reviews: 42,
+        brand: "VisionPlus",
+        currency: "IDR"
+      }
+    ]
   },
   {
-    id: 'post5',
-    userId: 'user6',
-    username: 'hijabi_style',
-    userImage: 'https://i.ibb.co/Hn1J2XL/hijabi-style.jpg',
-    image: 'https://images.unsplash.com/photo-1622495894321-010d1e6db2a9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fGhpamFifGVufDB8fDB8fHww&auto=format&fit=crop&w=800&q=60',
-    caption: "Modest fashion doesn't mean boring! Loving this new hijab style paired with a chic outfit. #modestfashion #hijabistyle",
-    likes: 478,
-    comments: 52,
-    timestamp: '2023-06-06T09:10:00Z',
-    tags: ['modestfashion', 'hijabistyle', 'fashion'],
-    location: 'Dubai Mall'
-  },
-  {
-    id: 'post6',
-    userId: 'user1',
-    username: 'elegant_style',
-    userImage: 'https://i.ibb.co/Jm2Bv3S/elegant-style.jpg',
-    image: 'https://images.unsplash.com/photo-1529139574466-a303027c1d8b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjR8fGZhc2hpb258ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60',
-    caption: "Just finished my color analysis session! Found out I'm an Autumn type. Can't wait to revamp my wardrobe! #coloranalysis #personalstyle",
-    likes: 215,
-    comments: 43,
-    timestamp: '2023-06-05T15:30:00Z',
-    tags: ['coloranalysis', 'personalstyle', 'fashion'],
-    location: 'Style Studio Jakarta'
+    id: "5",
+    userId: "user5",
+    userName: "Eka Putri",
+    userAvatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+    caption: "These black culottes are so versatile and comfortable! Perfect for both office and casual outings. #FashionTips #StyleFusion",
+    likes: 150,
+    comments: 27,
+    date: "2025-06-05T09:10:00Z",
+    products: [
+      {
+        id: "9",
+        name: "Celana Kulot Hitam",
+        description: "Celana kulot hitam dengan bahan premium yang nyaman dipakai seharian.",
+        price: 275000,
+        image: "https://images.unsplash.com/photo-1594633312681-425c7b97ccd1?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        category: "clothing",
+        rating: 4.5,
+        reviews: 37,
+        brand: "StyleFusion",
+        currency: "IDR"
+      }
+    ]
   }
 ];

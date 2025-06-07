@@ -86,6 +86,78 @@ export const trpcClient = trpc.createClient({
                   data: mockResponse
                 }
               };
+            } else if (url_string.includes('products.getRecommendations')) {
+              // Mock products response
+              mockData = {
+                result: {
+                  data: {
+                    success: true,
+                    products: [
+                      {
+                        id: "1",
+                        name: "Lipstik Coral Shine",
+                        description: "Lipstik dengan warna coral yang cerah dan formula tahan lama.",
+                        price: 189000,
+                        image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                        category: "makeup",
+                        rating: 4.5,
+                        reviews: 120,
+                        brand: "BeautyGlow",
+                        currency: "IDR"
+                      },
+                      {
+                        id: "2",
+                        name: "Eyeshadow Palette Warm Tones",
+                        description: "Palet eyeshadow dengan 12 warna hangat yang cocok untuk kulit Asia.",
+                        price: 350000,
+                        image: "https://images.unsplash.com/photo-1512496015851-a90fb38ba796?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                        category: "makeup",
+                        rating: 4.8,
+                        reviews: 89,
+                        brand: "ColorPop",
+                        currency: "IDR"
+                      }
+                    ]
+                  }
+                }
+              };
+            } else if (url_string.includes('social.getPosts')) {
+              // Mock social posts response
+              mockData = {
+                result: {
+                  data: {
+                    success: true,
+                    posts: [
+                      {
+                        id: "1",
+                        userId: "user1",
+                        userName: "Anisa Wijaya",
+                        userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                        image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                        caption: "Outfit of the day! Loving this new blouse from StyleFusion.",
+                        likes: 120,
+                        comments: 24,
+                        date: new Date().toISOString(),
+                        products: [
+                          {
+                            id: "8",
+                            name: "Atasan Coral Blouse",
+                            description: "Blouse warna coral dengan potongan yang flattering untuk semua bentuk tubuh.",
+                            price: 320000,
+                            image: "https://images.unsplash.com/photo-1554568218-0f1715e72254?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                            category: "clothing",
+                            rating: 4.2,
+                            reviews: 45,
+                            brand: "StyleFusion",
+                            currency: "IDR"
+                          }
+                        ]
+                      }
+                    ],
+                    nextCursor: null
+                  }
+                }
+              };
             }
             
             return new Response(JSON.stringify(mockData), {

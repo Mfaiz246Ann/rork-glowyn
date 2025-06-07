@@ -1,19 +1,19 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
-import { Heart, MessageCircle, Bookmark } from 'lucide-react-native';
-import { TouchableAvatar } from './Avatar';
+import { Heart, MessageCircle, Share2, Bookmark } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
-import { FeedPost as FeedPostType } from '@/types';
-import { useFeedStore } from '@/store/feedStore';
+import { FeedPost as FeedPostType, Product } from '@/types';
+import { Avatar } from './Avatar';
+import { Card } from './Card';
 
 interface FeedPostProps {
   post: FeedPostType;
   onUserPress: (userId: string) => void;
-  onPostPress: (postId: string) => void;
-  onCommentPress: (postId: string) => void;
+  onPostPress: () => void;
+  onCommentPress: () => void;
 }
 
 export const FeedPost: React.FC<FeedPostProps> = ({
@@ -22,114 +22,164 @@ export const FeedPost: React.FC<FeedPostProps> = ({
   onPostPress,
   onCommentPress,
 }) => {
-  const { likePost, unlikePost, savePost, unsavePost, isLiked, isSaved } = useFeedStore();
-  const liked = isLiked(post.id);
-  const saved = isSaved(post.id);
+  const [liked, setLiked] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [likesCount, setLikesCount] = useState(post.likes);
 
   const handleLike = () => {
     if (liked) {
-      unlikePost(post.id);
+      setLikesCount(likesCount - 1);
     } else {
-      likePost(post.id);
+      setLikesCount(likesCount + 1);
     }
+    setLiked(!liked);
   };
 
   const handleSave = () => {
-    if (saved) {
-      unsavePost(post.id);
-    } else {
-      savePost(post.id);
+    setSaved(!saved);
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('id-ID', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    });
+  };
+
+  const formatPrice = (price: number, currency = 'IDR') => {
+    if (currency === 'IDR') {
+      return `Rp ${price.toLocaleString('id-ID')}`;
     }
+    return `${currency} ${price}`;
   };
 
   return (
-    <View style={styles.container}>
+    <Card style={styles.container}>
       <View style={styles.header}>
-        <TouchableAvatar
-          source={post.userImage}
-          size={40}
-          onPress={() => onUserPress(post.userId)}
-        />
-        <Text 
-          style={styles.username}
+        <TouchableOpacity
+          style={styles.userInfo}
           onPress={() => onUserPress(post.userId)}
         >
-          {post.username}
-        </Text>
+          <Avatar
+            source={{ uri: post.userAvatar }}
+            size={40}
+          />
+          <View style={styles.nameContainer}>
+            <Text style={styles.userName}>{post.userName}</Text>
+            <Text style={styles.date}>{formatDate(post.date)}</Text>
+          </View>
+        </TouchableOpacity>
       </View>
-      
-      <Pressable onPress={() => onPostPress(post.id)}>
+
+      <Pressable onPress={onPostPress}>
         <Image
           source={{ uri: post.image }}
-          style={styles.image}
+          style={styles.postImage}
           contentFit="cover"
         />
       </Pressable>
-      
+
       <View style={styles.actions}>
         <View style={styles.leftActions}>
-          <Pressable style={styles.actionButton} onPress={handleLike}>
+          <TouchableOpacity style={styles.actionButton} onPress={handleLike}>
             <Heart
               size={24}
-              color={liked ? colors.primary : colors.text}
+              color={liked ? colors.primary : colors.textSecondary}
               fill={liked ? colors.primary : 'transparent'}
             />
-          </Pressable>
-          <Pressable style={styles.actionButton} onPress={() => onCommentPress(post.id)}>
-            <MessageCircle size={24} color={colors.text} />
-          </Pressable>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton} onPress={onCommentPress}>
+            <MessageCircle size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.actionButton}>
+            <Share2 size={24} color={colors.textSecondary} />
+          </TouchableOpacity>
         </View>
-        <Pressable style={styles.actionButton} onPress={handleSave}>
+        <TouchableOpacity style={styles.actionButton} onPress={handleSave}>
           <Bookmark
             size={24}
-            color={saved ? colors.primary : colors.text}
+            color={saved ? colors.primary : colors.textSecondary}
             fill={saved ? colors.primary : 'transparent'}
           />
-        </Pressable>
+        </TouchableOpacity>
       </View>
-      
-      <Text style={styles.likes}>{post.likes} likes</Text>
-      
-      <View style={styles.captionContainer}>
-        <Text style={styles.captionUsername}>{post.username}</Text>
-        <Text style={styles.caption}>{post.caption}</Text>
-      </View>
-      
-      {post.comments > 0 && (
-        <Text 
-          style={styles.viewComments}
-          onPress={() => onCommentPress(post.id)}
-        >
-          View all {post.comments} comments
+
+      <View style={styles.content}>
+        <Text style={styles.likes}>{likesCount} suka</Text>
+        <Text style={styles.caption}>
+          <Text style={styles.userName}>{post.userName}</Text> {post.caption}
         </Text>
+        <TouchableOpacity onPress={onCommentPress}>
+          <Text style={styles.comments}>
+            Lihat semua {post.comments} komentar
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {post.products && post.products.length > 0 && (
+        <View style={styles.productsContainer}>
+          <Text style={styles.productsTitle}>Produk dalam post ini:</Text>
+          {post.products.map((product: Product) => (
+            <View key={product.id} style={styles.productItem}>
+              <Image
+                source={{ uri: product.image }}
+                style={styles.productImage}
+                contentFit="cover"
+              />
+              <View style={styles.productInfo}>
+                <Text style={styles.productBrand}>{product.brand}</Text>
+                <Text style={styles.productName}>{product.name}</Text>
+                <Text style={styles.productPrice}>
+                  {formatPrice(product.price, product.currency)}
+                </Text>
+              </View>
+            </View>
+          ))}
+        </View>
       )}
-    </View>
+    </Card>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: layout.spacing.xl,
+    marginBottom: layout.spacing.lg,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: layout.spacing.md,
+    justifyContent: 'space-between',
+    paddingHorizontal: layout.spacing.md,
+    paddingVertical: layout.spacing.sm,
   },
-  username: {
-    marginLeft: layout.spacing.md,
+  userInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  nameContainer: {
+    marginLeft: layout.spacing.sm,
+  },
+  userName: {
     fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.md,
     color: colors.text,
   },
-  image: {
+  date: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.xs,
+    color: colors.textSecondary,
+  },
+  postImage: {
     width: '100%',
-    aspectRatio: 1,
+    height: 400,
   },
   actions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: layout.spacing.md,
+    paddingHorizontal: layout.spacing.md,
+    paddingVertical: layout.spacing.sm,
   },
   leftActions: {
     flexDirection: 'row',
@@ -137,34 +187,66 @@ const styles = StyleSheet.create({
   actionButton: {
     marginRight: layout.spacing.md,
   },
-  likes: {
+  content: {
     paddingHorizontal: layout.spacing.md,
-    fontFamily: typography.fontFamily.bold,
+    paddingBottom: layout.spacing.md,
+  },
+  likes: {
+    fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.md,
     color: colors.text,
     marginBottom: layout.spacing.xs,
   },
-  captionContainer: {
-    flexDirection: 'row',
-    paddingHorizontal: layout.spacing.md,
-    marginBottom: layout.spacing.sm,
-  },
-  captionUsername: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.md,
-    color: colors.text,
-    marginRight: layout.spacing.xs,
-  },
   caption: {
-    flex: 1,
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
     color: colors.text,
+    marginBottom: layout.spacing.sm,
   },
-  viewComments: {
-    paddingHorizontal: layout.spacing.md,
+  comments: {
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.sm,
     color: colors.textSecondary,
+  },
+  productsContainer: {
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    paddingHorizontal: layout.spacing.md,
+    paddingVertical: layout.spacing.md,
+  },
+  productsTitle: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+    marginBottom: layout.spacing.md,
+  },
+  productItem: {
+    flexDirection: 'row',
+    marginBottom: layout.spacing.md,
+  },
+  productImage: {
+    width: 60,
+    height: 60,
+    borderRadius: layout.borderRadius.md,
+  },
+  productInfo: {
+    marginLeft: layout.spacing.md,
+    flex: 1,
+  },
+  productBrand: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.xs,
+    color: colors.textSecondary,
+  },
+  productName: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+    marginVertical: layout.spacing.xs,
+  },
+  productPrice: {
+    fontFamily: typography.fontFamily.bold,
+    fontSize: typography.fontSize.md,
+    color: colors.primary,
   },
 });

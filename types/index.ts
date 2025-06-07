@@ -9,6 +9,8 @@ export interface Product {
   rating: number;
   reviews: number;
   brand: string;
+  currency?: string;
+  isEditorsPick?: boolean;
 }
 
 // Category type
@@ -53,12 +55,20 @@ export interface AnalysisResult {
 }
 
 // Analysis API Response type - using discriminated union for better type safety
-export type AnalysisResponse = 
-  | { success: true; result: AnalysisResult; error?: undefined; }
-  | { success: false; error: string; result?: undefined; };
+export interface AnalysisResponseSuccess {
+  success: true;
+  result: AnalysisResult;
+}
 
-// Post type
-export interface Post {
+export interface AnalysisResponseError {
+  success: false;
+  error: string;
+}
+
+export type AnalysisResponse = AnalysisResponseSuccess | AnalysisResponseError;
+
+// Feed Post type
+export interface FeedPost {
   id: string;
   userId: string;
   userName: string;

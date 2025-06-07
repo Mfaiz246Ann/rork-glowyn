@@ -7,7 +7,7 @@ import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
 import { useFeedStore } from '@/store/feedStore';
 import { useUserStore } from '@/store/userStore';
-import { trpcClient } from '@/lib/trpc';
+import { trpc, trpcClient } from '@/lib/trpc';
 import { FeedPost as FeedPostType } from '@/types';
 
 export default function StyleFeedScreen() {
@@ -35,6 +35,8 @@ export default function StyleFeedScreen() {
     } catch (err) {
       console.error("Error fetching posts:", err);
       setError("Gagal memuat postingan. Silakan coba lagi.");
+      // Set empty array to prevent undefined errors
+      setPosts([]);
     } finally {
       setIsLoading(false);
       setRefreshing(false);
@@ -100,6 +102,7 @@ export default function StyleFeedScreen() {
             tintColor={colors.primary}
           />
         }
+        contentContainerStyle={styles.listContent}
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyText}>Belum ada postingan</Text>
@@ -114,6 +117,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  listContent: {
+    padding: layout.spacing.md,
+    paddingBottom: layout.spacing.xxl,
   },
   loadingContainer: {
     flex: 1,

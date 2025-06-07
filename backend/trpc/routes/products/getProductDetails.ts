@@ -56,7 +56,7 @@ const getProductDetailsProcedure = publicProcedure
       }
       
       // Find the product by ID - explicitly type the parameter
-      const product = featuredProducts.find((p: { id: string }) => p.id === productId);
+      const product = featuredProducts.find((p: Product) => p.id === productId);
       
       if (!product) {
         return {

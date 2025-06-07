@@ -13,7 +13,7 @@ import { trpcClient } from '@/lib/trpc';
 import { Product } from '@/types';
 
 // Import categories and collections directly from mocks
-import { productCategories as categories, productCollections as collections } from '@/mocks/products';
+import { productCategories, productCollections } from '@/mocks/products';
 
 export default function ShopScreen() {
   const router = useRouter();
@@ -63,8 +63,8 @@ export default function ShopScreen() {
   };
 
   // Ensure categories and collections are defined
-  const safeCategories = categories || [];
-  const safeCollections = collections || [];
+  const safeCategories = productCategories || [];
+  const safeCollections = productCollections || [];
 
   return (
     <ScrollView 

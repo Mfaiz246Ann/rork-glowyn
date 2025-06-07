@@ -11,6 +11,7 @@ import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { trpcClient } from '@/lib/trpc';
+import { AnalysisType } from '@/types';
 
 type SkinType = 'normal' | 'dry' | 'oily' | 'combination' | 'sensitive';
 
@@ -110,20 +111,23 @@ export default function SkinAnalysisScreen() {
       const base64Image = await imageToBase64(uri);
       
       // Call the backend API for analysis
-      const analysisResult = await trpcClient.analysis.analyze.mutate({
+      const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
-        analysisType: 'skin',
+        analysisType: 'skin' as AnalysisType,
       });
       
-      if (!analysisResult.success || !analysisResult.result) {
+      if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");
       }
       
       // Convert the general analysis result to our specific SkinResult type
-      const skinType = (analysisResult.result.toLowerCase().includes('normal') ? 'normal' : 
-                      analysisResult.result.toLowerCase().includes('kering') ? 'dry' :
-                      analysisResult.result.toLowerCase().includes('berminyak') ? 'oily' :
-                      analysisResult.result.toLowerCase().includes('kombinasi') ? 'combination' : 'sensitive') as SkinType;
+      const resultText = analysisResponse.result.toLowerCase();
+      const skinType: SkinType = (
+        resultText.includes('normal') ? 'normal' : 
+        resultText.includes('kering') ? 'dry' :
+        resultText.includes('berminyak') ? 'oily' :
+        resultText.includes('kombinasi') ? 'combination' : 'sensitive'
+      );
       
       // Get the full result with all details from our predefined results
       const fullResult = skinResults[skinType];
@@ -131,9 +135,9 @@ export default function SkinAnalysisScreen() {
       setResult(fullResult);
       
       // Save the analysis result
-      addAnalysisResult({
-        id: analysisResult.id,
-        type: 'skin',
+      const analysisResult = {
+        id: analysisResponse.id || `analysis_${Date.now()}`,
+        type: 'skin' as AnalysisType,
         title: `Kulit ${skinTypeNames[skinType]}`,
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',
@@ -142,22 +146,13 @@ export default function SkinAnalysisScreen() {
         }),
         result: skinTypeNames[skinType],
         details: fullResult,
-      });
+      };
+      
+      addAnalysisResult(analysisResult);
       
       // Save the result to the user's profile
       await trpcClient.users.saveAnalysisResult.mutate({
-        result: {
-          id: analysisResult.id,
-          type: 'skin',
-          title: `Kulit ${skinTypeNames[skinType]}`,
-          date: new Date().toLocaleDateString('id-ID', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
-          result: skinTypeNames[skinType],
-          details: fullResult,
-        },
+        result: analysisResult,
       });
     } catch (error) {
       console.error('Error analyzing image:', error);
@@ -166,9 +161,9 @@ export default function SkinAnalysisScreen() {
       setResult(skinResults[randomType]);
       
       // Save the analysis result
-      addAnalysisResult({
+      const analysisResult = {
         id: `analysis_${Date.now()}`,
-        type: 'skin',
+        type: 'skin' as AnalysisType,
         title: `Kulit ${skinTypeNames[randomType]}`,
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',
@@ -177,7 +172,9 @@ export default function SkinAnalysisScreen() {
         }),
         result: skinTypeNames[randomType],
         details: skinResults[randomType],
-      });
+      };
+      
+      addAnalysisResult(analysisResult);
     } finally {
       setAnalyzing(false);
     }

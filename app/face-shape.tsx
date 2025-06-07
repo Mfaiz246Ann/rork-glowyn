@@ -11,6 +11,7 @@ import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { trpcClient } from '@/lib/trpc';
+import { AnalysisType } from '@/types';
 
 type FaceShape = 'oval' | 'round' | 'square' | 'heart' | 'diamond' | 'rectangle';
 
@@ -252,21 +253,24 @@ export default function FaceShapeScreen() {
       const base64Image = await imageToBase64(uri);
       
       // Call the backend API for analysis
-      const analysisResult = await trpcClient.analysis.analyze.mutate({
+      const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
-        analysisType: 'face',
+        analysisType: 'face' as AnalysisType,
       });
       
-      if (!analysisResult.success || !analysisResult.result) {
+      if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");
       }
       
       // Convert the general analysis result to our specific ShapeResult type
-      const shapeType = (analysisResult.result.toLowerCase().includes('oval') ? 'oval' : 
-                        analysisResult.result.toLowerCase().includes('bulat') ? 'round' :
-                        analysisResult.result.toLowerCase().includes('persegi panjang') ? 'rectangle' :
-                        analysisResult.result.toLowerCase().includes('persegi') ? 'square' :
-                        analysisResult.result.toLowerCase().includes('hati') ? 'heart' : 'diamond') as FaceShape;
+      const resultText = analysisResponse.result.toLowerCase();
+      const shapeType: FaceShape = (
+        resultText.includes('oval') ? 'oval' : 
+        resultText.includes('bulat') ? 'round' :
+        resultText.includes('persegi panjang') ? 'rectangle' :
+        resultText.includes('persegi') ? 'square' :
+        resultText.includes('hati') ? 'heart' : 'diamond'
+      );
       
       // Get the full result with all details from our predefined results
       const fullResult = faceShapeResults[shapeType];
@@ -274,9 +278,9 @@ export default function FaceShapeScreen() {
       setResult(fullResult);
       
       // Save the analysis result
-      addAnalysisResult({
-        id: analysisResult.id,
-        type: 'face',
+      const analysisResult = {
+        id: analysisResponse.id || `analysis_${Date.now()}`,
+        type: 'face' as AnalysisType,
         title: shapeNames[shapeType],
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',
@@ -285,22 +289,13 @@ export default function FaceShapeScreen() {
         }),
         result: shapeNames[shapeType],
         details: fullResult,
-      });
+      };
+      
+      addAnalysisResult(analysisResult);
       
       // Save the result to the user's profile
       await trpcClient.users.saveAnalysisResult.mutate({
-        result: {
-          id: analysisResult.id,
-          type: 'face',
-          title: shapeNames[shapeType],
-          date: new Date().toLocaleDateString('id-ID', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
-          result: shapeNames[shapeType],
-          details: fullResult,
-        },
+        result: analysisResult,
       });
     } catch (error) {
       console.error('Error analyzing image:', error);
@@ -309,9 +304,9 @@ export default function FaceShapeScreen() {
       setResult(faceShapeResults[randomShape]);
       
       // Save the analysis result
-      addAnalysisResult({
+      const analysisResult = {
         id: `analysis_${Date.now()}`,
-        type: 'face',
+        type: 'face' as AnalysisType,
         title: shapeNames[randomShape],
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',
@@ -320,7 +315,9 @@ export default function FaceShapeScreen() {
         }),
         result: shapeNames[randomShape],
         details: faceShapeResults[randomShape],
-      });
+      };
+      
+      addAnalysisResult(analysisResult);
     } finally {
       setAnalyzing(false);
     }

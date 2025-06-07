@@ -38,13 +38,27 @@ export interface User {
   following?: number;
 }
 
+// Analysis Type enum
+export type AnalysisType = 'color' | 'face' | 'skin' | 'outfit';
+
 // Analysis Result type
 export interface AnalysisResult {
   id: string;
-  type: 'color' | 'face' | 'skin';
+  type: AnalysisType;
   result: string;
   date: string;
+  title: string;
+  details?: any;
   recommendations?: Product[];
+}
+
+// Analysis API Response type
+export interface AnalysisResponse {
+  success: boolean;
+  id: string;
+  result: string;
+  details?: any;
+  error?: string;
 }
 
 // Post type

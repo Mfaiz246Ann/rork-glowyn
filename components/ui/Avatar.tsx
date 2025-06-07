@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { colors, gradients } from '@/constants/colors';
+import { colors } from '@/constants/colors';
 import { layout } from '@/constants/layout';
 
 interface AvatarProps {
@@ -35,7 +35,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     return (
       <View style={[styles.container, style]}>
         <LinearGradient
-          colors={gradients.primary as readonly [string, string]}
+          colors={['#FF7F50', '#FF5F50']}
           style={[
             styles.gradient,
             { width: gradientSize, height: gradientSize, borderRadius: gradientSize / 2 }
@@ -96,7 +96,7 @@ export const TouchableAvatar: React.FC<TouchableAvatarProps> = ({
         {...props}
       >
         <LinearGradient
-          colors={gradients.primary as readonly [string, string]}
+          colors={['#FF7F50', '#FF5F50']}
           style={[
             styles.gradient,
             { width: gradientSize, height: gradientSize, borderRadius: gradientSize / 2 }

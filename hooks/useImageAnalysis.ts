@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { AnalysisResult, AnalysisType } from '@/types';
-import { takePhoto, pickImage, analyzeImage } from '@/services/imageService';
+import { AnalysisResult, AnalysisType, AnalysisResponse } from '@/types';
+import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { useUserStore } from '@/store/userStore';
 import { trpcClient } from '@/lib/trpc';
 
@@ -44,22 +44,39 @@ export const useImageAnalysis = (analysisType: AnalysisType) => {
       setIsLoading(true);
       setError(null);
       
+      // Convert image to base64
+      const base64Image = await imageToBase64(uri);
+      
       // Use the backend API for analysis
-      const analysisResult = await trpcClient.analysis.analyze.mutate({
-        imageBase64: await analyzeImage(uri, analysisType),
+      const analysisResponse = await trpcClient.analysis.analyze.mutate({
+        imageBase64: base64Image,
         analysisType,
       });
       
-      if (!analysisResult.success || !analysisResult.result) {
+      if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");
       }
       
-      setResult(analysisResult.result);
-      addAnalysisResult(analysisResult.result);
+      // Create a properly formatted AnalysisResult
+      const analysisResult: AnalysisResult = {
+        id: analysisResponse.id || `analysis_${Date.now()}`,
+        type: analysisType,
+        result: analysisResponse.result,
+        date: new Date().toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        title: getAnalysisTitle(analysisType, analysisResponse.result),
+        details: analysisResponse.details || {},
+      };
+      
+      setResult(analysisResult);
+      addAnalysisResult(analysisResult);
       
       // Save the result to the user's profile
       await trpcClient.users.saveAnalysisResult.mutate({
-        result: analysisResult.result,
+        result: analysisResult,
       });
       
     } catch (err) {
@@ -67,6 +84,21 @@ export const useImageAnalysis = (analysisType: AnalysisType) => {
       console.error(err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const getAnalysisTitle = (type: AnalysisType, result: string): string => {
+    switch (type) {
+      case 'color':
+        return `Warna ${result}`;
+      case 'face':
+        return `Bentuk Wajah ${result}`;
+      case 'skin':
+        return `Kulit ${result}`;
+      case 'outfit':
+        return `Gaya Pakaian ${result}`;
+      default:
+        return result;
     }
   };
 

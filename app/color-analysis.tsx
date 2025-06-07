@@ -9,9 +9,9 @@ import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
 import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
-import { performAnalysis } from '@/services/analysisService';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { trpcClient } from '@/lib/trpc';
+import { AnalysisType } from '@/types';
 
 type ColorSeason = 'spring' | 'summer' | 'autumn' | 'winter';
 type ColorTone = 'warm' | 'cool' | 'neutral';
@@ -173,59 +173,47 @@ export default function ColorAnalysisScreen() {
       const base64Image = await imageToBase64(uri);
       
       // Call the backend API for analysis
-      const analysisResult = await trpcClient.analysis.analyze.mutate({
+      const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
-        analysisType: 'color',
+        analysisType: 'color' as AnalysisType,
       });
       
-      if (!analysisResult.success || !analysisResult.result) {
+      if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");
       }
       
       // Convert the general analysis result to our specific ColorResult type
-      const colorResult: ColorResult = {
-        season: (analysisResult.result.toLowerCase().includes('spring') ? 'spring' : 
-                analysisResult.result.toLowerCase().includes('summer') ? 'summer' :
-                analysisResult.result.toLowerCase().includes('autumn') ? 'autumn' : 'winter') as ColorSeason,
-        tone: (analysisResult.result.toLowerCase().includes('hangat') ? 'warm' : 'cool') as ColorTone,
-        palette: analysisResult.details?.palette?.map((p: any) => p.hex) || colorResults.spring.palette,
-        recommendations: analysisResult.details?.description || colorResults.spring.recommendations,
-        confidence: analysisResult.details?.confidence || Math.floor(Math.random() * 15) + 85,
-      };
+      const resultText = analysisResponse.result.toLowerCase();
+      const colorSeason: ColorSeason = (
+        resultText.includes('spring') ? 'spring' : 
+        resultText.includes('summer') ? 'summer' :
+        resultText.includes('autumn') ? 'autumn' : 'winter'
+      );
       
       // Get the full result with all details from our predefined results
-      const fullResult = colorResults[colorResult.season];
+      const fullResult = colorResults[colorSeason];
       
       setResult(fullResult);
       
       // Save the analysis result
-      addAnalysisResult({
-        id: analysisResult.id,
-        type: 'color',
-        title: seasonNames[colorResult.season],
+      const analysisResult = {
+        id: analysisResponse.id || `analysis_${Date.now()}`,
+        type: 'color' as AnalysisType,
+        title: seasonNames[colorSeason],
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',
           month: 'long',
           day: 'numeric',
         }),
-        result: seasonNames[colorResult.season],
+        result: seasonNames[colorSeason],
         details: fullResult,
-      });
+      };
+      
+      addAnalysisResult(analysisResult);
       
       // Save the result to the user's profile
       await trpcClient.users.saveAnalysisResult.mutate({
-        result: {
-          id: analysisResult.id,
-          type: 'color',
-          title: seasonNames[colorResult.season],
-          date: new Date().toLocaleDateString('id-ID', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          }),
-          result: seasonNames[colorResult.season],
-          details: fullResult,
-        },
+        result: analysisResult,
       });
     } catch (error) {
       console.error('Error analyzing image:', error);
@@ -234,9 +222,9 @@ export default function ColorAnalysisScreen() {
       setResult(colorResults[randomSeason]);
       
       // Save the analysis result
-      addAnalysisResult({
+      const analysisResult = {
         id: `analysis_${Date.now()}`,
-        type: 'color',
+        type: 'color' as AnalysisType,
         title: seasonNames[randomSeason],
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',
@@ -245,7 +233,9 @@ export default function ColorAnalysisScreen() {
         }),
         result: seasonNames[randomSeason],
         details: colorResults[randomSeason],
-      });
+      };
+      
+      addAnalysisResult(analysisResult);
     } finally {
       setAnalyzing(false);
     }

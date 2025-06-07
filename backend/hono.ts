@@ -25,4 +25,17 @@ app.get("/", (c) => {
   return c.json({ status: "ok", message: "API is running" });
 });
 
+// Fallback route for handling errors
+app.onError((err, c) => {
+  console.error("API Error:", err);
+  return c.json(
+    {
+      success: false,
+      error: "An error occurred while processing your request",
+      message: err.message,
+    },
+    500
+  );
+});
+
 export default app;

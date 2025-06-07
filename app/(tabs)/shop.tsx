@@ -89,7 +89,7 @@ export default function ShopScreen() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.categoriesContainer}
       >
-        {safeCategories.map((category) => (
+        {safeCategories && safeCategories.map((category) => (
           <CategoryCard
             key={category.id}
             name={category.name}
@@ -106,7 +106,7 @@ export default function ShopScreen() {
       />
       
       <View style={styles.featuredContainer}>
-        {safeCollections.map((collection) => (
+        {safeCollections && safeCollections.map((collection) => (
           <CollectionCard
             key={collection.id}
             collection={collection}

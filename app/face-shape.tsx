@@ -256,7 +256,7 @@ export default function FaceShapeScreen() {
       const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
         analysisType: 'face' as AnalysisType,
-      }) as AnalysisResponse;
+      });
       
       if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");

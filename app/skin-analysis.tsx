@@ -114,7 +114,7 @@ export default function SkinAnalysisScreen() {
       const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
         analysisType: 'skin' as AnalysisType,
-      }) as AnalysisResponse;
+      });
       
       if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");

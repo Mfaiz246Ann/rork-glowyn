@@ -51,7 +51,7 @@ export const useImageAnalysis = (analysisType: AnalysisType) => {
       const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
         analysisType,
-      }) as AnalysisResponse;
+      });
       
       if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");
@@ -73,21 +73,6 @@ export const useImageAnalysis = (analysisType: AnalysisType) => {
       console.error(err);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const getAnalysisTitle = (type: AnalysisType, result: string): string => {
-    switch (type) {
-      case 'color':
-        return `Warna ${result}`;
-      case 'face':
-        return `Bentuk Wajah ${result}`;
-      case 'skin':
-        return `Kulit ${result}`;
-      case 'outfit':
-        return `Gaya Pakaian ${result}`;
-      default:
-        return result;
     }
   };
 

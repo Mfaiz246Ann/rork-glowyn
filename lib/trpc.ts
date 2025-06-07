@@ -40,6 +40,14 @@ export const trpcClient = trpc.createClient({
           return response;
         } catch (error) {
           console.error("TRPC fetch error:", error);
+          // Return a mock response for development when the backend is not available
+          if (process.env.NODE_ENV === 'development') {
+            console.warn("Using mock response in development mode");
+            return new Response(JSON.stringify({ result: { data: null } }), {
+              status: 200,
+              headers: { 'Content-Type': 'application/json' },
+            });
+          }
           throw error;
         }
       },

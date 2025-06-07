@@ -2,6 +2,7 @@ import { createTRPCReact } from "@trpc/react-query";
 import { httpLink } from "@trpc/client";
 import type { AppRouter } from "@/backend/trpc/app-router";
 import superjson from "superjson";
+import { AnalysisResponse, AnalysisType } from "@/types";
 
 export const trpc = createTRPCReact<AppRouter>();
 
@@ -15,6 +16,9 @@ const getBaseUrl = () => {
   return "https://toolkit.rork.com";
 };
 
+// Longer timeout for slower connections or complex operations
+const FETCH_TIMEOUT_MS = 30000; // 30 seconds
+
 export const trpcClient = trpc.createClient({
   links: [
     httpLink({
@@ -23,6 +27,8 @@ export const trpcClient = trpc.createClient({
       // Add fetch options for better error handling
       fetch: async (url, options) => {
         try {
+          console.log(`TRPC request to: ${url.toString()}`);
+          
           const response = await fetch(url, {
             ...options,
             headers: {
@@ -30,7 +36,7 @@ export const trpcClient = trpc.createClient({
               "Content-Type": "application/json",
             },
             // Add timeout to prevent hanging requests
-            signal: AbortSignal.timeout(15000), // 15 second timeout
+            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
           });
           
           if (!response.ok) {
@@ -39,7 +45,14 @@ export const trpcClient = trpc.createClient({
           
           return response;
         } catch (error) {
-          console.error("TRPC fetch error:", error);
+          // Log the specific error type and message
+          if (error instanceof TypeError && error.message === "Failed to fetch") {
+            console.error("Network connection error. Check your internet connection.");
+          } else if (error instanceof DOMException && error.name === "AbortError") {
+            console.error(`Request timed out after ${FETCH_TIMEOUT_MS}ms`);
+          } else {
+            console.error("TRPC fetch error:", error);
+          }
           
           // For development: mock successful response when backend is unavailable
           if (process.env.NODE_ENV === 'development') {
@@ -51,22 +64,26 @@ export const trpcClient = trpc.createClient({
             
             if (url_string.includes('analysis.analyze')) {
               // Mock analysis response
-              const analysisTypes = ['color', 'face', 'skin', 'outfit'];
+              const analysisTypes: AnalysisType[] = ['color', 'face', 'skin', 'outfit'];
               const randomType = analysisTypes[Math.floor(Math.random() * analysisTypes.length)];
               
+              // Create mock response with correct structure matching AnalysisResponse
+              const mockResponse: AnalysisResponse = {
+                success: true,
+                result: {
+                  id: `mock_${Date.now()}`,
+                  type: randomType,
+                  title: `Mock ${randomType} analysis`,
+                  result: `Mock ${randomType} result`,
+                  date: new Date().toISOString(),
+                  details: { mockData: true }
+                }
+              };
+              
+              // Structure the response according to tRPC's expected format
               mockData = {
                 result: {
-                  data: {
-                    success: true,
-                    result: {
-                      id: `mock_${Date.now()}`,
-                      type: randomType,
-                      title: `Mock ${randomType} analysis`,
-                      result: `Mock ${randomType} result`,
-                      date: new Date().toISOString(),
-                      details: { mockData: true }
-                    }
-                  }
+                  data: mockResponse
                 }
               };
             }

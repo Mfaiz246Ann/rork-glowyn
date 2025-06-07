@@ -6,7 +6,7 @@ import { AnalysisResult } from "@/types";
 const saveAnalysisResultSchema = z.object({
   result: z.object({
     id: z.string(),
-    type: z.enum(['color', 'face', 'skin', 'outfit']),
+    type: z.string(),
     title: z.string(),
     result: z.string(),
     date: z.string(),
@@ -18,17 +18,12 @@ const saveAnalysisResultSchema = z.object({
 export default publicProcedure
   .input(saveAnalysisResultSchema)
   .mutation(async ({ input }) => {
-    try {
-      // In a real app, this would save to a database
-      console.log("Saving analysis result:", input.result.id);
-      
-      // Mock successful save
-      return {
-        success: true,
-        message: "Analysis result saved successfully",
-      };
-    } catch (error) {
-      console.error("Error saving analysis result:", error);
-      throw new Error("Failed to save analysis result");
-    }
+    // In a real app, this would save to a database
+    console.log("Saving analysis result:", input.result.id);
+    
+    // Simulate a successful save
+    return {
+      success: true,
+      message: "Analysis result saved successfully",
+    };
   });

@@ -1,6 +1,6 @@
-import { Post } from '@/types';
+import { FeedPost } from '@/types';
 
-export const feedPosts: Post[] = [
+export const feedPosts: FeedPost[] = [
   {
     id: 'post1',
     userId: 'user2',

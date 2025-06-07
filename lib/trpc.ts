@@ -29,7 +29,14 @@ export const trpcClient = trpc.createClient({
               ...options?.headers,
               "Content-Type": "application/json",
             },
+            // Add timeout to prevent hanging requests
+            signal: AbortSignal.timeout(15000), // 15 second timeout
           });
+          
+          if (!response.ok) {
+            console.warn(`TRPC response not OK: ${response.status} ${response.statusText}`);
+          }
+          
           return response;
         } catch (error) {
           console.error("TRPC fetch error:", error);

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { publicProcedure } from "../../create-context";
+import { Product } from "@/types";
 
 // Mock products data if the import fails
 const mockProducts = [
@@ -54,8 +55,8 @@ const getProductDetailsProcedure = publicProcedure
         featuredProducts = mockProducts;
       }
       
-      // Find the product by ID
-      const product = featuredProducts.find(p => p.id === productId);
+      // Find the product by ID - explicitly type the parameter
+      const product = featuredProducts.find((p: { id: string }) => p.id === productId);
       
       if (!product) {
         return {

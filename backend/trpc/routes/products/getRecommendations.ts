@@ -66,7 +66,7 @@ const getRecommendationsProcedure = publicProcedure
       // Filter by category if provided
       let filteredProducts = [...featuredProducts];
       if (category) {
-        filteredProducts = filteredProducts.filter(p => p.category === category);
+        filteredProducts = filteredProducts.filter((p: { category: string }) => p.category === category);
       }
       
       // Limit the number of results

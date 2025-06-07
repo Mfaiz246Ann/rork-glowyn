@@ -1,4 +1,4 @@
-// Add or update Product type if it doesn't exist
+// Define Product type to be used across the application
 export interface Product {
   id: string;
   name: string;
@@ -11,18 +11,44 @@ export interface Product {
   brand: string;
 }
 
-export interface ProductCategory {
+// Add other types as needed for the application
+export interface User {
   id: string;
   name: string;
-  image: string;
-  count: number;
+  username: string;
+  email: string;
+  avatar: string;
+  bio?: string;
+  followers?: number;
+  following?: number;
 }
 
-export interface ProductCollection {
+export interface AnalysisResult {
   id: string;
-  name: string;
-  image: string;
-  count: number;
+  userId: string;
+  type: 'color' | 'face' | 'skin';
+  result: string;
+  date: string;
+  recommendations?: string[];
 }
 
-// Add other types as needed
+export interface FeedPost {
+  id: string;
+  userId: string;
+  user?: User;
+  image: string;
+  caption: string;
+  likes: number;
+  comments: number;
+  date: string;
+  products?: Product[];
+}
+
+export interface Comment {
+  id: string;
+  postId: string;
+  userId: string;
+  user?: User;
+  text: string;
+  date: string;
+}

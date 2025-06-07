@@ -24,6 +24,6 @@ export const layout = {
     xl: 24,
     xxl: 32,
     round: 9999,
-    full: 9999, // Added for full rounded corners
+    full: 9999, // For full rounded corners
   },
 };

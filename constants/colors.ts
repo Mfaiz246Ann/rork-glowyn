@@ -8,15 +8,21 @@ export const colors = {
   secondaryLight: '#FFF1FF',
   secondaryDark: '#AF8EB5',
   background: '#FFF9F9',
-  backgroundAlt: '#F5F5F5', // Added for alternate background
+  backgroundAlt: '#F5F5F5', // For alternate background
   surface: '#FFFFFF',
   text: '#212121',
   textSecondary: '#757575',
   textLight: '#9E9E9E',
-  textAlt: '#757575', // Added for alternate text
+  textAlt: '#757575', // For alternate text
   border: '#E0E0E0',
   error: '#B00020',
   success: '#4CAF50',
   warning: '#FFC107',
   info: '#2196F3',
+};
+
+export const gradients = {
+  primary: ['#F48FB1', '#FFC1E3'],
+  secondary: ['#E1BEE7', '#FFF1FF'],
+  accent: ['#F48FB1', '#E1BEE7'],
 };

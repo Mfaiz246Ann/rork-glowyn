@@ -55,9 +55,7 @@ export interface AnalysisResult {
 // Analysis API Response type
 export interface AnalysisResponse {
   success: boolean;
-  id: string;
-  result: string;
-  details?: any;
+  result: AnalysisResult;
   error?: string;
 }
 

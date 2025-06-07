@@ -1,14 +1,8 @@
 import { useState } from 'react';
-import { AnalysisResult, AnalysisType } from '@/types';
+import { AnalysisResult, AnalysisType, AnalysisResponse } from '@/types';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { useUserStore } from '@/store/userStore';
 import { trpcClient } from '@/lib/trpc';
-
-interface AnalysisResponse {
-  success: boolean;
-  result: AnalysisResult;
-  error?: string;
-}
 
 export const useImageAnalysis = (analysisType: AnalysisType) => {
   const [imageUri, setImageUri] = useState<string | null>(null);

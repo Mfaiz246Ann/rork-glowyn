@@ -11,7 +11,7 @@ import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { trpcClient } from '@/lib/trpc';
-import { AnalysisType } from '@/types';
+import { AnalysisType, AnalysisResponse } from '@/types';
 
 type FaceShape = 'oval' | 'round' | 'square' | 'heart' | 'diamond' | 'rectangle';
 
@@ -256,7 +256,7 @@ export default function FaceShapeScreen() {
       const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
         analysisType: 'face' as AnalysisType,
-      });
+      }) as AnalysisResponse;
       
       if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");
@@ -279,7 +279,7 @@ export default function FaceShapeScreen() {
       
       // Save the analysis result
       const analysisResult = {
-        id: analysisResponse.result.id || `analysis_${Date.now()}`,
+        id: analysisResponse.result.id,
         type: 'face' as AnalysisType,
         title: shapeNames[shapeType],
         date: new Date().toLocaleDateString('id-ID', {

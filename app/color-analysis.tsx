@@ -11,7 +11,7 @@ import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { trpcClient } from '@/lib/trpc';
-import { AnalysisType } from '@/types';
+import { AnalysisType, AnalysisResponse } from '@/types';
 
 type ColorSeason = 'spring' | 'summer' | 'autumn' | 'winter';
 type ColorTone = 'warm' | 'cool' | 'neutral';
@@ -176,7 +176,7 @@ export default function ColorAnalysisScreen() {
       const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
         analysisType: 'color' as AnalysisType,
-      });
+      }) as AnalysisResponse;
       
       if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");
@@ -197,7 +197,7 @@ export default function ColorAnalysisScreen() {
       
       // Save the analysis result
       const analysisResult = {
-        id: analysisResponse.result.id || `analysis_${Date.now()}`,
+        id: analysisResponse.result.id,
         type: 'color' as AnalysisType,
         title: seasonNames[colorSeason],
         date: new Date().toLocaleDateString('id-ID', {

@@ -12,7 +12,7 @@ const getBaseUrl = () => {
   }
 
   // Fallback for when no base URL is available
-  return "http://localhost:3000";
+  return "https://toolkit.rork.com";
 };
 
 export const trpcClient = trpc.createClient({

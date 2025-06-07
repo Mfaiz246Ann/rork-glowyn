@@ -11,7 +11,7 @@ import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
 import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
 import { trpcClient } from '@/lib/trpc';
-import { AnalysisType } from '@/types';
+import { AnalysisType, AnalysisResponse } from '@/types';
 
 type SkinType = 'normal' | 'dry' | 'oily' | 'combination' | 'sensitive';
 
@@ -114,7 +114,7 @@ export default function SkinAnalysisScreen() {
       const analysisResponse = await trpcClient.analysis.analyze.mutate({
         imageBase64: base64Image,
         analysisType: 'skin' as AnalysisType,
-      });
+      }) as AnalysisResponse;
       
       if (!analysisResponse.success || !analysisResponse.result) {
         throw new Error("Analysis failed");
@@ -136,7 +136,7 @@ export default function SkinAnalysisScreen() {
       
       // Save the analysis result
       const analysisResult = {
-        id: analysisResponse.result.id || `analysis_${Date.now()}`,
+        id: analysisResponse.result.id,
         type: 'skin' as AnalysisType,
         title: `Kulit ${skinTypeNames[skinType]}`,
         date: new Date().toLocaleDateString('id-ID', {

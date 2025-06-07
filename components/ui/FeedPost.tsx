@@ -63,7 +63,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
           onPress={() => onUserPress(post.userId)}
         >
           <Avatar
-            source={{ uri: post.userAvatar }}
+            source={post.userAvatar}
             size={40}
           />
           <View style={styles.nameContainer}>

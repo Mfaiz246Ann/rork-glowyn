@@ -17,6 +17,11 @@ export function useImageAnalysis() {
       console.error('Analysis error:', err);
       setError(err.message || 'Failed to analyze image');
       setIsLoading(false);
+      // Create a proper error response matching our discriminated union type
+      setResult({
+        success: false,
+        error: err.message || 'Failed to analyze image'
+      });
     }
   });
   
@@ -40,6 +45,11 @@ export function useImageAnalysis() {
       console.error('Analysis error:', err);
       setError(err.message || 'Failed to analyze image');
       setIsLoading(false);
+      // Create a proper error response matching our discriminated union type
+      setResult({
+        success: false,
+        error: err.message || 'Failed to analyze image'
+      });
     }
   };
   

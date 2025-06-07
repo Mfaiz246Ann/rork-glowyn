@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { publicProcedure } from "../../create-context";
-import { AnalysisResult, AnalysisType } from "@/types";
+import { AnalysisResult, AnalysisType, AnalysisResponse } from "@/types";
 
 // Input schema for analysis requests
 const analyzeInputSchema = z.object({
@@ -228,15 +228,22 @@ export default publicProcedure
           throw new Error(`Unsupported analysis type: ${analysisType}`);
       }
       
-      return {
+      // Return success response with proper typing
+      const response: AnalysisResponse = {
         success: true,
         result,
       };
-    } catch (error) {
+      
+      return response;
+    } catch (error: any) {
       console.error("Analysis error:", error);
-      return {
+      
+      // Return error response with proper typing
+      const errorResponse: AnalysisResponse = {
         success: false,
-        error: "Gagal menganalisis gambar",
+        error: error.message || "Gagal menganalisis gambar",
       };
+      
+      return errorResponse;
     }
   });

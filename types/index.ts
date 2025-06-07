@@ -52,12 +52,10 @@ export interface AnalysisResult {
   recommendations?: Product[];
 }
 
-// Analysis API Response type
-export interface AnalysisResponse {
-  success: boolean;
-  result: AnalysisResult;
-  error?: string;
-}
+// Analysis API Response type - using discriminated union for better type safety
+export type AnalysisResponse = 
+  | { success: true; result: AnalysisResult; error?: never; }
+  | { success: false; error: string; result?: never; };
 
 // Post type
 export interface Post {

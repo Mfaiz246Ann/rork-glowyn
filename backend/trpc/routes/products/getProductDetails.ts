@@ -2,7 +2,7 @@ import { z } from "zod";
 import { publicProcedure } from "../../create-context";
 import { featuredProducts } from "@/mocks/products";
 
-export default publicProcedure
+const getProductDetailsProcedure = publicProcedure
   .input(z.object({ productId: z.string() }))
   .query(({ input }) => {
     const { productId } = input;
@@ -22,3 +22,5 @@ export default publicProcedure
       product,
     };
   });
+
+export default getProductDetailsProcedure;

@@ -1,11 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
-import { CameraView, CameraType } from 'expo-camera';
+import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Camera, X } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
-import { useCameraPermissions as useExpoCameraPermissions } from 'expo-camera/build/useCameraPermissions';
 
 interface ImageCaptureProps {
   onCapture: (uri: string) => void;
@@ -19,7 +18,7 @@ export const ImageCapture: React.FC<ImageCaptureProps> = ({
   guideText
 }) => {
   const [facing, setFacing] = useState<CameraType>('back');
-  const [permission, requestPermission] = useExpoCameraPermissions();
+  const [permission, requestPermission] = useCameraPermissions();
   const cameraRef = useRef<any>(null);
 
   if (!permission) {

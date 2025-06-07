@@ -3,7 +3,7 @@ import { publicProcedure } from "../../create-context";
 import { UserProfile } from "@/types";
 import { currentUser, popularUsers } from "@/mocks/users";
 
-export default publicProcedure
+const getProfileProcedure = publicProcedure
   .input(z.object({ userId: z.string().optional() }))
   .query(({ input }) => {
     const { userId } = input;
@@ -33,3 +33,5 @@ export default publicProcedure
       profile: user,
     };
   });
+
+export default getProfileProcedure;

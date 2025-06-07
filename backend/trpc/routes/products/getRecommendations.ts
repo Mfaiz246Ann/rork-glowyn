@@ -11,7 +11,7 @@ const recommendationsSchema = z.object({
   category: z.enum(['makeup', 'skincare', 'fashion', 'accessories']).optional(),
 });
 
-export default publicProcedure
+const getRecommendationsProcedure = publicProcedure
   .input(recommendationsSchema)
   .query(({ input }) => {
     const { analysisType, analysisResult, limit, category } = input;
@@ -35,3 +35,5 @@ export default publicProcedure
       totalCount: filteredProducts.length,
     };
   });
+
+export default getRecommendationsProcedure;

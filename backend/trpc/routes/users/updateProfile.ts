@@ -9,7 +9,7 @@ const updateProfileSchema = z.object({
   profileImage: z.string().optional(),
 });
 
-export default publicProcedure
+const updateProfileProcedure = publicProcedure
   .input(updateProfileSchema)
   .mutation(({ input }) => {
     // In a real app, this would update the user's profile in the database
@@ -21,3 +21,5 @@ export default publicProcedure
       updatedFields: Object.keys(input),
     };
   });
+
+export default updateProfileProcedure;

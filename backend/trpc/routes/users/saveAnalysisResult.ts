@@ -14,7 +14,7 @@ const saveAnalysisSchema = z.object({
   }),
 });
 
-export default publicProcedure
+const saveAnalysisResultProcedure = publicProcedure
   .input(saveAnalysisSchema)
   .mutation(({ input }) => {
     const { result } = input;
@@ -28,3 +28,5 @@ export default publicProcedure
       resultId: result.id,
     };
   });
+
+export default saveAnalysisResultProcedure;

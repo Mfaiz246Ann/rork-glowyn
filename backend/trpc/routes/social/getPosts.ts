@@ -9,7 +9,7 @@ const getPostsSchema = z.object({
   cursor: z.string().optional(), // For pagination
 });
 
-export default publicProcedure
+const getPostsProcedure = publicProcedure
   .input(getPostsSchema)
   .query(({ input }) => {
     const { userId, limit, cursor } = input;
@@ -31,3 +31,5 @@ export default publicProcedure
       nextCursor: limitedPosts.length > 0 ? limitedPosts[limitedPosts.length - 1].id : null,
     };
   });
+
+export default getPostsProcedure;

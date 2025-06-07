@@ -1,147 +1,113 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Palette, User2, FileText, Camera, Shirt } from 'lucide-react-native';
-import { AnalysisCard } from '@/components/ui/AnalysisCard';
-import { Button } from '@/components/ui/Button';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
+import { Stack, useRouter } from 'expo-router';
 import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
-import { Image } from 'expo-image';
-import { useUserStore } from '@/store/userStore';
+import { Camera, Palette, User, Shirt } from 'lucide-react-native';
 
-export default function AnalyzeScreen() {
+export default function AnalyzePage() {
   const router = useRouter();
-  const { analysisResults } = useUserStore();
-  
-  const navigateToAnalysis = (type: string) => {
-    switch (type) {
-      case 'color':
-        router.push('/color-analysis');
-        break;
-      case 'face':
-        router.push('/face-shape');
-        break;
-      case 'skin':
-        router.push('/skin-analysis');
-        break;
-      case 'outfit':
-        router.push('/outfit-recommender');
-        break;
-      case 'virtual':
-        router.push('/virtual-try-on');
-        break;
-      default:
-        break;
-    }
-  };
+
+  const analysisOptions = [
+    {
+      id: 'color',
+      title: 'Personal Color Analysis',
+      description: 'Discover your seasonal color palette and get personalized recommendations.',
+      icon: <Palette size={24} color={colors.primary} />,
+      route: '/color-analysis',
+      resultRoute: '/color-analysis-result',
+    },
+    {
+      id: 'face',
+      title: 'Face Shape Analysis',
+      description: 'Find your face shape and get recommendations for hairstyles, glasses, and accessories.',
+      icon: <User size={24} color={colors.primary} />,
+      route: '/face-shape',
+      resultRoute: '/face-shape-result',
+    },
+    {
+      id: 'skin',
+      title: 'Skin Analysis',
+      description: 'Analyze your skin type and concerns to get personalized skincare recommendations.',
+      icon: <Camera size={24} color={colors.primary} />,
+      route: '/skin-analysis',
+    },
+    {
+      id: 'outfit',
+      title: 'Smart Outfit Recommender',
+      description: 'Get personalized outfit recommendations based on your style, body type, and occasion.',
+      icon: <Shirt size={24} color={colors.primary} />,
+      route: '/outfit-recommender-input',
+    },
+  ];
 
   return (
-    <ScrollView 
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-      showsVerticalScrollIndicator={false}
-    >
-      <Text style={styles.title}>Analisis Kecantikan</Text>
-      
-      <View style={styles.introContainer}>
-        <Text style={styles.introTitle}>Temukan Kecantikanmu</Text>
-        <Text style={styles.introDescription}>
-          Gunakan analisis bertenaga AI untuk mendapatkan rekomendasi kecantikan dan fashion yang dipersonalisasi
-        </Text>
-      </View>
-      
-      <View style={styles.cardsContainer}>
-        <AnalysisCard
-          title="Analisis Warna"
-          description="Temukan warna sempurna berdasarkan undertone kulitmu"
-          icon={<Palette size={24} color={colors.primary} />}
-          onPress={() => navigateToAnalysis('color')}
-        />
-        
-        <AnalysisCard
-          title="Bentuk Wajah"
-          description="Temukan bentuk wajah dan gaya ideal"
-          icon={<User2 size={24} color={colors.primary} />}
-          onPress={() => navigateToAnalysis('face')}
-        />
-        
-        <AnalysisCard
-          title="Analisis Kulit"
-          description="Dapatkan rekomendasi perawatan kulit yang dipersonalisasi"
-          icon={<FileText size={24} color={colors.primary} />}
-          onPress={() => navigateToAnalysis('skin')}
-        />
-        
-        <AnalysisCard
-          title="Smart Outfit Recommender"
-          description="Rekomendasi pakaian berdasarkan preferensi dan bentuk tubuh"
-          icon={<Shirt size={24} color={colors.primary} />}
-          onPress={() => navigateToAnalysis('outfit')}
-        />
-        
-        <AnalysisCard
-          title="Virtual Try-On"
-          description="Coba makeup dan aksesori secara virtual"
-          icon={<Camera size={24} color={colors.primary} />}
-          onPress={() => navigateToAnalysis('virtual')}
-        />
-      </View>
-      
-      {analysisResults.length > 0 && (
-        <View style={styles.recentContainer}>
-          <Text style={styles.recentTitle}>Analisis Terbaru</Text>
-          
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recentScrollView}>
-            {analysisResults.slice(0, 3).map((analysis, index) => (
-              <Pressable 
-                key={analysis.id} 
-                style={styles.recentCard}
-                onPress={() => {
-                  switch (analysis.type) {
-                    case 'color':
-                      router.push('/color-analysis');
-                      break;
-                    case 'face':
-                      router.push('/face-shape');
-                      break;
-                    case 'skin':
-                      router.push('/skin-analysis');
-                      break;
-                    case 'outfit':
-                      router.push('/outfit-recommender');
-                      break;
-                    default:
-                      break;
-                  }
-                }}
-              >
-                <View style={styles.recentCardContent}>
-                  <Text style={styles.recentCardType}>
-                    {analysis.type === 'color' ? 'Analisis Warna' : 
-                     analysis.type === 'face' ? 'Analisis Wajah' : 
-                     analysis.type === 'skin' ? 'Analisis Kulit' : 
-                     'Rekomendasi Pakaian'}
-                  </Text>
-                  <Text style={styles.recentCardResult}>{analysis.result}</Text>
-                  <Text style={styles.recentCardDate}>{analysis.date}</Text>
-                </View>
-              </Pressable>
-            ))}
-          </ScrollView>
+    <>
+      <Stack.Screen options={{ title: 'Analyze Your Style' }} />
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Discover Your Personal Style</Text>
+          <Text style={styles.subtitle}>
+            Use our AI-powered tools to analyze your features and get personalized style recommendations.
+          </Text>
         </View>
-      )}
-      
-      <Button
-        title="Pindai Cepat"
-        variant="primary"
-        gradient
-        size="large"
-        style={styles.quickScanButton}
-        icon={<Camera size={20} color={colors.surface} />}
-        onPress={() => navigateToAnalysis('color')}
-      />
-    </ScrollView>
+
+        <View style={styles.optionsContainer}>
+          {analysisOptions.map((option) => (
+            <TouchableOpacity
+              key={option.id}
+              style={styles.optionCard}
+              onPress={() => router.push(option.route)}
+            >
+              <View style={styles.optionIconContainer}>
+                {option.icon}
+              </View>
+              <View style={styles.optionContent}>
+                <Text style={styles.optionTitle}>{option.title}</Text>
+                <Text style={styles.optionDescription}>{option.description}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        <View style={styles.recentAnalysisContainer}>
+          <Text style={styles.sectionTitle}>Recent Analysis</Text>
+          
+          <TouchableOpacity 
+            style={styles.recentAnalysisCard}
+            onPress={() => router.push('/color-analysis-result')}
+          >
+            <View style={styles.recentAnalysisContent}>
+              <Text style={styles.recentAnalysisTitle}>Personal Color Analysis</Text>
+              <Text style={styles.recentAnalysisResult}>Warm Autumn • 87% Confidence</Text>
+              <Text style={styles.recentAnalysisDate}>June 5, 2023</Text>
+            </View>
+            <View style={styles.colorPaletteContainer}>
+              <View style={[styles.colorSwatch, { backgroundColor: '#8B4513' }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: '#CD853F' }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: '#D2B48C' }]} />
+              <View style={[styles.colorSwatch, { backgroundColor: '#556B2F' }]} />
+            </View>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={styles.recentAnalysisCard}
+            onPress={() => router.push('/face-shape-result')}
+          >
+            <View style={styles.recentAnalysisContent}>
+              <Text style={styles.recentAnalysisTitle}>Face Shape Analysis</Text>
+              <Text style={styles.recentAnalysisResult}>Oval • 92% Confidence</Text>
+              <Text style={styles.recentAnalysisDate}>May 28, 2023</Text>
+            </View>
+            <Image 
+              source={{ uri: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8cG9ydHJhaXR8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=800&q=60' }} 
+              style={styles.recentAnalysisImage}
+            />
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </>
   );
 }
 
@@ -150,86 +116,118 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  contentContainer: {
+  header: {
     padding: layout.spacing.lg,
-    paddingBottom: layout.spacing.xxl,
+    backgroundColor: colors.surface,
   },
   title: {
     fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xxxl,
-    color: colors.text,
-    marginBottom: layout.spacing.lg,
-  },
-  introContainer: {
-    marginBottom: layout.spacing.xl,
-  },
-  introTitle: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xxl,
+    fontSize: typography.fontSize.xl,
     color: colors.text,
     marginBottom: layout.spacing.sm,
   },
-  introDescription: {
+  subtitle: {
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.md,
-    color: colors.textSecondary,
-    lineHeight: typography.lineHeight.md,
+    color: colors.textAlt,
+    lineHeight: 22,
   },
-  cardsContainer: {
-    marginBottom: layout.spacing.xl,
+  optionsContainer: {
+    padding: layout.spacing.lg,
+    gap: layout.spacing.md,
   },
-  recentContainer: {
-    marginBottom: layout.spacing.xl,
-  },
-  recentTitle: {
-    fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xl,
-    color: colors.text,
-    marginBottom: layout.spacing.md,
-  },
-  recentScrollView: {
-    marginBottom: layout.spacing.md,
-  },
-  recentCard: {
-    width: 250,
-    height: 150,
+  optionCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.surface,
     borderRadius: layout.borderRadius.lg,
+    padding: layout.spacing.lg,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  optionIconContainer: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: 'rgba(0,0,0,0.05)',
+    justifyContent: 'center',
+    alignItems: 'center',
     marginRight: layout.spacing.md,
-    overflow: 'hidden',
-    backgroundColor: colors.primaryLight,
   },
-  recentCardContent: {
-    padding: layout.spacing.md,
+  optionContent: {
     flex: 1,
-    justifyContent: 'space-between',
   },
-  recentCardType: {
-    fontFamily: typography.fontFamily.medium,
-    fontSize: typography.fontSize.md,
-    color: colors.textSecondary,
-  },
-  recentCardResult: {
+  optionTitle: {
     fontFamily: typography.fontFamily.bold,
-    fontSize: typography.fontSize.xl,
+    fontSize: typography.fontSize.md,
     color: colors.text,
-    marginVertical: layout.spacing.sm,
+    marginBottom: 4,
   },
-  recentCardDate: {
+  optionDescription: {
     fontFamily: typography.fontFamily.regular,
     fontSize: typography.fontSize.sm,
-    color: colors.textSecondary,
+    color: colors.textAlt,
+    lineHeight: 20,
   },
-  recentImageContainer: {
-    width: '100%',
-    height: 200,
+  recentAnalysisContainer: {
+    padding: layout.spacing.lg,
+  },
+  sectionTitle: {
+    fontFamily: typography.fontFamily.bold,
+    fontSize: typography.fontSize.lg,
+    color: colors.text,
+    marginBottom: layout.spacing.md,
+  },
+  recentAnalysisCard: {
+    flexDirection: 'row',
+    backgroundColor: colors.surface,
     borderRadius: layout.borderRadius.lg,
-    overflow: 'hidden',
+    padding: layout.spacing.md,
+    marginBottom: layout.spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
-  recentImage: {
-    width: '100%',
-    height: '100%',
+  recentAnalysisContent: {
+    flex: 1,
+    justifyContent: 'center',
   },
-  quickScanButton: {
-    width: '100%',
+  recentAnalysisTitle: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
+    color: colors.text,
+    marginBottom: 4,
+  },
+  recentAnalysisResult: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.sm,
+    color: colors.primary,
+    marginBottom: 4,
+  },
+  recentAnalysisDate: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.xs,
+    color: colors.textAlt,
+  },
+  colorPaletteContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  colorSwatch: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  recentAnalysisImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
   },
 });

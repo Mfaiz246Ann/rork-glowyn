@@ -1,57 +1,57 @@
-import React from "react";
-import { Tabs } from "expo-router";
-import { Home, Scan, ShoppingBag, Heart, User } from "lucide-react-native";
-import { colors } from "@/constants/colors";
+import { Tabs } from 'expo-router';
+import { useColorScheme } from 'react-native';
+import { Home, Search, Camera, ShoppingBag, User } from 'lucide-react-native';
+import { colors } from '@/constants/colors';
 
 export default function TabLayout() {
+  const colorScheme = useColorScheme();
+
   return (
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textLight,
+        tabBarInactiveTintColor: colors.textAlt,
         tabBarStyle: {
-          backgroundColor: colors.background,
-          borderTopColor: colors.border,
+          backgroundColor: colorScheme === 'dark' ? colors.backgroundAlt : colors.surface,
         },
         headerStyle: {
-          backgroundColor: colors.background,
+          backgroundColor: colorScheme === 'dark' ? colors.backgroundAlt : colors.surface,
         },
         headerTintColor: colors.text,
-        headerShadowVisible: false,
       }}
     >
       <Tabs.Screen
         name="index"
         options={{
-          title: "Beranda",
+          title: 'Home',
           tabBarIcon: ({ color }) => <Home size={24} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="analyze"
-        options={{
-          title: "Analisis",
-          tabBarIcon: ({ color }) => <Scan size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="shop"
         options={{
-          title: "Belanja",
+          title: 'Shop',
           tabBarIcon: ({ color }) => <ShoppingBag size={24} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="analyze"
+        options={{
+          title: 'Analyze',
+          tabBarIcon: ({ color }) => <Camera size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="style-feed"
         options={{
-          title: "Style Feed",
-          tabBarIcon: ({ color }) => <Heart size={24} color={color} />,
+          title: 'Style Feed',
+          tabBarIcon: ({ color }) => <Search size={24} color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Profil",
+          title: 'Profile',
           tabBarIcon: ({ color }) => <User size={24} color={color} />,
         }}
       />

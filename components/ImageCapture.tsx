@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';
 import { Camera, X } from 'lucide-react-native';
 import { colors } from '@/constants/colors';
@@ -19,10 +19,16 @@ export const ImageCapture: React.FC<ImageCaptureProps> = ({
 }) => {
   const [facing, setFacing] = useState<CameraType>('back');
   const [permission, requestPermission] = useCameraPermissions();
+  const [isTakingPicture, setIsTakingPicture] = useState(false);
   const cameraRef = useRef<any>(null);
 
   if (!permission) {
-    return <View />;
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.primary} />
+        <Text style={styles.loadingText}>Memeriksa izin kamera...</Text>
+      </View>
+    );
   }
 
   if (!permission.granted) {
@@ -40,12 +46,19 @@ export const ImageCapture: React.FC<ImageCaptureProps> = ({
   }
 
   const handleCapture = async () => {
-    if (cameraRef.current) {
+    if (cameraRef.current && !isTakingPicture) {
       try {
-        const photo = await cameraRef.current.takePictureAsync();
+        setIsTakingPicture(true);
+        const photo = await cameraRef.current.takePictureAsync({
+          quality: 0.8,
+          base64: true,
+          exif: false,
+        });
+        setIsTakingPicture(false);
         onCapture(photo.uri);
       } catch (error) {
         console.error('Error taking picture:', error);
+        setIsTakingPicture(false);
       }
     }
   };
@@ -81,13 +94,19 @@ export const ImageCapture: React.FC<ImageCaptureProps> = ({
             <TouchableOpacity 
               style={styles.captureButton} 
               onPress={handleCapture}
+              disabled={isTakingPicture}
             >
-              <View style={styles.captureButtonInner} />
+              {isTakingPicture ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <View style={styles.captureButtonInner} />
+              )}
             </TouchableOpacity>
 
             <TouchableOpacity 
               style={styles.flipButton} 
               onPress={toggleCameraFacing}
+              disabled={isTakingPicture}
             >
               <Camera size={24} color={colors.surface} />
             </TouchableOpacity>
@@ -172,6 +191,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: layout.spacing.xl,
+    backgroundColor: colors.background,
   },
   permissionText: {
     fontFamily: typography.fontFamily.medium,
@@ -190,5 +210,17 @@ const styles = StyleSheet.create({
     fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.md,
     color: colors.surface,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+  loadingText: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
+    color: colors.textSecondary,
+    marginTop: layout.spacing.md,
   },
 });

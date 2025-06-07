@@ -44,13 +44,9 @@ export const useImageAnalysis = (analysisType: AnalysisType) => {
       setIsLoading(true);
       setError(null);
       
-      // Use the local mock service for now
-      // In a real app, we would use the backend API
-      // const analysisResult = await analyzeImage(uri, analysisType);
-      
-      // For demo purposes, use the local mock service
+      // Use the backend API for analysis
       const analysisResult = await trpcClient.analysis.analyze.mutate({
-        imageBase64: "mockBase64String",
+        imageBase64: await analyzeImage(uri, analysisType),
         analysisType,
       });
       

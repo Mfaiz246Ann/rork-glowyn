@@ -35,7 +35,7 @@ export const Avatar: React.FC<AvatarProps> = ({
     return (
       <View style={[styles.container, style]}>
         <LinearGradient
-          colors={[gradients.primary[0], gradients.primary[1]]}
+          colors={gradients.primary as readonly [string, string]}
           style={[
             styles.gradient,
             { width: gradientSize, height: gradientSize, borderRadius: gradientSize / 2 }
@@ -96,7 +96,7 @@ export const TouchableAvatar: React.FC<TouchableAvatarProps> = ({
         {...props}
       >
         <LinearGradient
-          colors={[gradients.primary[0], gradients.primary[1]]}
+          colors={gradients.primary as readonly [string, string]}
           style={[
             styles.gradient,
             { width: gradientSize, height: gradientSize, borderRadius: gradientSize / 2 }

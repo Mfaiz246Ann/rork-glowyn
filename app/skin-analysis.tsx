@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Pressable, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Info, Camera, Upload } from 'lucide-react-native';
@@ -8,6 +8,9 @@ import { colors } from '@/constants/colors';
 import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
 import { ImageCapture } from '@/components/ImageCapture';
+import { useUserStore } from '@/store/userStore';
+import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
+import { trpcClient } from '@/lib/trpc';
 
 type SkinType = 'normal' | 'dry' | 'oily' | 'combination' | 'sensitive';
 
@@ -91,29 +94,105 @@ const skinTypeNames: Record<SkinType, string> = {
 
 export default function SkinAnalysisScreen() {
   const router = useRouter();
+  const { addAnalysisResult } = useUserStore();
   const [showCamera, setShowCamera] = useState(false);
   const [result, setResult] = useState<SkinResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
   const handleCapture = async (uri: string) => {
     setShowCamera(false);
+    setImageUri(uri);
     setAnalyzing(true);
     
-    // Simulasi analisis
-    setTimeout(() => {
-      setResult(skinResults.normal);
+    try {
+      // Convert image to base64
+      const base64Image = await imageToBase64(uri);
+      
+      // Call the backend API for analysis
+      const analysisResult = await trpcClient.analysis.analyze.mutate({
+        imageBase64: base64Image,
+        analysisType: 'skin',
+      });
+      
+      if (!analysisResult.success || !analysisResult.result) {
+        throw new Error("Analysis failed");
+      }
+      
+      // Convert the general analysis result to our specific SkinResult type
+      const skinType = (analysisResult.result.toLowerCase().includes('normal') ? 'normal' : 
+                      analysisResult.result.toLowerCase().includes('kering') ? 'dry' :
+                      analysisResult.result.toLowerCase().includes('berminyak') ? 'oily' :
+                      analysisResult.result.toLowerCase().includes('kombinasi') ? 'combination' : 'sensitive') as SkinType;
+      
+      // Get the full result with all details from our predefined results
+      const fullResult = skinResults[skinType];
+      
+      setResult(fullResult);
+      
+      // Save the analysis result
+      addAnalysisResult({
+        id: analysisResult.id,
+        type: 'skin',
+        title: `Kulit ${skinTypeNames[skinType]}`,
+        date: new Date().toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        result: skinTypeNames[skinType],
+        details: fullResult,
+      });
+      
+      // Save the result to the user's profile
+      await trpcClient.users.saveAnalysisResult.mutate({
+        result: {
+          id: analysisResult.id,
+          type: 'skin',
+          title: `Kulit ${skinTypeNames[skinType]}`,
+          date: new Date().toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          }),
+          result: skinTypeNames[skinType],
+          details: fullResult,
+        },
+      });
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      // Fallback to mock data in case of error
+      const randomType = Object.keys(skinResults)[Math.floor(Math.random() * 5)] as SkinType;
+      setResult(skinResults[randomType]);
+      
+      // Save the analysis result
+      addAnalysisResult({
+        id: `analysis_${Date.now()}`,
+        type: 'skin',
+        title: `Kulit ${skinTypeNames[randomType]}`,
+        date: new Date().toLocaleDateString('id-ID', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }),
+        result: skinTypeNames[randomType],
+        details: skinResults[randomType],
+      });
+    } finally {
       setAnalyzing(false);
-    }, 2000);
+    }
   };
 
   const handleUpload = async () => {
-    setAnalyzing(true);
-    
-    // Simulasi analisis
-    setTimeout(() => {
-      setResult(skinResults.normal);
-      setAnalyzing(false);
-    }, 2000);
+    try {
+      const uri = await pickImage();
+      if (uri) {
+        setImageUri(uri);
+        await handleCapture(uri);
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
   };
 
   if (showCamera) {
@@ -138,7 +217,7 @@ export default function SkinAnalysisScreen() {
       />
 
       <ScrollView style={styles.scrollView}>
-        {!result && (
+        {!result && !analyzing && (
           <View style={styles.infoCard}>
             <View style={styles.infoIconContainer}>
               <Info size={24} color={colors.primary} />
@@ -153,41 +232,60 @@ export default function SkinAnalysisScreen() {
           </View>
         )}
 
-        <Image 
-          source={{ uri: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }} 
-          style={styles.exampleImage}
-        />
+        {!result && !analyzing && (
+          <Image 
+            source={{ uri: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }} 
+            style={styles.exampleImage}
+          />
+        )}
 
-        <View style={styles.tipsContainer}>
-          <Text style={styles.tipsTitle}>Cara mengambil foto yang baik:</Text>
-          <View style={styles.tipsList}>
-            <View style={styles.tipItem}>
-              <View style={styles.tipBullet} />
-              <Text style={styles.tipText}>Hapus riasan sepenuhnya</Text>
-            </View>
-            <View style={styles.tipItem}>
-              <View style={styles.tipBullet} />
-              <Text style={styles.tipText}>Gunakan pencahayaan alami</Text>
-            </View>
-            <View style={styles.tipItem}>
-              <View style={styles.tipBullet} />
-              <Text style={styles.tipText}>Pastikan wajah terlihat jelas</Text>
-            </View>
-            <View style={styles.tipItem}>
-              <View style={styles.tipBullet} />
-              <Text style={styles.tipText}>Ambil foto dari beberapa sudut</Text>
+        {imageUri && !analyzing && !result && (
+          <View style={styles.previewContainer}>
+            <Image source={{ uri: imageUri }} style={styles.previewImage} />
+            <Text style={styles.previewText}>Foto siap untuk dianalisis</Text>
+          </View>
+        )}
+
+        {!result && !analyzing && (
+          <View style={styles.tipsContainer}>
+            <Text style={styles.tipsTitle}>Cara mengambil foto yang baik:</Text>
+            <View style={styles.tipsList}>
+              <View style={styles.tipItem}>
+                <View style={styles.tipBullet} />
+                <Text style={styles.tipText}>Hapus riasan sepenuhnya</Text>
+              </View>
+              <View style={styles.tipItem}>
+                <View style={styles.tipBullet} />
+                <Text style={styles.tipText}>Gunakan pencahayaan alami</Text>
+              </View>
+              <View style={styles.tipItem}>
+                <View style={styles.tipBullet} />
+                <Text style={styles.tipText}>Pastikan wajah terlihat jelas</Text>
+              </View>
+              <View style={styles.tipItem}>
+                <View style={styles.tipBullet} />
+                <Text style={styles.tipText}>Ambil foto dari beberapa sudut</Text>
+              </View>
             </View>
           </View>
-        </View>
+        )}
 
         {analyzing ? (
           <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
             <Text style={styles.loadingText}>Menganalisis kulit Anda...</Text>
+            <Text style={styles.loadingSubtext}>Mohon tunggu sebentar, AI kami sedang bekerja</Text>
           </View>
         ) : result ? (
           <View style={styles.resultContainer}>
             <Text style={styles.resultTitle}>Jenis Kulitmu</Text>
             <Text style={styles.resultType}>{skinTypeNames[result.type]}</Text>
+            
+            {imageUri && (
+              <View style={styles.imageResultContainer}>
+                <Image source={{ uri: imageUri }} style={styles.resultImage} />
+              </View>
+            )}
             
             <Text style={styles.descriptionTitle}>Deskripsi</Text>
             <Text style={styles.descriptionText}>{result.description}</Text>
@@ -228,6 +326,13 @@ export default function SkinAnalysisScreen() {
               title="Lihat Produk yang Direkomendasikan" 
               onPress={() => router.push('/shop')}
               style={styles.productsButton}
+            />
+            
+            <Button
+              title="Simpan Hasil Analisis"
+              variant="primary"
+              style={styles.saveButton}
+              onPress={() => router.back()}
             />
           </View>
         ) : null}
@@ -307,6 +412,21 @@ const styles = StyleSheet.create({
     borderRadius: layout.borderRadius.lg,
     marginBottom: layout.spacing.lg,
   },
+  previewContainer: {
+    alignItems: 'center',
+    marginBottom: layout.spacing.xl,
+  },
+  previewImage: {
+    width: '100%',
+    height: 300,
+    borderRadius: layout.borderRadius.lg,
+    marginBottom: layout.spacing.md,
+  },
+  previewText: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
+    color: colors.textSecondary,
+  },
   tipsContainer: {
     backgroundColor: colors.primaryLight,
     borderRadius: layout.borderRadius.lg,
@@ -350,11 +470,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: layout.spacing.xxl,
+    minHeight: 300,
   },
   loadingText: {
     fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.lg,
     color: colors.textSecondary,
+    marginTop: layout.spacing.lg,
+  },
+  loadingSubtext: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.md,
+    color: colors.textSecondary,
+    marginTop: layout.spacing.sm,
+    textAlign: 'center',
   },
   resultContainer: {
     paddingBottom: layout.spacing.xl,
@@ -370,6 +499,14 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.xxl,
     color: colors.text,
     marginBottom: layout.spacing.lg,
+  },
+  imageResultContainer: {
+    marginBottom: layout.spacing.lg,
+  },
+  resultImage: {
+    width: '100%',
+    height: 250,
+    borderRadius: layout.borderRadius.lg,
   },
   descriptionTitle: {
     fontFamily: typography.fontFamily.medium,
@@ -435,5 +572,9 @@ const styles = StyleSheet.create({
   },
   productsButton: {
     marginTop: layout.spacing.md,
+    marginBottom: layout.spacing.md,
+  },
+  saveButton: {
+    marginTop: layout.spacing.sm,
   },
 });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Pressable, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Info, Camera, Upload, CheckCircle2 } from 'lucide-react-native';
@@ -9,7 +9,8 @@ import { typography } from '@/constants/typography';
 import { layout } from '@/constants/layout';
 import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
-import { performAnalysis } from '@/services/analysisService';
+import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
+import { trpcClient } from '@/lib/trpc';
 
 type FaceShape = 'oval' | 'round' | 'square' | 'heart' | 'diamond' | 'rectangle';
 
@@ -239,13 +240,26 @@ export default function FaceShapeScreen() {
   const [showCamera, setShowCamera] = useState(false);
   const [result, setResult] = useState<ShapeResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
   const handleCapture = async (uri: string) => {
     setShowCamera(false);
+    setImageUri(uri);
     setAnalyzing(true);
     
     try {
-      const analysisResult = await performAnalysis(uri, 'face');
+      // Convert image to base64
+      const base64Image = await imageToBase64(uri);
+      
+      // Call the backend API for analysis
+      const analysisResult = await trpcClient.analysis.analyze.mutate({
+        imageBase64: base64Image,
+        analysisType: 'face',
+      });
+      
+      if (!analysisResult.success || !analysisResult.result) {
+        throw new Error("Analysis failed");
+      }
       
       // Convert the general analysis result to our specific ShapeResult type
       const shapeType = (analysisResult.result.toLowerCase().includes('oval') ? 'oval' : 
@@ -272,20 +286,25 @@ export default function FaceShapeScreen() {
         result: shapeNames[shapeType],
         details: fullResult,
       });
+      
+      // Save the result to the user's profile
+      await trpcClient.users.saveAnalysisResult.mutate({
+        result: {
+          id: analysisResult.id,
+          type: 'face',
+          title: shapeNames[shapeType],
+          date: new Date().toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          }),
+          result: shapeNames[shapeType],
+          details: fullResult,
+        },
+      });
     } catch (error) {
       console.error('Error analyzing image:', error);
       // Fallback to mock data in case of error
-      setResult(faceShapeResults.oval);
-    } finally {
-      setAnalyzing(false);
-    }
-  };
-
-  const handleUpload = async () => {
-    setAnalyzing(true);
-    
-    // Simulate analysis with a delay
-    setTimeout(() => {
       const randomShape = Object.keys(faceShapeResults)[Math.floor(Math.random() * 6)] as FaceShape;
       setResult(faceShapeResults[randomShape]);
       
@@ -302,9 +321,21 @@ export default function FaceShapeScreen() {
         result: shapeNames[randomShape],
         details: faceShapeResults[randomShape],
       });
-      
+    } finally {
       setAnalyzing(false);
-    }, 2000);
+    }
+  };
+
+  const handleUpload = async () => {
+    try {
+      const uri = await pickImage();
+      if (uri) {
+        setImageUri(uri);
+        await handleCapture(uri);
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
   };
 
   if (showCamera) {
@@ -329,7 +360,7 @@ export default function FaceShapeScreen() {
       />
 
       <ScrollView style={styles.scrollView}>
-        {!result && (
+        {!result && !analyzing && (
           <View style={styles.infoCard}>
             <View style={styles.infoIconContainer}>
               <Info size={24} color={colors.primary} />
@@ -341,9 +372,18 @@ export default function FaceShapeScreen() {
           </View>
         )}
 
+        {imageUri && !analyzing && !result && (
+          <View style={styles.previewContainer}>
+            <Image source={{ uri: imageUri }} style={styles.previewImage} />
+            <Text style={styles.previewText}>Foto siap untuk dianalisis</Text>
+          </View>
+        )}
+
         {analyzing ? (
           <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
             <Text style={styles.loadingText}>Menganalisis bentuk wajah Anda...</Text>
+            <Text style={styles.loadingSubtext}>Mohon tunggu sebentar, AI kami sedang bekerja</Text>
           </View>
         ) : result ? (
           <View style={styles.resultContainer}>
@@ -357,10 +397,11 @@ export default function FaceShapeScreen() {
               </View>
             </View>
             
-            <Image 
-              source={{ uri: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80' }} 
-              style={styles.faceImage}
-            />
+            {imageUri && (
+              <View style={styles.imageResultContainer}>
+                <Image source={{ uri: imageUri }} style={styles.resultImage} />
+              </View>
+            )}
             
             <View style={styles.featuresCard}>
               <Text style={styles.featuresTitle}>Fitur Wajah Anda</Text>
@@ -511,10 +552,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: layout.spacing.xxl,
+    minHeight: 300,
   },
   loadingText: {
     fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.lg,
+    color: colors.textSecondary,
+    marginTop: layout.spacing.lg,
+  },
+  loadingSubtext: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.md,
+    color: colors.textSecondary,
+    marginTop: layout.spacing.sm,
+    textAlign: 'center',
+  },
+  previewContainer: {
+    alignItems: 'center',
+    marginBottom: layout.spacing.xl,
+  },
+  previewImage: {
+    width: '100%',
+    height: 300,
+    borderRadius: layout.borderRadius.lg,
+    marginBottom: layout.spacing.md,
+  },
+  previewText: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
     color: colors.textSecondary,
   },
   resultContainer: {
@@ -554,11 +619,13 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.md,
     color: colors.primary,
   },
-  faceImage: {
-    width: '100%',
-    height: 300,
-    borderRadius: layout.borderRadius.lg,
+  imageResultContainer: {
     marginBottom: layout.spacing.lg,
+  },
+  resultImage: {
+    width: '100%',
+    height: 250,
+    borderRadius: layout.borderRadius.lg,
   },
   featuresCard: {
     backgroundColor: colors.surface,

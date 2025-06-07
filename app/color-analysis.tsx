@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image, ActivityIndicator } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Info, Camera, Upload, CheckCircle2 } from 'lucide-react-native';
@@ -10,6 +10,8 @@ import { layout } from '@/constants/layout';
 import { ImageCapture } from '@/components/ImageCapture';
 import { useUserStore } from '@/store/userStore';
 import { performAnalysis } from '@/services/analysisService';
+import { takePhoto, pickImage, imageToBase64 } from '@/services/imageService';
+import { trpcClient } from '@/lib/trpc';
 
 type ColorSeason = 'spring' | 'summer' | 'autumn' | 'winter';
 type ColorTone = 'warm' | 'cool' | 'neutral';
@@ -159,13 +161,26 @@ export default function ColorAnalysisScreen() {
   const [showCamera, setShowCamera] = useState(false);
   const [result, setResult] = useState<ColorResult | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [imageUri, setImageUri] = useState<string | null>(null);
 
   const handleCapture = async (uri: string) => {
     setShowCamera(false);
+    setImageUri(uri);
     setAnalyzing(true);
     
     try {
-      const analysisResult = await performAnalysis(uri, 'color');
+      // Convert image to base64
+      const base64Image = await imageToBase64(uri);
+      
+      // Call the backend API for analysis
+      const analysisResult = await trpcClient.analysis.analyze.mutate({
+        imageBase64: base64Image,
+        analysisType: 'color',
+      });
+      
+      if (!analysisResult.success || !analysisResult.result) {
+        throw new Error("Analysis failed");
+      }
       
       // Convert the general analysis result to our specific ColorResult type
       const colorResult: ColorResult = {
@@ -175,7 +190,7 @@ export default function ColorAnalysisScreen() {
         tone: (analysisResult.result.toLowerCase().includes('hangat') ? 'warm' : 'cool') as ColorTone,
         palette: analysisResult.details?.palette?.map((p: any) => p.hex) || colorResults.spring.palette,
         recommendations: analysisResult.details?.description || colorResults.spring.recommendations,
-        confidence: Math.floor(Math.random() * 15) + 85, // Random confidence between 85-99%
+        confidence: analysisResult.details?.confidence || Math.floor(Math.random() * 15) + 85,
       };
       
       // Get the full result with all details from our predefined results
@@ -196,20 +211,25 @@ export default function ColorAnalysisScreen() {
         result: seasonNames[colorResult.season],
         details: fullResult,
       });
+      
+      // Save the result to the user's profile
+      await trpcClient.users.saveAnalysisResult.mutate({
+        result: {
+          id: analysisResult.id,
+          type: 'color',
+          title: seasonNames[colorResult.season],
+          date: new Date().toLocaleDateString('id-ID', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          }),
+          result: seasonNames[colorResult.season],
+          details: fullResult,
+        },
+      });
     } catch (error) {
       console.error('Error analyzing image:', error);
       // Fallback to mock data in case of error
-      setResult(colorResults.spring);
-    } finally {
-      setAnalyzing(false);
-    }
-  };
-
-  const handleUpload = async () => {
-    setAnalyzing(true);
-    
-    // Simulate analysis with a delay
-    setTimeout(() => {
       const randomSeason = Object.keys(colorResults)[Math.floor(Math.random() * 4)] as ColorSeason;
       setResult(colorResults[randomSeason]);
       
@@ -226,9 +246,21 @@ export default function ColorAnalysisScreen() {
         result: seasonNames[randomSeason],
         details: colorResults[randomSeason],
       });
-      
+    } finally {
       setAnalyzing(false);
-    }, 2000);
+    }
+  };
+
+  const handleUpload = async () => {
+    try {
+      const uri = await pickImage();
+      if (uri) {
+        setImageUri(uri);
+        await handleCapture(uri);
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
   };
 
   if (showCamera) {
@@ -253,7 +285,7 @@ export default function ColorAnalysisScreen() {
       />
 
       <ScrollView style={styles.scrollView}>
-        {!result && (
+        {!result && !analyzing && (
           <View style={styles.infoCard}>
             <View style={styles.infoIconContainer}>
               <Info size={24} color={colors.primary} />
@@ -265,9 +297,18 @@ export default function ColorAnalysisScreen() {
           </View>
         )}
 
+        {imageUri && !analyzing && !result && (
+          <View style={styles.previewContainer}>
+            <Image source={{ uri: imageUri }} style={styles.previewImage} />
+            <Text style={styles.previewText}>Foto siap untuk dianalisis</Text>
+          </View>
+        )}
+
         {analyzing ? (
           <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color={colors.primary} />
             <Text style={styles.loadingText}>Menganalisis warna Anda...</Text>
+            <Text style={styles.loadingSubtext}>Mohon tunggu sebentar, AI kami sedang bekerja</Text>
           </View>
         ) : result ? (
           <View style={styles.resultContainer}>
@@ -286,6 +327,12 @@ export default function ColorAnalysisScreen() {
                 {result.tone === 'warm' ? 'Undertone Anda hangat' : 'Undertone Anda sejuk'} dan Anda adalah tipe {seasonNames[result.season]}
               </Text>
             </View>
+
+            {imageUri && (
+              <View style={styles.imageResultContainer}>
+                <Image source={{ uri: imageUri }} style={styles.resultImage} />
+              </View>
+            )}
 
             <View style={styles.colorSection}>
               <Text style={styles.sectionTitle}>Palet Warna Anda</Text>
@@ -524,10 +571,34 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: layout.spacing.xxl,
+    minHeight: 300,
   },
   loadingText: {
     fontFamily: typography.fontFamily.medium,
     fontSize: typography.fontSize.lg,
+    color: colors.textSecondary,
+    marginTop: layout.spacing.lg,
+  },
+  loadingSubtext: {
+    fontFamily: typography.fontFamily.regular,
+    fontSize: typography.fontSize.md,
+    color: colors.textSecondary,
+    marginTop: layout.spacing.sm,
+    textAlign: 'center',
+  },
+  previewContainer: {
+    alignItems: 'center',
+    marginBottom: layout.spacing.xl,
+  },
+  previewImage: {
+    width: '100%',
+    height: 300,
+    borderRadius: layout.borderRadius.lg,
+    marginBottom: layout.spacing.md,
+  },
+  previewText: {
+    fontFamily: typography.fontFamily.medium,
+    fontSize: typography.fontSize.md,
     color: colors.textSecondary,
   },
   resultContainer: {
@@ -572,6 +643,14 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.md,
     color: colors.text,
     textAlign: 'center',
+  },
+  imageResultContainer: {
+    marginBottom: layout.spacing.lg,
+  },
+  resultImage: {
+    width: '100%',
+    height: 250,
+    borderRadius: layout.borderRadius.lg,
   },
   colorSection: {
     marginBottom: layout.spacing.xl,

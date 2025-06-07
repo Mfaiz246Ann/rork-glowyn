@@ -32,22 +32,25 @@ export const analysisService = {
       
       // Handle specific error types
       if (error.name === 'AbortError') {
-        return {
+        const errorResponse: AnalysisResponse = {
           success: false,
           error: 'Request timed out. Please try again.'
         };
+        return errorResponse;
       } else if (error.message === 'Failed to fetch') {
-        return {
+        const errorResponse: AnalysisResponse = {
           success: false,
           error: 'Network connection error. Please check your internet connection.'
         };
+        return errorResponse;
       }
       
       // Return a standardized error response
-      return {
+      const errorResponse: AnalysisResponse = {
         success: false,
         error: error.message || 'Failed to analyze image'
       };
+      return errorResponse;
     }
   },
   

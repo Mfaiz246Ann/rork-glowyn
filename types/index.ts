@@ -54,8 +54,8 @@ export interface AnalysisResult {
 
 // Analysis API Response type - using discriminated union for better type safety
 export type AnalysisResponse = 
-  | { success: true; result: AnalysisResult; error?: never; }
-  | { success: false; error: string; result?: never; };
+  | { success: true; result: AnalysisResult; error?: undefined; }
+  | { success: false; error: string; result?: undefined; };
 
 // Post type
 export interface Post {

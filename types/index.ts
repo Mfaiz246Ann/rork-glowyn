@@ -55,7 +55,7 @@ export type FeedPost = {
   comments: number;
   tags: string[];
   timestamp: string;
-  location?: string; // Location property added
+  location?: string; // Added location property
 };
 
 export type Comment = {

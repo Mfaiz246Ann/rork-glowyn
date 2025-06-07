@@ -198,7 +198,7 @@ export default function ColorAnalysisScreen() {
       // Save the analysis result
       const analysisResult: AnalysisResult = {
         id: analysisResponse.result.id,
-        type: 'color' as AnalysisType,
+        type: 'color',
         title: seasonNames[colorSeason],
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',
@@ -224,7 +224,7 @@ export default function ColorAnalysisScreen() {
       // Save the analysis result
       const analysisResult: AnalysisResult = {
         id: `analysis_${Date.now()}`,
-        type: 'color' as AnalysisType,
+        type: 'color',
         title: seasonNames[randomSeason],
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',

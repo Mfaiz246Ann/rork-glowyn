@@ -47,7 +47,7 @@ export const trpcClient = trpc.createClient({
             
             // Create a mock response based on the URL path
             const url_string = url.toString();
-            let mockData = { result: { data: null } };
+            let mockData: any = { result: { data: null } };
             
             if (url_string.includes('analysis.analyze')) {
               // Mock analysis response

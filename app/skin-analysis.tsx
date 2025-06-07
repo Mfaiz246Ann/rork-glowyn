@@ -137,7 +137,7 @@ export default function SkinAnalysisScreen() {
       // Save the analysis result
       const analysisResult: AnalysisResult = {
         id: analysisResponse.result.id,
-        type: 'skin' as AnalysisType,
+        type: 'skin',
         title: `Kulit ${skinTypeNames[skinType]}`,
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',
@@ -163,7 +163,7 @@ export default function SkinAnalysisScreen() {
       // Save the analysis result
       const analysisResult: AnalysisResult = {
         id: `analysis_${Date.now()}`,
-        type: 'skin' as AnalysisType,
+        type: 'skin',
         title: `Kulit ${skinTypeNames[randomType]}`,
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',

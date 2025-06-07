@@ -280,7 +280,7 @@ export default function FaceShapeScreen() {
       // Save the analysis result
       const analysisResult: AnalysisResult = {
         id: analysisResponse.result.id,
-        type: 'face' as AnalysisType,
+        type: 'face',
         title: shapeNames[shapeType],
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',
@@ -306,7 +306,7 @@ export default function FaceShapeScreen() {
       // Save the analysis result
       const analysisResult: AnalysisResult = {
         id: `analysis_${Date.now()}`,
-        type: 'face' as AnalysisType,
+        type: 'face',
         title: shapeNames[randomShape],
         date: new Date().toLocaleDateString('id-ID', {
           year: 'numeric',

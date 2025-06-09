@@ -12,8 +12,8 @@ import { Card } from './Card';
 interface FeedPostProps {
   post: FeedPostType;
   onUserPress: (userId: string) => void;
-  onPostPress: () => void;
-  onCommentPress: () => void;
+  onPostPress: (postId: string) => void;
+  onCommentPress: (postId: string) => void;
 }
 
 export const FeedPost: React.FC<FeedPostProps> = ({
@@ -73,9 +73,9 @@ export const FeedPost: React.FC<FeedPostProps> = ({
         </TouchableOpacity>
       </View>
 
-      <Pressable onPress={onPostPress}>
+      <Pressable onPress={() => onPostPress(post.id)}>
         <Image
-          source={{ uri: post.image }}
+          source={post.image}
           style={styles.postImage}
           contentFit="cover"
         />
@@ -90,7 +90,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
               fill={liked ? colors.primary : 'transparent'}
             />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={onCommentPress}>
+          <TouchableOpacity style={styles.actionButton} onPress={() => onCommentPress(post.id)}>
             <MessageCircle size={24} color={colors.textSecondary} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionButton}>
@@ -111,7 +111,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
         <Text style={styles.caption}>
           <Text style={styles.userName}>{post.userName}</Text> {post.caption}
         </Text>
-        <TouchableOpacity onPress={onCommentPress}>
+        <TouchableOpacity onPress={() => onCommentPress(post.id)}>
           <Text style={styles.comments}>
             Lihat semua {post.comments} komentar
           </Text>
@@ -124,7 +124,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
           {post.products.map((product: Product) => (
             <View key={product.id} style={styles.productItem}>
               <Image
-                source={{ uri: product.image }}
+                source={product.image}
                 style={styles.productImage}
                 contentFit="cover"
               />

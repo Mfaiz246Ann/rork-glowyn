@@ -23,14 +23,21 @@ const getPostsProcedure = publicProcedure
         filteredPosts = filteredPosts.filter(post => post.userId === userId);
       }
       
+      // Sort posts by date (newest first)
+      filteredPosts.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
       // In a real app, we would implement proper cursor-based pagination
       // For this demo, we'll just limit the results
-      const limitedPosts = filteredPosts.slice(0, limit);
+      const startIndex = cursor ? filteredPosts.findIndex(post => post.id === cursor) + 1 : 0;
+      const endIndex = startIndex + limit;
+      const limitedPosts = filteredPosts.slice(startIndex, endIndex);
+      
+      const nextCursor = endIndex < filteredPosts.length ? filteredPosts[endIndex - 1].id : null;
       
       return {
         success: true,
         posts: limitedPosts,
-        nextCursor: limitedPosts.length > 0 ? limitedPosts[limitedPosts.length - 1].id : null,
+        nextCursor,
       };
     } catch (error) {
       console.error("Error in getPosts:", error);

@@ -30,6 +30,17 @@ export default function ProfileScreen() {
     }
   };
 
+  // Handle case where user or analysisResults might be undefined
+  const safeAnalysisResults = analysisResults || [];
+  const safeUser = user || {
+    displayName: 'User',
+    bio: 'Welcome to your profile',
+    followers: 0,
+    following: 0,
+    posts: 0,
+    profileImage: 'https://images.pexels.com/photos/7958942/pexels-photo-7958942.jpeg'
+  };
+
   return (
     <ScrollView 
       style={styles.container}
@@ -43,29 +54,29 @@ export default function ProfileScreen() {
       </View>
       
       <View style={styles.profileContainer}>
-        <Avatar source={user?.profileImage || ''} size={100} gradient />
+        <Avatar source={safeUser.profileImage || safeUser.avatar || ''} size={100} gradient />
         
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user?.posts}</Text>
+            <Text style={styles.statValue}>{safeUser.posts || 0}</Text>
             <Text style={styles.statLabel}>Posts</Text>
           </View>
           
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user?.followers}</Text>
+            <Text style={styles.statValue}>{safeUser.followers || 0}</Text>
             <Text style={styles.statLabel}>Followers</Text>
           </View>
           
           <View style={styles.statItem}>
-            <Text style={styles.statValue}>{user?.following}</Text>
+            <Text style={styles.statValue}>{safeUser.following || 0}</Text>
             <Text style={styles.statLabel}>Following</Text>
           </View>
         </View>
       </View>
       
       <View style={styles.bioContainer}>
-        <Text style={styles.displayName}>{user?.displayName}</Text>
-        <Text style={styles.bio}>{user?.bio}</Text>
+        <Text style={styles.displayName}>{safeUser.displayName || safeUser.name}</Text>
+        <Text style={styles.bio}>{safeUser.bio}</Text>
         
         <Button
           title="Edit Profile"
@@ -76,28 +87,30 @@ export default function ProfileScreen() {
         />
       </View>
       
-      <View style={styles.analysisContainer}>
-        <Text style={styles.analysisTitle}>Your Beauty Analysis</Text>
-        
-        <View style={styles.analysisCardsContainer}>
-          {analysisResults.slice(0, 2).map((analysis) => (
-            <TouchableCard 
-              key={analysis.id}
-              style={[
-                styles.analysisCard,
-                analysis.type === 'color' && { backgroundColor: colors.primaryLight }
-              ]}
-              onPress={() => navigateToAnalysis(analysis.type)}
-            >
-              <Text style={styles.analysisCardTitle}>{analysis.title}</Text>
-              <Text style={styles.analysisCardDate}>{analysis.date}</Text>
-              <View style={styles.analysisCardArrow}>
-                <Text style={styles.analysisCardArrowText}>›</Text>
-              </View>
-            </TouchableCard>
-          ))}
+      {safeAnalysisResults.length > 0 && (
+        <View style={styles.analysisContainer}>
+          <Text style={styles.analysisTitle}>Your Beauty Analysis</Text>
+          
+          <View style={styles.analysisCardsContainer}>
+            {safeAnalysisResults.slice(0, 2).map((analysis) => (
+              <TouchableCard 
+                key={analysis.id}
+                style={[
+                  styles.analysisCard,
+                  analysis.type === 'color' && { backgroundColor: colors.primaryLight }
+                ]}
+                onPress={() => navigateToAnalysis(analysis.type)}
+              >
+                <Text style={styles.analysisCardTitle}>{analysis.title}</Text>
+                <Text style={styles.analysisCardDate}>{analysis.date}</Text>
+                <View style={styles.analysisCardArrow}>
+                  <Text style={styles.analysisCardArrowText}>›</Text>
+                </View>
+              </TouchableCard>
+            ))}
+          </View>
         </View>
-      </View>
+      )}
       
       <View style={styles.tabsContainer}>
         <Pressable 

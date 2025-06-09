@@ -31,21 +31,22 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
       let nextCursorData: string | null = null;
       
       // Type guard to check if response has success property
-      if ('success' in response) {
-        const successResponse = response as SocialPostsResponse;
-        if (!successResponse.success) {
-          throw new Error('error' in successResponse ? successResponse.error : "Failed to fetch posts");
-        }
-        // TypeScript now knows this is the success case
+      if ('success' in response && response.success) {
+        const successResponse = response as Extract<SocialPostsResponse, { success: true }>;
         postsData = successResponse.posts;
         nextCursorData = successResponse.nextCursor;
-      } else if ('posts' in response) {
-        // Legacy format without success field - cast to expected type
-        const legacyResponse = response as { posts: FeedPost[]; nextCursor: string | null };
-        postsData = legacyResponse.posts;
-        nextCursorData = legacyResponse.nextCursor;
+      } else if ('success' in response && !response.success) {
+        const errorResponse = response as Extract<SocialPostsResponse, { success: false }>;
+        throw new Error(errorResponse.error);
       } else {
-        throw new Error("Unexpected response format");
+        // Handle case where response might be directly the data
+        const directResponse = response as any;
+        if (directResponse.posts && Array.isArray(directResponse.posts)) {
+          postsData = directResponse.posts;
+          nextCursorData = directResponse.nextCursor || null;
+        } else {
+          throw new Error("Unexpected response format");
+        }
       }
       
       if (cursor) {
@@ -128,7 +129,7 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
         userImage: user.avatar,
       });
       
-      if (!response || !response.success) {
+      if (!response || !('success' in response) || !response.success) {
         throw new Error("Failed to add comment");
       }
       
@@ -141,7 +142,8 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
         )
       );
       
-      return response.comment;
+      const successResponse = response as Extract<typeof response, { success: true }>;
+      return successResponse.comment;
     } catch (err) {
       console.error("Failed to add comment:", err);
       return null;

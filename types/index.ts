@@ -38,6 +38,28 @@ export interface User {
   bio?: string;
   followers?: number;
   following?: number;
+  posts?: number;
+  profileImage?: string;
+  displayName?: string;
+}
+
+// User Profile type (extended user info)
+export interface UserProfile {
+  id: string;
+  username: string;
+  displayName: string;
+  bio?: string;
+  followers: number;
+  following: number;
+  posts?: number;
+  profileImage: string;
+  location?: string;
+  website?: string;
+  joinDate: string;
+  isPremium?: boolean;
+  analysisResults?: AnalysisResult[];
+  savedItems?: string[];
+  recentSearches?: string[];
 }
 
 // Analysis Type enum

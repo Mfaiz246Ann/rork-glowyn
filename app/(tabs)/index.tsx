@@ -18,6 +18,11 @@ import { feedPosts } from '@/mocks/feed';
 // Style feed users dengan foto dan nama pengguna baru
 const styleFeedUsers = [
   {
+    id: 'user1',
+    username: 'Kamu',
+    image: 'https://images.pexels.com/photos/7958942/pexels-photo-7958942.jpeg',
+  },
+  {
     id: 'user2',
     username: 'Elegant Style',
     image: 'https://images.pexels.com/photos/32455529/pexels-photo-32455529/free-photo-of-charming-young-woman-with-bouquet-in-hanoi.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
@@ -77,6 +82,14 @@ export default function HomeScreen() {
 
   const navigateToPost = (id: string) => {
     router.push(`/post/${id}`);
+  };
+
+  const handleUserPress = (id: string) => {
+    if (id === 'user1') {
+      router.push('/profile');
+    } else {
+      navigateToUser(id);
+    }
   };
 
   return (
@@ -141,74 +154,20 @@ export default function HomeScreen() {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.storiesContainer}
       >
-        <Pressable style={styles.storyItem} onPress={() => router.push('/profile')}>
-          <Avatar 
-            source="https://images.pexels.com/photos/7958942/pexels-photo-7958942.jpeg" 
-            size={64} 
-            gradient 
-          />
-          <Text style={styles.storyUsername}>Kamu</Text>
-        </Pressable>
-        
-        <Pressable 
-          style={styles.storyItem}
-          onPress={() => navigateToUser('user2')}
-        >
-          <Avatar 
-            source="https://images.pexels.com/photos/32455529/pexels-photo-32455529/free-photo-of-charming-young-woman-with-bouquet-in-hanoi.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
-            size={64} 
-            gradient 
-          />
-          <Text style={styles.storyUsername}>Elegant Style</Text>
-        </Pressable>
-        
-        <Pressable 
-          style={styles.storyItem}
-          onPress={() => navigateToUser('user3')}
-        >
-          <Avatar 
-            source="https://images.pexels.com/photos/16270616/pexels-photo-16270616/free-photo-of-young-brunette-woman-posing-with-both-hands-by-her-face.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
-            size={64} 
-            gradient 
-          />
-          <Text style={styles.storyUsername}>Sweet Casual</Text>
-        </Pressable>
-        
-        <Pressable 
-          style={styles.storyItem}
-          onPress={() => navigateToUser('user4')}
-        >
-          <Avatar 
-            source="https://images.pexels.com/photos/14795560/pexels-photo-14795560.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
-            size={64} 
-            gradient 
-          />
-          <Text style={styles.storyUsername}>Cool Tomboy</Text>
-        </Pressable>
-        
-        <Pressable 
-          style={styles.storyItem}
-          onPress={() => navigateToUser('user5')}
-        >
-          <Avatar 
-            source="https://images.pexels.com/photos/30475370/pexels-photo-30475370/free-photo-of-vibrant-cosplay-with-bamboo-hat-and-fan-outdoors.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
-            size={64} 
-            gradient 
-          />
-          <Text style={styles.storyUsername}>Cosplay Girl</Text>
-        </Pressable>
-        
-        <Pressable 
-          style={styles.storyItem}
-          onPress={() => navigateToUser('user6')}
-        >
-          <Avatar 
-            source="https://images.pexels.com/photos/7123635/pexels-photo-7123635.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
-            size={64} 
-            gradient 
-          />
-          <Text style={styles.storyUsername}>Hijabi Style</Text>
-        </Pressable>
+        {styleFeedUsers.map((user) => (
+          <Pressable 
+            key={user.id}
+            style={styles.storyItem}
+            onPress={() => handleUserPress(user.id)}
+          >
+            <Avatar 
+              source={user.image} 
+              size={64} 
+              gradient 
+            />
+            <Text style={styles.storyUsername}>{user.username}</Text>
+          </Pressable>
+        ))}
       </ScrollView>
 
       <View style={styles.trendingPostsContainer}>
@@ -216,9 +175,9 @@ export default function HomeScreen() {
           <FeedPost
             key={`home-feed-${post.id}`}
             post={post}
-            onUserPress={navigateToUser}
-            onPostPress={navigateToPost}
-            onCommentPress={(id) => router.push(`/post/${id}`)}
+            onUserPress={(id: string) => navigateToUser(id)}
+            onPostPress={(id: string) => navigateToPost(id)}
+            onCommentPress={(id: string) => navigateToPost(id)}
           />
         ))}
       </View>

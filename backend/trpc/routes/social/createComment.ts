@@ -1,35 +1,44 @@
 import { z } from "zod";
 import { publicProcedure } from "../../create-context";
-import { Comment } from "@/types";
+import { CommentResponse, Comment } from "@/types";
 
 // Input schema for creating a comment
 const createCommentSchema = z.object({
   postId: z.string(),
-  text: z.string().min(1).max(500),
+  text: z.string().min(1),
   userId: z.string(),
   username: z.string(),
-  userImage: z.string(),
+  userImage: z.string().optional(),
 });
 
-export default publicProcedure
+const createCommentProcedure = publicProcedure
   .input(createCommentSchema)
-  .mutation(({ input }) => {
+  .mutation(({ input }): CommentResponse => {
     const { postId, text, userId, username, userImage } = input;
     
-    // In a real app, this would save the comment to the database
-    // For this demo, we'll just return a mock comment
-    
-    const newComment: Comment = {
-      id: `comment_${Date.now()}`,
-      userId,
-      username,
-      userImage,
-      text,
-      timestamp: new Date().toISOString(),
-    };
-    
-    return {
-      success: true,
-      comment: newComment,
-    };
+    try {
+      // Create a new comment
+      const newComment: Comment = {
+        id: `comment_${Date.now()}`,
+        postId,
+        userId,
+        userName: username,
+        userAvatar: userImage || "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+        text,
+        date: new Date().toISOString(),
+      };
+      
+      return {
+        success: true,
+        comment: newComment,
+      };
+    } catch (error) {
+      console.error("Error creating comment:", error);
+      return {
+        success: false,
+        error: "Failed to create comment",
+      };
+    }
   });
+
+export default createCommentProcedure;

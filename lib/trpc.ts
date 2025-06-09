@@ -2,7 +2,7 @@ import { createTRPCReact } from "@trpc/react-query";
 import { httpLink } from "@trpc/client";
 import type { AppRouter } from "@/backend/trpc/app-router";
 import superjson from "superjson";
-import { AnalysisResponse, AnalysisType } from "@/types";
+import { AnalysisResponse, AnalysisType, SocialPostsResponse } from "@/types";
 
 export const trpc = createTRPCReact<AppRouter>();
 
@@ -122,39 +122,93 @@ export const trpcClient = trpc.createClient({
                 }
               };
             } else if (url_string.includes('social.getPosts')) {
-              // Mock social posts response
+              // Mock social posts response with proper structure
+              const mockResponse: SocialPostsResponse = {
+                success: true,
+                posts: [
+                  {
+                    id: "1",
+                    userId: "user1",
+                    userName: "Anisa Wijaya",
+                    userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    caption: "Outfit of the day! Loving this new blouse from StyleFusion.",
+                    likes: 120,
+                    comments: 24,
+                    date: new Date().toISOString(),
+                    products: [
+                      {
+                        id: "8",
+                        name: "Atasan Coral Blouse",
+                        description: "Blouse warna coral dengan potongan yang flattering untuk semua bentuk tubuh.",
+                        price: 320000,
+                        image: "https://images.unsplash.com/photo-1554568218-0f1715e72254?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                        category: "clothing",
+                        rating: 4.2,
+                        reviews: 45,
+                        brand: "StyleFusion",
+                        currency: "IDR"
+                      }
+                    ]
+                  },
+                  {
+                    id: "2",
+                    userId: "user2",
+                    userName: "Budi Santoso",
+                    userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    image: "https://images.unsplash.com/photo-1596704017254-9a89b0a9f651?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                    caption: "Just got this amazing blush from BeautyGlow. The color is perfect for my skin tone!",
+                    likes: 85,
+                    comments: 12,
+                    date: new Date().toISOString(),
+                    products: [
+                      {
+                        id: "3",
+                        name: "Blush On Peach Perfect",
+                        description: "Blush on dengan warna peach yang memberikan efek natural dan segar.",
+                        price: 175000,
+                        image: "https://images.unsplash.com/photo-1596704017254-9a89b0a9f651?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                        category: "makeup",
+                        rating: 4.3,
+                        reviews: 67,
+                        brand: "BeautyGlow",
+                        currency: "IDR"
+                      }
+                    ]
+                  }
+                ],
+                nextCursor: null
+              };
+              
+              mockData = {
+                result: {
+                  data: mockResponse
+                }
+              };
+            } else if (url_string.includes('social.createComment')) {
+              // Mock comment creation response
               mockData = {
                 result: {
                   data: {
                     success: true,
-                    posts: [
-                      {
-                        id: "1",
-                        userId: "user1",
-                        userName: "Anisa Wijaya",
-                        userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                        image: "https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                        caption: "Outfit of the day! Loving this new blouse from StyleFusion.",
-                        likes: 120,
-                        comments: 24,
-                        date: new Date().toISOString(),
-                        products: [
-                          {
-                            id: "8",
-                            name: "Atasan Coral Blouse",
-                            description: "Blouse warna coral dengan potongan yang flattering untuk semua bentuk tubuh.",
-                            price: 320000,
-                            image: "https://images.unsplash.com/photo-1554568218-0f1715e72254?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
-                            category: "clothing",
-                            rating: 4.2,
-                            reviews: 45,
-                            brand: "StyleFusion",
-                            currency: "IDR"
-                          }
-                        ]
-                      }
-                    ],
-                    nextCursor: null
+                    comment: {
+                      id: `comment_${Date.now()}`,
+                      postId: "1",
+                      userId: "user1",
+                      userName: "Mock User",
+                      userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                      text: "Mock comment",
+                      date: new Date().toISOString(),
+                    }
+                  }
+                }
+              };
+            } else if (url_string.includes('social.likePost')) {
+              // Mock like post response
+              mockData = {
+                result: {
+                  data: {
+                    success: true,
                   }
                 }
               };

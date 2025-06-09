@@ -55,17 +55,15 @@ export interface AnalysisResult {
 }
 
 // Analysis API Response type - using discriminated union for better type safety
-export interface AnalysisResponseSuccess {
-  success: true;
-  result: AnalysisResult;
-}
-
-export interface AnalysisResponseError {
-  success: false;
-  error: string;
-}
-
-export type AnalysisResponse = AnalysisResponseSuccess | AnalysisResponseError;
+export type AnalysisResponse = 
+  | {
+      success: true;
+      result: AnalysisResult;
+    }
+  | {
+      success: false;
+      error: string;
+    };
 
 // Feed Post type
 export interface FeedPost {
@@ -91,3 +89,28 @@ export interface Comment {
   text: string;
   date: string;
 }
+
+// Social API Response types
+export type SocialPostsResponse = {
+  success: true;
+  posts: FeedPost[];
+  nextCursor: string | null;
+} | {
+  success: false;
+  error: string;
+};
+
+export type CommentResponse = {
+  success: true;
+  comment: Comment;
+} | {
+  success: false;
+  error: string;
+};
+
+export type LikeResponse = {
+  success: true;
+} | {
+  success: false;
+  error: string;
+};

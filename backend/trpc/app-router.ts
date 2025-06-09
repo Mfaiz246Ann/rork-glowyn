@@ -4,6 +4,8 @@ import getRecommendationsRoute from "./routes/products/getRecommendations";
 import getProductDetailsRoute from "./routes/products/getProductDetails";
 import getPostsRoute from "./routes/social/getPosts";
 import getPostDetailsRoute from "./routes/social/getPostDetails";
+import createCommentRoute from "./routes/social/createComment";
+import likePostRoute from "./routes/social/likePost";
 
 export const appRouter = router({
   analysis: router({
@@ -16,6 +18,8 @@ export const appRouter = router({
   social: router({
     getPosts: getPostsRoute,
     getPostDetails: getPostDetailsRoute,
+    createComment: createCommentRoute,
+    likePost: likePostRoute,
   }),
 });
 

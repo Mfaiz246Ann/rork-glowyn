@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FeedPost, Comment } from '@/types';
+import { FeedPost, Comment, SocialPostsResponse } from '@/types';
 import { trpcClient } from '@/lib/trpc';
 import { useUserStore } from '@/store/userStore';
 
@@ -21,20 +21,41 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
         cursor,
       });
       
-      if (!response.success) {
-        throw new Error("Failed to fetch posts");
+      // Check if response exists and has the expected structure
+      if (!response || typeof response !== 'object') {
+        throw new Error("Invalid response format");
+      }
+      
+      // Handle the response based on its structure
+      let postsData: FeedPost[] = [];
+      let nextCursorData: string | null = null;
+      
+      if ('success' in response) {
+        // New format with success field
+        if (!response.success) {
+          throw new Error(response.error || "Failed to fetch posts");
+        }
+        postsData = response.posts;
+        nextCursorData = response.nextCursor;
+      } else if ('posts' in response) {
+        // Legacy format without success field
+        postsData = response.posts;
+        nextCursorData = response.nextCursor;
+      } else {
+        throw new Error("Unexpected response format");
       }
       
       if (cursor) {
-        setPosts(prev => [...prev, ...response.posts]);
+        setPosts(prev => [...prev, ...postsData]);
       } else {
-        setPosts(response.posts);
+        setPosts(postsData);
       }
       
-      setNextCursor(response.nextCursor);
+      setNextCursor(nextCursorData);
     } catch (err) {
-      setError("Failed to fetch social feed");
-      console.error(err);
+      const errorMessage = err instanceof Error ? err.message : "Failed to fetch social feed";
+      setError(errorMessage);
+      console.error("Error fetching posts:", err);
     } finally {
       setIsLoading(false);
     }
@@ -104,7 +125,7 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
         userImage: user.profileImage,
       });
       
-      if (!response.success) {
+      if (!response || !response.success) {
         throw new Error("Failed to add comment");
       }
       

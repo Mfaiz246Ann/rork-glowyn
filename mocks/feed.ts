@@ -1,4 +1,4 @@
-import { FeedPost } from "@/types";
+import { FeedPost, Comment } from "@/types";
 
 // Mock feed posts with products in Rupiah
 export const feedPosts: FeedPost[] = [
@@ -128,3 +128,38 @@ export const feedPosts: FeedPost[] = [
     ]
   }
 ];
+
+// Mock comments data
+export const comments: Record<string, Comment[]> = {
+  "1": [
+    {
+      id: "c1",
+      postId: "1",
+      userId: "user2",
+      userName: "Budi Santoso",
+      userAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      text: "Warna coral-nya bagus banget! Cocok sama skin tone kamu",
+      date: "2025-06-01T09:15:00Z",
+    },
+    {
+      id: "c2",
+      postId: "1",
+      userId: "user3",
+      userName: "Citra Dewi",
+      userAvatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      text: "Dimana beli blouse-nya? Pengen yang sama!",
+      date: "2025-06-01T10:30:00Z",
+    }
+  ],
+  "2": [
+    {
+      id: "c3",
+      postId: "2",
+      userId: "user1",
+      userName: "Anisa Wijaya",
+      userAvatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+      text: "BeautyGlow emang the best! Aku juga pakai brand ini",
+      date: "2025-06-02T11:00:00Z",
+    }
+  ]
+};

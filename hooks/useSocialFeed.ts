@@ -30,14 +30,15 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
       let postsData: FeedPost[] = [];
       let nextCursorData: string | null = null;
       
+      // Type guard to check if response has success property
       if ('success' in response) {
-        // New format with success field
-        if (!response.success) {
-          throw new Error(response.error || "Failed to fetch posts");
+        const successResponse = response as SocialPostsResponse;
+        if (!successResponse.success) {
+          throw new Error('error' in successResponse ? successResponse.error : "Failed to fetch posts");
         }
         // TypeScript now knows this is the success case
-        postsData = response.posts;
-        nextCursorData = response.nextCursor;
+        postsData = successResponse.posts;
+        nextCursorData = successResponse.nextCursor;
       } else if ('posts' in response) {
         // Legacy format without success field - cast to expected type
         const legacyResponse = response as { posts: FeedPost[]; nextCursor: string | null };
@@ -123,8 +124,8 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
         postId,
         text,
         userId: user.id,
-        username: user.username,
-        userImage: user.profileImage,
+        username: user.name,
+        userImage: user.avatar,
       });
       
       if (!response || !response.success) {

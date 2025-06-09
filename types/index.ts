@@ -90,27 +90,54 @@ export interface Comment {
   date: string;
 }
 
-// Social API Response types
-export type SocialPostsResponse = {
-  success: true;
-  posts: FeedPost[];
-  nextCursor: string | null;
-} | {
-  success: false;
-  error: string;
-};
+// Social API Response types - using discriminated unions for better type safety
+export type SocialPostsResponse = 
+  | {
+      success: true;
+      posts: FeedPost[];
+      nextCursor: string | null;
+    }
+  | {
+      success: false;
+      error: string;
+    };
 
-export type CommentResponse = {
-  success: true;
-  comment: Comment;
-} | {
-  success: false;
-  error: string;
-};
+export type CommentResponse = 
+  | {
+      success: true;
+      comment: Comment;
+    }
+  | {
+      success: false;
+      error: string;
+    };
 
-export type LikeResponse = {
-  success: true;
-} | {
-  success: false;
-  error: string;
-};
+export type LikeResponse = 
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      error: string;
+    };
+
+// Product API Response types
+export type ProductsResponse = 
+  | {
+      success: true;
+      products: Product[];
+    }
+  | {
+      success: false;
+      error: string;
+    };
+
+export type ProductDetailsResponse = 
+  | {
+      success: true;
+      product: Product;
+    }
+  | {
+      success: false;
+      error: string;
+    };

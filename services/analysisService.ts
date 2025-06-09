@@ -3,6 +3,15 @@ import { AnalysisResponse, AnalysisType } from '@/types';
 // Base URL for API requests
 const API_BASE_URL = 'https://toolkit.rork.com';
 
+// Create a timeout function that works in React Native
+const createTimeoutPromise = (ms: number) => {
+  return new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Request timed out after ${ms}ms`));
+    }, ms);
+  });
+};
+
 /**
  * Analyzes an image for a specific analysis type
  * @param imageBase64 Base64 encoded image
@@ -14,8 +23,8 @@ export const analyzeImage = async (
   analysisType: AnalysisType
 ): Promise<AnalysisResponse> => {
   try {
-    // Use trpc client for analysis
-    const response = await fetch(`${API_BASE_URL}/api/trpc/analysis.analyze`, {
+    // Create a race between fetch and timeout
+    const fetchPromise = fetch(`${API_BASE_URL}/api/trpc/analysis.analyze`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -27,6 +36,10 @@ export const analyzeImage = async (
         },
       }),
     });
+
+    const timeoutPromise = createTimeoutPromise(30000); // 30 seconds
+
+    const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
 
     if (!response.ok) {
       throw new Error(`Analysis failed with status: ${response.status}`);

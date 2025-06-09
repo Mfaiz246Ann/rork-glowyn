@@ -75,7 +75,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
 
       <Pressable onPress={onPostPress}>
         <Image
-          source={post.image}
+          source={{ uri: post.image }}
           style={styles.postImage}
           contentFit="cover"
         />
@@ -124,7 +124,7 @@ export const FeedPost: React.FC<FeedPostProps> = ({
           {post.products.map((product: Product) => (
             <View key={product.id} style={styles.productItem}>
               <Image
-                source={product.image}
+                source={{ uri: product.image }}
                 style={styles.productImage}
                 contentFit="cover"
               />

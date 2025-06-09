@@ -19,6 +19,15 @@ const getBaseUrl = () => {
 // Longer timeout for slower connections or complex operations
 const FETCH_TIMEOUT_MS = 30000; // 30 seconds
 
+// Create a timeout function that works in React Native
+const createTimeoutPromise = (ms: number) => {
+  return new Promise((_, reject) => {
+    setTimeout(() => {
+      reject(new Error(`Request timed out after ${ms}ms`));
+    }, ms);
+  });
+};
+
 export const trpcClient = trpc.createClient({
   links: [
     httpLink({
@@ -29,15 +38,18 @@ export const trpcClient = trpc.createClient({
         try {
           console.log(`TRPC request to: ${url.toString()}`);
           
-          const response = await fetch(url, {
+          // Create a race between fetch and timeout
+          const fetchPromise = fetch(url, {
             ...options,
             headers: {
               ...options?.headers,
               "Content-Type": "application/json",
             },
-            // Add timeout to prevent hanging requests
-            signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
           });
+          
+          const timeoutPromise = createTimeoutPromise(FETCH_TIMEOUT_MS);
+          
+          const response = await Promise.race([fetchPromise, timeoutPromise]) as Response;
           
           if (!response.ok) {
             console.warn(`TRPC response not OK: ${response.status} ${response.statusText}`);
@@ -48,7 +60,7 @@ export const trpcClient = trpc.createClient({
           // Log the specific error type and message
           if (error instanceof TypeError && error.message === "Failed to fetch") {
             console.error("Network connection error. Check your internet connection.");
-          } else if (error instanceof DOMException && error.name === "AbortError") {
+          } else if (error instanceof Error && error.message.includes("timed out")) {
             console.error(`Request timed out after ${FETCH_TIMEOUT_MS}ms`);
           } else {
             console.error("TRPC fetch error:", error);

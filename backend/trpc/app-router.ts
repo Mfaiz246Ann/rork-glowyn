@@ -1,5 +1,5 @@
 import { router } from "./create-context";
-import { hiProcedure } from "./routes/example/hi/route";
+import hiProcedure from "./routes/example/hi/route";
 import analyzeProcedure from "./routes/analysis/analyze";
 import getUserProfileProcedure from "./routes/users/getProfile";
 import updateUserProfileProcedure from "./routes/users/updateProfile";

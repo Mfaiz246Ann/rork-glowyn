@@ -20,27 +20,27 @@ const styleFeedUsers = [
   {
     id: 'user2',
     username: 'Elegant Style',
-    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.pexels.com/photos/32455529/pexels-photo-32455529/free-photo-of-charming-young-woman-with-bouquet-in-hanoi.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
   },
   {
     id: 'user3',
     username: 'Sweet Casual',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.pexels.com/photos/16270616/pexels-photo-16270616/free-photo-of-young-brunette-woman-posing-with-both-hands-by-her-face.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
   },
   {
     id: 'user4',
     username: 'Cool Tomboy',
-    image: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.pexels.com/photos/14795560/pexels-photo-14795560.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
   },
   {
     id: 'user5',
     username: 'Cosplay Girl',
-    image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.pexels.com/photos/30475370/pexels-photo-30475370/free-photo-of-vibrant-cosplay-with-bamboo-hat-and-fan-outdoors.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
   },
   {
     id: 'user6',
     username: 'Hijabi Style',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80',
+    image: 'https://images.pexels.com/photos/7123635/pexels-photo-7123635.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
   },
 ];
 
@@ -143,7 +143,7 @@ export default function HomeScreen() {
       >
         <Pressable style={styles.storyItem} onPress={() => router.push('/profile')}>
           <Avatar 
-            source="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            source="https://images.pexels.com/photos/7958942/pexels-photo-7958942.jpeg" 
             size={64} 
             gradient 
           />
@@ -155,7 +155,7 @@ export default function HomeScreen() {
           onPress={() => navigateToUser('user2')}
         >
           <Avatar 
-            source="https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            source="https://images.pexels.com/photos/32455529/pexels-photo-32455529/free-photo-of-charming-young-woman-with-bouquet-in-hanoi.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
             size={64} 
             gradient 
           />
@@ -167,7 +167,7 @@ export default function HomeScreen() {
           onPress={() => navigateToUser('user3')}
         >
           <Avatar 
-            source="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            source="https://images.pexels.com/photos/16270616/pexels-photo-16270616/free-photo-of-young-brunette-woman-posing-with-both-hands-by-her-face.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
             size={64} 
             gradient 
           />
@@ -179,7 +179,7 @@ export default function HomeScreen() {
           onPress={() => navigateToUser('user4')}
         >
           <Avatar 
-            source="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            source="https://images.pexels.com/photos/14795560/pexels-photo-14795560.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
             size={64} 
             gradient 
           />
@@ -191,7 +191,7 @@ export default function HomeScreen() {
           onPress={() => navigateToUser('user5')}
         >
           <Avatar 
-            source="https://images.unsplash.com/photo-1531123897727-8f129e1688ce?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            source="https://images.pexels.com/photos/30475370/pexels-photo-30475370/free-photo-of-vibrant-cosplay-with-bamboo-hat-and-fan-outdoors.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
             size={64} 
             gradient 
           />
@@ -203,7 +203,7 @@ export default function HomeScreen() {
           onPress={() => navigateToUser('user6')}
         >
           <Avatar 
-            source="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&auto=format&fit=crop&w=634&q=80" 
+            source="https://images.pexels.com/photos/7123635/pexels-photo-7123635.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" 
             size={64} 
             gradient 
           />

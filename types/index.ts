@@ -29,7 +29,7 @@ export interface Collection {
   count: number;
 }
 
-// User type
+// User type - Updated to include all necessary properties
 export interface User {
   id: string;
   name: string;

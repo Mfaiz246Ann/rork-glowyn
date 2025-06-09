@@ -67,7 +67,7 @@ export const useUserStore = create<UserState>()(
       },
       addAnalysisResult: (result) => {
         set((state) => ({
-          analysisResults: [...state.analysisResults, result]
+          analysisResults: [...(state.analysisResults || []), result]
         }));
       },
     }),

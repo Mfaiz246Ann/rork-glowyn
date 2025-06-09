@@ -36,14 +36,19 @@ export default function ShopScreen() {
           limit: 10,
         });
         
+        // Add proper null/undefined checks
+        if (!response) {
+          throw new Error("No response received from server");
+        }
+        
         if (!response.success) {
-          throw new Error("Gagal memuat produk");
+          throw new Error(response.error || "Failed to load products");
         }
         
         setProducts(response.products || []);
       } catch (err) {
         console.error("Error fetching products:", err);
-        setError("Gagal memuat produk. Silakan coba lagi.");
+        setError("Failed to load products. Please try again.");
         // Set empty array to prevent undefined errors
         setProducts([]);
       } finally {
@@ -76,13 +81,13 @@ export default function ShopScreen() {
         <SearchBar
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder="Cari produk..."
+          placeholder="Search products..."
           onFilterPress={() => {}}
           style={styles.searchBar}
         />
       </View>
       
-      <SectionHeader title="Kategori" />
+      <SectionHeader title="Categories" />
       
       <ScrollView 
         horizontal 
@@ -100,7 +105,7 @@ export default function ShopScreen() {
       </ScrollView>
       
       <SectionHeader 
-        title="Koleksi Unggulan" 
+        title="Featured Collections" 
         onSeeAll={() => {}}
         style={styles.sectionHeader}
       />
@@ -116,7 +121,7 @@ export default function ShopScreen() {
       </View>
       
       <SectionHeader 
-        title="Rekomendasi Untukmu" 
+        title="Recommended for You" 
         onSeeAll={() => {}}
         style={styles.sectionHeader}
       />
@@ -145,7 +150,7 @@ export default function ShopScreen() {
           scrollEnabled={true}
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Tidak ada produk ditemukan</Text>
+              <Text style={styles.emptyText}>No products found</Text>
             </View>
           }
         />

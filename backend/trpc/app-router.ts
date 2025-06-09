@@ -1,25 +1,37 @@
 import { router } from "./create-context";
-import analyzeRoute from "./routes/analysis/analyze";
-import getRecommendationsRoute from "./routes/products/getRecommendations";
-import getProductDetailsRoute from "./routes/products/getProductDetails";
-import getPostsRoute from "./routes/social/getPosts";
-import getPostDetailsRoute from "./routes/social/getPostDetails";
-import createCommentRoute from "./routes/social/createComment";
-import likePostRoute from "./routes/social/likePost";
+import { hiProcedure } from "./routes/example/hi/route";
+import analyzeProcedure from "./routes/analysis/analyze";
+import getUserProfileProcedure from "./routes/users/getProfile";
+import updateUserProfileProcedure from "./routes/users/updateProfile";
+import saveAnalysisResultProcedure from "./routes/users/saveAnalysisResult";
+import getPostsProcedure from "./routes/social/getPosts";
+import getPostDetailsProcedure from "./routes/social/getPostDetails";
+import createCommentProcedure from "./routes/social/createComment";
+import likePostProcedure from "./routes/social/likePost";
+import getRecommendationsProcedure from "./routes/products/getRecommendations";
+import getProductDetailsProcedure from "./routes/products/getProductDetails";
 
 export const appRouter = router({
-  analysis: router({
-    analyze: analyzeRoute,
+  example: router({
+    hi: hiProcedure,
   }),
-  products: router({
-    getRecommendations: getRecommendationsRoute,
-    getProductDetails: getProductDetailsRoute,
+  analysis: router({
+    analyze: analyzeProcedure,
+  }),
+  users: router({
+    getProfile: getUserProfileProcedure,
+    updateProfile: updateUserProfileProcedure,
+    saveAnalysisResult: saveAnalysisResultProcedure,
   }),
   social: router({
-    getPosts: getPostsRoute,
-    getPostDetails: getPostDetailsRoute,
-    createComment: createCommentRoute,
-    likePost: likePostRoute,
+    getPosts: getPostsProcedure,
+    getPostDetails: getPostDetailsProcedure,
+    createComment: createCommentProcedure,
+    likePost: likePostProcedure,
+  }),
+  products: router({
+    getRecommendations: getRecommendationsProcedure,
+    getProductDetails: getProductDetailsProcedure,
   }),
 });
 

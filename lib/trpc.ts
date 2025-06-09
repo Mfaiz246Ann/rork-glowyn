@@ -125,6 +125,27 @@ const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
             }
           }
         };
+      } else if (url_string.includes('products.getProductDetails')) {
+        // Mock product details response
+        mockData = {
+          result: {
+            data: {
+              success: true,
+              product: {
+                id: "1",
+                name: "Lipstik Coral Shine",
+                description: "Lipstik dengan warna coral yang cerah dan formula tahan lama.",
+                price: 189000,
+                image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80",
+                category: "makeup",
+                rating: 4.5,
+                reviews: 120,
+                brand: "BeautyGlow",
+                currency: "IDR"
+              }
+            }
+          }
+        };
       } else if (url_string.includes('social.getPosts')) {
         // Mock social posts response with proper structure
         const mockResponse: SocialPostsResponse = {

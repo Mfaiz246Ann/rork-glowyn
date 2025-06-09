@@ -29,19 +29,19 @@ const createTimeoutPromise = (ms: number) => {
   });
 };
 
-// Custom fetch implementation for React Native
+// Custom fetch implementation for React Native with better error handling
 const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
   try {
     console.log(`TRPC request to: ${url.toString()}`);
     
-    // For React Native, use the global fetch
+    // For React Native, use the global fetch with proper headers
     const fetchPromise = Platform.OS === 'web' 
       ? fetch(url, options)
       : global.fetch(url, {
           ...options,
           headers: {
-            ...options?.headers,
             "Content-Type": "application/json",
+            ...options?.headers,
           },
         });
     
@@ -56,13 +56,7 @@ const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
     return response;
   } catch (error) {
     // Log the specific error type and message
-    if (error instanceof TypeError && error.message === "Failed to fetch") {
-      console.error("Network connection error. Check your internet connection.");
-    } else if (error instanceof Error && error.message.includes("timed out")) {
-      console.error(`Request timed out after ${FETCH_TIMEOUT_MS}ms`);
-    } else {
-      console.error("TRPC fetch error:", error);
-    }
+    console.error("TRPC fetch error:", error);
     
     // For development: mock successful response when backend is unavailable
     if (process.env.NODE_ENV === 'development') {

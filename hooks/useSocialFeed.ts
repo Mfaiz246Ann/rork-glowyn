@@ -35,12 +35,14 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
         if (!response.success) {
           throw new Error(response.error || "Failed to fetch posts");
         }
+        // TypeScript now knows this is the success case
         postsData = response.posts;
         nextCursorData = response.nextCursor;
       } else if ('posts' in response) {
-        // Legacy format without success field
-        postsData = response.posts;
-        nextCursorData = response.nextCursor;
+        // Legacy format without success field - cast to expected type
+        const legacyResponse = response as { posts: FeedPost[]; nextCursor: string | null };
+        postsData = legacyResponse.posts;
+        nextCursorData = legacyResponse.nextCursor;
       } else {
         throw new Error("Unexpected response format");
       }

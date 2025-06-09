@@ -187,9 +187,9 @@ export default function HomeScreen() {
           <FeedPost
             key={`home-feed-${post.id}`}
             post={post}
-            onUserPress={navigateToUser}
-            onPostPress={navigateToPost}
-            onCommentPress={navigateToPost}
+            onUserPress={() => navigateToUser(post.userId)}
+            onPostPress={() => navigateToPost(post.id)}
+            onCommentPress={() => navigateToPost(post.id)}
           />
         ))}
       </View>

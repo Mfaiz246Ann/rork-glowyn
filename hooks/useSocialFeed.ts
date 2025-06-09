@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FeedPost, Comment, SocialPostsResponse } from '@/types';
+import { FeedPost, Comment, SocialPostsResponse, CommentResponse, LikeResponse } from '@/types';
 import { trpcClient } from '@/lib/trpc';
 import { useUserStore } from '@/store/userStore';
 
@@ -31,13 +31,14 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
       let nextCursorData: string | null = null;
       
       // Type guard to check if response has success property
-      if ('success' in response && response.success) {
-        const successResponse = response as Extract<SocialPostsResponse, { success: true }>;
-        postsData = successResponse.posts;
-        nextCursorData = successResponse.nextCursor;
-      } else if ('success' in response && !response.success) {
-        const errorResponse = response as Extract<SocialPostsResponse, { success: false }>;
-        throw new Error(errorResponse.error);
+      if ('success' in response) {
+        const typedResponse = response as SocialPostsResponse;
+        if (typedResponse.success) {
+          postsData = typedResponse.posts;
+          nextCursorData = typedResponse.nextCursor;
+        } else {
+          throw new Error(typedResponse.error);
+        }
       } else {
         // Handle case where response might be directly the data
         const directResponse = response as any;
@@ -75,20 +76,23 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
     if (!user) return;
     
     try {
-      await trpcClient.social.likePost.mutate({
+      const response = await trpcClient.social.likePost.mutate({
         postId,
         userId: user.id,
         action: 'like',
       });
       
-      // Update the local state
-      setPosts(prev => 
-        prev.map(post => 
-          post.id === postId 
-            ? { ...post, likes: post.likes + 1 } 
-            : post
-        )
-      );
+      // Type guard for response
+      if (response && 'success' in response && response.success) {
+        // Update the local state
+        setPosts(prev => 
+          prev.map(post => 
+            post.id === postId 
+              ? { ...post, likes: post.likes + 1 } 
+              : post
+          )
+        );
+      }
     } catch (err) {
       console.error("Failed to like post:", err);
     }
@@ -98,20 +102,23 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
     if (!user) return;
     
     try {
-      await trpcClient.social.likePost.mutate({
+      const response = await trpcClient.social.likePost.mutate({
         postId,
         userId: user.id,
         action: 'unlike',
       });
       
-      // Update the local state
-      setPosts(prev => 
-        prev.map(post => 
-          post.id === postId 
-            ? { ...post, likes: Math.max(0, post.likes - 1) } 
-            : post
-        )
-      );
+      // Type guard for response
+      if (response && 'success' in response && response.success) {
+        // Update the local state
+        setPosts(prev => 
+          prev.map(post => 
+            post.id === postId 
+              ? { ...post, likes: Math.max(0, post.likes - 1) } 
+              : post
+          )
+        );
+      }
     } catch (err) {
       console.error("Failed to unlike post:", err);
     }
@@ -125,8 +132,8 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
         postId,
         text,
         userId: user.id,
-        username: user.name,
-        userImage: user.avatar,
+        username: user.name || user.displayName || 'User',
+        userImage: user.avatar || user.profileImage || '',
       });
       
       if (!response || !('success' in response) || !response.success) {
@@ -142,7 +149,7 @@ export const useSocialFeed = (userId?: string, limit: number = 10) => {
         )
       );
       
-      const successResponse = response as Extract<typeof response, { success: true }>;
+      const successResponse = response as CommentResponse & { success: true };
       return successResponse.comment;
     } catch (err) {
       console.error("Failed to add comment:", err);

@@ -92,6 +92,18 @@ export default function HomeScreen() {
     }
   };
 
+  const handleSeeAllAnalyze = () => {
+    router.push('/analyze');
+  };
+
+  const handleSeeAllStyleFeed = () => {
+    router.push('/style-feed');
+  };
+
+  const handleSeeAllShop = () => {
+    router.push('/shop');
+  };
+
   return (
     <ScrollView 
       style={styles.container}
@@ -109,7 +121,7 @@ export default function HomeScreen() {
 
       <SectionHeader 
         title="Temukan Kecantikanmu" 
-        onSeeAll={() => router.push('/analyze')}
+        onSeeAll={handleSeeAllAnalyze}
         style={styles.sectionHeader}
       />
 
@@ -145,7 +157,7 @@ export default function HomeScreen() {
 
       <SectionHeader 
         title="Trending di Style Feed" 
-        onSeeAll={() => router.push('/style-feed')}
+        onSeeAll={handleSeeAllStyleFeed}
         style={styles.sectionHeader}
       />
 
@@ -175,16 +187,16 @@ export default function HomeScreen() {
           <FeedPost
             key={`home-feed-${post.id}`}
             post={post}
-            onUserPress={(id: string) => navigateToUser(id)}
-            onPostPress={(id: string) => navigateToPost(id)}
-            onCommentPress={(id: string) => navigateToPost(id)}
+            onUserPress={navigateToUser}
+            onPostPress={navigateToPost}
+            onCommentPress={navigateToPost}
           />
         ))}
       </View>
 
       <SectionHeader 
         title="Rekomendasi Untukmu" 
-        onSeeAll={() => router.push('/shop')}
+        onSeeAll={handleSeeAllShop}
         style={styles.sectionHeader}
       />
 

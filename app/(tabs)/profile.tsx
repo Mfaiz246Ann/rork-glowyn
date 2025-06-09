@@ -33,6 +33,10 @@ export default function ProfileScreen() {
   // Handle case where user or analysisResults might be undefined
   const safeAnalysisResults = analysisResults || [];
   const safeUser = user || {
+    id: 'default',
+    name: 'User',
+    email: 'user@example.com',
+    avatar: 'https://images.pexels.com/photos/7958942/pexels-photo-7958942.jpeg',
     displayName: 'User',
     bio: 'Welcome to your profile',
     followers: 0,
@@ -54,7 +58,11 @@ export default function ProfileScreen() {
       </View>
       
       <View style={styles.profileContainer}>
-        <Avatar source={safeUser.profileImage || safeUser.avatar || ''} size={100} gradient />
+        <Avatar 
+          source={safeUser.profileImage || safeUser.avatar || ''} 
+          size={100} 
+          gradient 
+        />
         
         <View style={styles.statsContainer}>
           <View style={styles.statItem}>
@@ -75,7 +83,9 @@ export default function ProfileScreen() {
       </View>
       
       <View style={styles.bioContainer}>
-        <Text style={styles.displayName}>{safeUser.displayName || safeUser.name}</Text>
+        <Text style={styles.displayName}>
+          {safeUser.displayName || safeUser.name || 'User'}
+        </Text>
         <Text style={styles.bio}>{safeUser.bio}</Text>
         
         <Button

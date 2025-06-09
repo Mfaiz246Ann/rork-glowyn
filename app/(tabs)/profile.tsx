@@ -59,7 +59,7 @@ export default function ProfileScreen() {
       
       <View style={styles.profileContainer}>
         <Avatar 
-          source={safeUser.profileImage || safeUser.avatar || ''} 
+          source={safeUser.profileImage || safeUser.avatar} 
           size={100} 
           gradient 
         />
@@ -84,7 +84,7 @@ export default function ProfileScreen() {
       
       <View style={styles.bioContainer}>
         <Text style={styles.displayName}>
-          {safeUser.displayName || safeUser.name || 'User'}
+          {safeUser.displayName || safeUser.name}
         </Text>
         <Text style={styles.bio}>{safeUser.bio}</Text>
         

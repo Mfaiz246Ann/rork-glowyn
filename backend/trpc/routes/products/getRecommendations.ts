@@ -136,7 +136,7 @@ const recommendationsInputSchema = z.object({
   analysisType: z.enum(['color', 'face', 'skin', 'outfit']).optional(),
 });
 
-export default publicProcedure
+const getRecommendationsProcedure = publicProcedure
   .input(recommendationsInputSchema)
   .query(async ({ input }) => {
     try {
@@ -160,6 +160,9 @@ export default publicProcedure
       return {
         success: false,
         error: "Failed to get product recommendations",
+        products: [],
       };
     }
   });
+
+export default getRecommendationsProcedure;

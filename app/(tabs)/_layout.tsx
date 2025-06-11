@@ -1,56 +1,64 @@
 import { Tabs } from 'expo-router';
-import { Home, Search, Camera, ShoppingBag, User } from 'lucide-react-native';
-import { colors } from '@/constants/colors';
+import React from 'react';
+import { Platform } from 'react-native';
+
+import { HapticTab } from '@/components/HapticTab';
+import { IconSymbol } from '@/components/ui/IconSymbol';
+import TabBarBackground from '@/components/ui/TabBarBackground';
+import { Colors } from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
+  const colorScheme = useColorScheme();
+
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textLight,
-        tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
-        },
+        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
         headerShown: false,
-      }}
-    >
+        tabBarButton: HapticTab,
+        tabBarBackground: TabBarBackground,
+        tabBarStyle: Platform.select({
+          ios: {
+            // Use a transparent background on iOS to show the blur effect
+            position: 'absolute',
+          },
+          default: {},
+        }),
+      }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarIcon: ({ color, size }) => <Home size={size} color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="shop"
-        options={{
-          title: 'Shop',
-          tabBarIcon: ({ color, size }) => <ShoppingBag size={size} color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="analyze"
         options={{
           title: 'Analyze',
-          tabBarIcon: ({ color, size }) => <Camera size={size} color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="camera.fill" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="shop"
+        options={{
+          title: 'Shop',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="bag.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="style-feed"
         options={{
-          title: 'Style Feed',
-          tabBarIcon: ({ color, size }) => <Search size={size} color={color} />,
+          title: 'Feed',
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="heart.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
-          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
+          tabBarIcon: ({ color }) => <IconSymbol size={28} name="person.fill" color={color} />,
         }}
       />
     </Tabs>

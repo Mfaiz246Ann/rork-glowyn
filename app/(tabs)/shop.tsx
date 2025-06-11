@@ -9,7 +9,7 @@ import { ProductCard } from '@/components/ui/ProductCard';
 import { colors } from '@/constants/colors';
 import { layout } from '@/constants/layout';
 import { typography } from '@/constants/typography';
-import { trpc, trpcClient } from '@/lib/trpc';
+import { trpcClient } from '@/lib/trpc';
 import { Product, Category, Collection } from '@/types';
 
 // Import categories and collections directly from mocks
@@ -45,7 +45,8 @@ export default function ShopScreen() {
           throw new Error(response.error || "Failed to load products");
         }
         
-        setProducts(response.products || []);
+        // Ensure products is always an array
+        setProducts(Array.isArray(response.products) ? response.products : []);
       } catch (err) {
         console.error("Error fetching products:", err);
         setError("Failed to load products. Please try again.");
